@@ -1,0 +1,40 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBQbG90IGNvbSBnZ3Bsb3QyXG5nZ3Bsb3QoZGZfcGxvdF9zYXVkZSwgYWVzKFZhcjEsIFZhcjIsIGZpbGwgPSBjb3IpKSArXG4gIGdlb21fdGlsZShjb2xvciA9IFwid2hpdGVcIikgK1xuICBzY2FsZV9maWxsX2dyYWRpZW50Mihsb3cgPSBcImJsdWVcIiwgaGlnaCA9IFwicmVkXCIsIG1pZCA9IFwid2hpdGVcIixcbiAgICAgICAgICAgICAgICAgICAgICAgbWlkcG9pbnQgPSAwLCBsaW1pdCA9IGMoLTEsIDEpLCBuYW1lID0gXCJTcGVhcm1hblwiKSArXG4gIGdlb21fdGV4dChhZXMobGFiZWwgPSBhc3Rlcmlza3MpLCBzaXplID0gMykgK1xuICB0aGVtZV9taW5pbWFsKCkgK1xuICB0aGVtZShheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChhbmdsZSA9IDQ1LCBoanVzdCA9IDEpLFxuICAgICAgICBheGlzLnRleHQueSA9IGVsZW1lbnRfdGV4dChzaXplID0gOCksXG4gICAgICAgIHBhbmVsLmdyaWQgPSBlbGVtZW50X2JsYW5rKCkpICtcbiAgY29vcmRfZml4ZWQoKSArXG4gIGxhYnModGl0bGUgPSBcIkFscGhhIERpdmVyc2l0eSBhbmQgSGVhbHRoIChGRFIgYWp1c3RhZG8pXCIsIHggPSBcIlwiLCB5ID0gXCJcIilcblxuYGBgIn0= -->
+
+```r
+# Plot com ggplot2
+ggplot(df_plot_saude, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", high = \"red\", mid = \"white\",
+                       midpoint = 0, limit = c(-1, 1), name = \"Spearman\") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = \"Alpha Diversity and Health (FDR ajustado)\", x = \"\", y = \"\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Plot com ggplot2
+ggplot(df_plot_saude, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", high = \"red\", mid = \"white\",
+                       midpoint = 0, limit = c(-1, 1), name = \"Spearman\") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = \"Alpha Diversity and Health (FDR ajustado)\", x = \"\", y = \"\")
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/AF6D5EA6-PS_URBANAGRI_5016_Alpha_Beta_N100_14_03_2025/1/4E7A587Ff595eb3c/cnysny5p8aobl_t/664a7f4fc35e451faf89eceea05689b1.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

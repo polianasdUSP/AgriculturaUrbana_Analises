@@ -1,0 +1,24 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIEtydXNrYWwtV2FsbGlzIGdlcmFsIHBhcmEgY2FkYSDDrW5kaWNlXG5rd19zaGFubm9uIDwtIGtydXNrYWwudGVzdChzaGFubm9uX2VudHJvcHkgfiBCSEVJX2NhdGVnb3J5LCBkYXRhID0gbWV0YWRhZG9zLmRpZXQuaW5kZXguYWxwaGEpJHAudmFsdWVcbmt3X3BpZWxvdSAgPC0ga3J1c2thbC50ZXN0KHBpZWxvdV9ldmVubmVzcyB+IEJIRUlfY2F0ZWdvcnksIGRhdGEgPSBtZXRhZGFkb3MuZGlldC5pbmRleC5hbHBoYSkkcC52YWx1ZVxua3dfY2hhbzEgICA8LSBrcnVza2FsLnRlc3QoY2hhbzEgfiBCSEVJX2NhdGVnb3J5LCBkYXRhID0gbWV0YWRhZG9zLmRpZXQuaW5kZXguYWxwaGEpJHAudmFsdWVcbmt3X2ZhaXRoICAgPC0ga3J1c2thbC50ZXN0KGZhaXRoX3BkIH4gQkhFSV9jYXRlZ29yeSwgZGF0YSA9IG1ldGFkYWRvcy5kaWV0LmluZGV4LmFscGhhKSRwLnZhbHVlXG5cbmBgYCJ9 -->
+
+```r
+
+# Kruskal-Wallis geral para cada índice
+kw_shannon <- kruskal.test(shannon_entropy ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_pielou  <- kruskal.test(pielou_evenness ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_chao1   <- kruskal.test(chao1 ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_faith   <- kruskal.test(faith_pd ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+# Kruskal-Wallis geral para cada índice
+kw_shannon <- kruskal.test(shannon_entropy ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_pielou  <- kruskal.test(pielou_evenness ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_chao1   <- kruskal.test(chao1 ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_faith   <- kruskal.test(faith_pd ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+
+```"

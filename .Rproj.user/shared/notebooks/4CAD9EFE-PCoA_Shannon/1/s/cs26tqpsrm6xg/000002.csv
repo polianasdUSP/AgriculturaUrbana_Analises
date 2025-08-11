@@ -1,0 +1,9 @@
+"0","```r
+# Criar um dataframe com os resultados
+
+
+pcoa_df <- data.frame(Sample.id = rownames(dados), 
+                      Axis1 = pcoa_result$points[, 1], 
+                      Axis2 = pcoa_result$points[, 2])
+
+```"

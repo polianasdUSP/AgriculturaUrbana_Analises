@@ -1,0 +1,26 @@
+"0","ggplot(resultado_volcano_tyg_tax_sep, aes(x = log2FoldChange, y = -log10(pvalue), color = Significativo_pval)) +
+  geom_point(alpha = 0.7, size = 2) +
+  scale_color_manual(values = c(""Sim"" = ""red"", ""Não"" = ""gray"")) +
+  geom_vline(xintercept = c(-1, 1), linetype = ""dashed"", color = ""black"") +
+  geom_hline(yintercept = -log10(0.05), linetype = ""dashed"", color = ""black"") +
+  geom_text_repel(
+    data = subset(resultado_volcano_tyg_tax_sep, Significativo_pval == ""Sim""),
+    aes(label = Genus),
+    size = 3,
+    max.overlaps = 30
+  ) +
+  labs(
+    title = ""Volcano Plot - Triglyceride-Glucose (TyG) Index Group"",
+    x = ""log2(Fold Change) (High vs Low)"",
+    y = ""-log10(p-valor)"",
+    color = ""Significativo""
+  ) +
+  theme_minimal(base_size = 14)
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/2C38EB69-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F241fd9b6/ckucvxxx5iycz_t/6f1e3c3ec3134304b898b923f038adb6.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

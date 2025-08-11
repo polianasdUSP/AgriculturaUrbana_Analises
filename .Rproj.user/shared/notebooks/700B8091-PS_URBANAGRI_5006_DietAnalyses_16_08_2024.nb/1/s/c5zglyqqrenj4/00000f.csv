@@ -1,0 +1,20 @@
+"0","plot(recall.calc$IdVoluntario, recall.calc$vitamina_C_mg, type=""o"", col=""blue"", 
+     main=""Tendência de Consumo de Vitamina C"", xlab=""ID do Voluntário"", ylab=""Vitamina C (mg)"")
+"
+"2","Aviso em xy.coords(x, y, xlabel, ylabel, log) :"
+"2","
+ "
+"2"," NAs introduzidos por coerção
+"
+"2","Aviso em min(x) :"
+"2","
+ "
+"2"," nenhum argumento não faltante para min; retornando Inf
+"
+"2","Aviso em max(x) :"
+"2","
+ "
+"2"," nenhum argumento não faltante para max; retornando -Inf
+"
+"2","Error in plot.window(...) : valores finitos são necessários para 'xlim'
+"

@@ -1,0 +1,1716 @@
+---
+title: "Beta Diversity Analyses"
+output: html_notebook
+---
+
+```{r}
+
+library(vegan)  # Pacote para ecologia e análise de diversidade
+library(ggplot2)  # Para visualização
+# Instalar o pacote (se ainda não tiver)
+devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+
+
+# Carregar o pacote
+library(pairwiseAdonis)
+
+```
+
+
+```{r}
+
+colnames(metadata)
+
+
+```
+
+
+```{r}
+# Verificar as dimensões e a estrutura das matrizes de distância
+str(weighted_unifrac)
+str(unweighted_unifrac)
+str(t.my.asvs)
+```
+
+# Realizar PCoA na matriz de distância weighted_unifrac
+```{r}
+
+
+# Executa a PCoA
+wunifrac.pcoa <- cmdscale(weighted_unifrac, eig = TRUE, k = 3)
+
+# Verifica a saída
+print(wunifrac.pcoa)
+
+
+
+```
+# Realizar PCoA na matriz de distância unweighted_unifrac
+```{r}
+
+unwunifrac.pcoa <- cmdscale(unweighted_unifrac, eig = TRUE, k = 3)  # k = número de dimensões
+
+```
+
+Plot Weighted
+```{r}
+
+ggplot((merge(wunifrac.pcoa$points, subset(metadados, !is.na(Region)), by.x = "row.names", by.y = "Sample.id"))) + 
+  geom_point(aes(x = V1, y = V2, color = Region), size = 2) + 
+  scale_color_manual(values = rainbow(length(unique(metadados$Region))), name = "Region") +
+  labs(title = "Weighted Unifrac", x = "V1", y = "V2") +
+  theme_minimal()
+
+
+
+
+
+
+```
+Ou outras cores:
+
+
+ggplot((merge(wunifrac.pcoa$points, subset(metadados, !is.na(Region)), by.x = "row.names", by.y = "Sample.id"))) + 
+    geom_point(aes(x = V1, y = V2, color = Region), size = 2) + 
+    scale_color_manual(values = c("Sul" = "green", "Sul Adjacente" = "blue", "Leste" = "red", "Leste Adjacente" = "purple", "Norte" = "orange"), name = "Region") +
+    labs(title = "Weighted Unifrac", x = "V1", y = "V2") +
+    theme_minimal()
+
+Plot Unweighted
+```{r}
+
+
+# Gerando o gráfico sem os IDs nos pontos
+ggplot(merge(unwunifrac.pcoa$points, subset(metadados, !is.na(Region)), by.x = "row.names", by.y = "Sample.id")) + 
+    geom_point(aes(x = V1, y = V2, color = Region), size = 2) + 
+    scale_color_manual(values = rainbow(length(unique(metadados$Region))), name = "Region") +  # Usa a escala de cores rainbow
+    labs(title = "UnWeighted Unifrac", x = "V1", y = "V2") +
+    theme_minimal()
+
+
+```
+#Aqui com ids dos pontos pra saber quem sao
+
+```{r}
+
+# Gerando o gráfico com a escala rainbow e adicionando os IDs aos pontos
+ggplot(merge(unwunifrac.pcoa$points, subset(metadados, !is.na(Region)), by.x = "row.names", by.y = "Sample.id")) + 
+    geom_point(aes(x = V1, y = V2, color = Region), size = 2) + 
+    geom_text(aes(x = V1, y = V2, label = Row.names), vjust = -1, size = 3) +  # Adiciona os IDs como rótulos nos pontos
+    scale_color_manual(values = rainbow(length(unique(metadados$Region))), name = "Region") +  # Usa a escala de cores rainbow
+    labs(title = "UnWeighted Unifrac", x = "V1", y = "V2") +
+    theme_minimal()
+
+```
+
+
+# Gerando o gráfico com a escala rainbow e adicionando os IDs aos pontos
+ggplot(merge(unwunifrac.pcoa$points, subset(metadados, !is.na(Region)), by.x = "row.names", by.y = "Sample.id")) + 
+    geom_point(aes(x = V1, y = V2, color = Region), size = 2) + 
+    geom_text(aes(x = V1, y = V2, label = Row.names), vjust = -1, size = 3) +  # Adiciona os IDs como rótulos nos pontos
+    scale_color_manual(values = rainbow(length(unique(metadados$Region))), name = "Region") +  # Usa a escala de cores rainbow
+    labs(title = "UnWeighted Unifrac", x = "V1", y = "V2") +
+    theme_minimal()
+
+
+```{r}
+# Supondo que a primeira coluna de weighted_unifrac tenha os IDs das amostras
+sample_ids_unweighted <- rownames(unweighted_unifrac)
+
+# Filtrando o metadados para manter apenas as linhas que têm esses IDs
+metadados_filtered2 <- metadados[metadados$Sample.id %in% sample_ids_unweighted, ]
+
+# Verificando a estrutura do metadados_filtered para garantir que tem 120 linhas
+str(metadados_filtered2)
+
+#remover o objeto criado. Nao preciso mais dele!
+rm(sample_ids_weighted)
+
+PERMANOVA_Region_Weighted <- adonis2(weighted_unifrac~metadados_filtered2$Region)
+PERMANOVA_Region_Weighted
+
+```
+
+```{r}
+PERMANOVA_Region_UnWeighted <- adonis2(unweighted_unifrac_citocinas~metadados_filtered$Region)
+PERMANOVA_Region_UnWeighted
+
+```
+
+```{r}
+# Certificar-se de que a variável Region esteja acessível diretamente
+Region <- metadados_citocinas$Region
+
+
+# Realizar o post-hoc com pairwiseAdonis
+posthoc_results_citocinas_Unwei <- pairwise.adonis(unweighted_unifrac_citocinas, factors = Region, perm = 999)
+
+# Exibir os resultados
+print(posthoc_results_citocinas_Unwei$p.value)
+
+```
+
+```{r}
+# Valores p brutos do post-hoc (exemplo)
+p_values <- c(0.694, 0.387, 0.199, 0.300, 0.304, 0.531, 0.577, 0.175, 0.204, 0.976)
+
+# Ajustar os valores p usando o método FDR
+p_adjusted_fdr <- p.adjust(p_values, method = "fdr")
+
+# Exibir os valores p ajustados
+print(p_adjusted_fdr)
+```
+
+
+
+
+
+Permanova x Citocinas
+
+Weighted
+```{r}
+
+
+# Remover as linhas com NA nas colunas das citocinas inflamatórias
+metadados_citocinas_Wei <- metadados[complete.cases(metadados[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2")]), ]
+
+
+# Ajustar a matriz de distâncias para manter apenas as amostras presentes em metadados_filtrados
+weighted_unifrac_citocinas <- weighted_unifrac[rownames(weighted_unifrac) %in% metadados_citocinas_Wei$Sample.id, colnames(weighted_unifrac) %in% metadados_citocinas_Wei$Sample.id]
+
+# Encontrar as amostras comuns entre a matriz de distâncias e os metadados
+common_samples <- intersect(rownames(weighted_unifrac_citocinas), metadados_citocinas_Wei$Sample.id)
+
+# Verificar quantas amostras são comuns
+length(common_samples)
+
+# Filtrar a matriz de distâncias para manter apenas as amostras comuns
+weighted_unifrac_citocinas <- weighted_unifrac_citocinas[common_samples, common_samples]
+
+# Filtrar os metadados para manter apenas as amostras comuns
+metadados_citocinas_Wei <- metadados_citocinas_Wei[metadados_citocinas_Wei$Sample.id %in% common_samples, ]
+
+# Verificar o número de amostras após a filtragem
+nrow(unweighted_unifrac_citocinas)  # Deve ser 84 (ou o número correto)
+nrow(metadados_citocinas_Wei)  # Deve ser 84 (ou o número correto)
+
+```
+
+
+Unweighted
+```{r}
+# Remover as linhas com NA nas colunas das citocinas inflamatórias
+metadados_citocinas <- metadados[complete.cases(metadados[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2")]), ]
+
+
+# Ajustar a matriz de distâncias para manter apenas as amostras presentes em metadados_filtrados
+unweighted_unifrac_citocinas <- unweighted_unifrac[rownames(unweighted_unifrac) %in% metadados_citocinas$Sample.id, colnames(unweighted_unifrac) %in% metadados_citocinas$Sample.id]
+
+# Encontrar as amostras comuns entre a matriz de distâncias e os metadados
+common_samples <- intersect(rownames(unweighted_unifrac_citocinas), metadados_citocinas$Sample.id)
+
+# Verificar quantas amostras são comuns
+length(common_samples)
+
+# Filtrar a matriz de distâncias para manter apenas as amostras comuns
+unweighted_unifrac_citocinas <- unweighted_unifrac_citocinas[common_samples, common_samples]
+
+# Filtrar os metadados para manter apenas as amostras comuns
+metadados_citocinas <- metadados_citocinas[metadados_citocinas$Sample.id %in% common_samples, ]
+
+# Verificar o número de amostras após a filtragem
+nrow(unweighted_unifrac_citocinas)  # Deve ser 84 (ou o número correto)
+nrow(metadados_citocinas)  # Deve ser 84 (ou o número correto)
+```
+
+IL4
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL4UnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IL4)
+
+PERMANOVA_IL4UnWei
+
+# Ver os resultados
+print(PERMANOVA_IL4UnWei)
+
+```
+```{r}
+```{r}
+# Certificar-se de que a variável Region esteja acessível diretamente
+IL4 <- metadados_citocinas$IL4
+
+
+# Realizar o post-hoc com pairwiseAdonis
+posthoc_results_IL4_Unwei <- pairwise.adonis(unweighted_unifrac_citocinas, factors = IL4, perm = 999)
+
+# Exibir os resultados
+print(posthoc_results_IL4_Unwei)
+
+```
+
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL4Wei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$IL4)
+
+PERMANOVA_IL4Wei
+
+# Ver os resultados
+print(PERMANOVA_IL4Wei)
+
+```
+
+IL17A
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL17AUnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IL17A)
+
+# Ver os resultados
+print(PERMANOVA_IL17AUnWei)
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL17AWei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$IL17A)
+
+# Ver os resultados
+print(PERMANOVA_IL17AWei)
+
+```
+
+IL6
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL6UnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IL6)
+
+# Ver os resultados
+print(PERMANOVA_IL6UnWei)
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL6Wei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$IL6)
+
+# Ver os resultados
+print(PERMANOVA_IL6Wei)
+
+```
+
+IL2
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL2UnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IL2)
+
+# Ver os resultados
+print(PERMANOVA_IL2UnWei)
+
+```
+
+```{r}
+
+# Realizar a PERMANOVA
+PERMANOVA_IL2Wei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$IL2)
+
+# Ver os resultados
+print(PERMANOVA_IL2Wei)
+
+```
+
+IFNGamma
+
+```{r}
+
+# Realizar a PERMANOVA
+PERMANOVA_IFNGammaUnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IFNGamma)
+
+# Ver os resultados
+print(PERMANOVA_IFNGammaUnWei)
+
+```
+
+```{r}
+
+# Realizar a PERMANOVA
+PERMANOVA_IFNGammaWei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$IFNGamma)
+
+# Ver os resultados
+print(PERMANOVA_IFNGammaWei)
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_TNFUnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$TNF)
+
+# Ver os resultados
+print(PERMANOVA_TNFUnWei)
+
+```
+
+```{r}
+
+# Realizar a PERMANOVA
+PERMANOVA_TNFWei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$TNF)
+
+# Ver os resultados
+print(PERMANOVA_TNFWei)
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_IL10UnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IL10)
+
+# Ver os resultados
+print(PERMANOVA_IL10UnWei)
+
+```
+
+```{r}
+
+# Realizar a PERMANOVA
+PERMANOVA_IL10Wei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas_Wei$IL10)
+
+# Ver os resultados
+print(PERMANOVA_IL10Wei)
+
+```
+
+Permanova x Dieta
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+```
+
+Weighted
+```{r}
+# Criar um vetor lógico indicando quais linhas não têm NA nas colunas especificadas
+filtro_completo <- complete.cases(saude_dieta_clean[, c(
+  "residual_energia2_kcal", "residual_umidade_g", "residual_carboidrato_total_g", 
+  "residual_carboidrato_disponivel_g", "residual_proteina_g", "residual_lipidios_g", 
+  "residual_fibra_alimentar_g", "residual_alcool_g", "residual_cinzas_g", 
+  "residual_colesterol_mg", "residual_acidos_graxos_saturados_g", 
+  "residual_acidos_graxos_monoinsaturados_g", "residual_acidos_graxos_poliinsaturados_g",
+  "residual_acidos_graxos_trans_g", "residual_calcio_mg", "residual_ferro_mg", 
+  "residual_sodio_mg", "residual_magnesio_mg", "residual_fosforo_mg", "residual_potassio_mg", 
+  "residual_manganes_mg", "residual_zinco_mg", "residual_cobre_mg", "residual_selenio_mcg", 
+  "residual_vitamina_A_RE_mcg", "residual_vitamina_A_RAE_mcg", "residual_vitamina_D_mcg", 
+  "residual_vitamina_E_mg", "residual_tiamina_mg", "residual_riboflavina_mg", 
+  "residual_niacina_mg", "residual_vitamina_B6_mg", "residual_vitamina_B12_mcg", 
+  "residual_vitamina_C_mg", "residual_equivalente_de_folato_mcg", "residual_sal_de_adicao_g", 
+  "residual_acucar_de_adicao_g"
+)])
+
+# Aplicar o filtro para remover as linhas com NA
+metadados_dieta <- saude_dieta[filtro_completo, ]
+
+# Verificar o número de linhas após a remoção de NA
+nrow(metadados_dieta)
+
+
+# Remover as linhas correspondentes aos voluntários S10041.F00 e S10232.F00
+metadados_dieta <- metadados_dieta[!metadados_dieta$IdVoluntario %in% c("S10041.F00", "S10232.F00"), ]
+
+# Verificar o número de linhas após a remoção
+nrow(metadados_dieta)
+
+
+# Ajustar a matriz de distâncias para manter apenas as amostras presentes em metadados_filtrados
+weighted_unifrac_dieta <- weighted_unifrac[rownames(weighted_unifrac) %in% metadados_dieta$IdVoluntario, colnames(weighted_unifrac) %in% metadados_dieta$IdVoluntario]
+
+# Encontrar as amostras comuns entre a matriz de distâncias e os metadados
+common_samples <- intersect(rownames(weighted_unifrac_dieta), metadados_dieta$IdVoluntario)
+
+# Verificar quantas amostras são comuns
+length(common_samples)
+
+# Filtrar a matriz de distâncias para manter apenas as amostras comuns
+weighted_unifrac_dieta <- weighted_unifrac_dieta[common_samples, common_samples]
+
+# Filtrar os metadados para manter apenas as amostras comuns
+metadados_dieta <- metadados_dieta[metadados_dieta$IdVoluntario %in% common_samples, ]
+
+# Verificar o número de amostras após a filtragem
+nrow(weighted_unifrac_dieta)  # Deve ser 84 (ou o número correto)
+nrow(metadados_dieta)  # Deve ser 84 (ou o número correto)
+
+```
+
+Unweighted
+```{r}
+
+# Criar um vetor lógico indicando quais linhas não têm NA nas colunas especificadas
+filtro_completo <- complete.cases(saude_dieta_clean[, c(
+  "residual_energia2_kcal", "residual_umidade_g", "residual_carboidrato_total_g", 
+  "residual_carboidrato_disponivel_g", "residual_proteina_g", "residual_lipidios_g", 
+  "residual_fibra_alimentar_g", "residual_alcool_g", "residual_cinzas_g", 
+  "residual_colesterol_mg", "residual_acidos_graxos_saturados_g", 
+  "residual_acidos_graxos_monoinsaturados_g", "residual_acidos_graxos_poliinsaturados_g",
+  "residual_acidos_graxos_trans_g", "residual_calcio_mg", "residual_ferro_mg", 
+  "residual_sodio_mg", "residual_magnesio_mg", "residual_fosforo_mg", "residual_potassio_mg", 
+  "residual_manganes_mg", "residual_zinco_mg", "residual_cobre_mg", "residual_selenio_mcg", 
+  "residual_vitamina_A_RE_mcg", "residual_vitamina_A_RAE_mcg", "residual_vitamina_D_mcg", 
+  "residual_vitamina_E_mg", "residual_tiamina_mg", "residual_riboflavina_mg", 
+  "residual_niacina_mg", "residual_vitamina_B6_mg", "residual_vitamina_B12_mcg", 
+  "residual_vitamina_C_mg", "residual_equivalente_de_folato_mcg", "residual_sal_de_adicao_g", 
+  "residual_acucar_de_adicao_g"
+)])
+
+# Aplicar o filtro para remover as linhas com NA
+metadados_dieta <- saude_dieta[filtro_completo, ]
+
+# Verificar o número de linhas após a remoção de NA
+nrow(metadados_dieta)
+
+
+# Remover as linhas correspondentes aos voluntários S10041.F00 e S10232.F00
+metadados_dieta <- metadados_dieta[!metadados_dieta$IdVoluntario %in% c("S10041.F00", "S10232.F00"), ]
+
+# Verificar o número de linhas após a remoção
+nrow(metadados_dieta)
+
+
+# Ajustar a matriz de distâncias para manter apenas as amostras presentes em metadados_filtrados
+unweighted_unifrac_dieta <- unweighted_unifrac[rownames(unweighted_unifrac) %in% metadados_dieta$IdVoluntario, colnames(unweighted_unifrac) %in% metadados_dieta$IdVoluntario]
+
+# Encontrar as amostras comuns entre a matriz de distâncias e os metadados
+common_samples <- intersect(rownames(unweighted_unifrac_dieta), metadados_dieta$IdVoluntario)
+
+# Verificar quantas amostras são comuns
+length(common_samples)
+
+# Filtrar a matriz de distâncias para manter apenas as amostras comuns
+unweighted_unifrac_dieta <- unweighted_unifrac_dieta[common_samples, common_samples]
+
+# Filtrar os metadados para manter apenas as amostras comuns
+metadados_dieta <- metadados_dieta[metadados_dieta$IdVoluntario %in% common_samples, ]
+
+# Verificar o número de amostras após a filtragem
+nrow(unweighted_unifrac_dieta)  # Deve ser 84 (ou o número correto)
+nrow(metadados_dieta)  # Deve ser 84 (ou o número correto)
+
+```
+Carboidrato_Total
+```{r}
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_carboidrato_totalUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_carboidrato_total_g)
+
+# Ver os resultados
+print(PERMANOVA_carboidrato_totalUnWei)
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+
+PERMANOVA_carboidrato_totalWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_carboidrato_total_g)
+
+# Ver os resultados
+print(PERMANOVA_carboidrato_totalWei)
+
+```
+Proteina
+```{r}
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_proteinaUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_proteina_g)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_proteinaWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_proteina_g)
+
+```
+
+Lipidios
+```{r}
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_lipidiosUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_lipidios_g)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_lipidiosWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_lipidios_g)
+
+
+```
+
+Fibra Alimentar
+```{r}
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_FibraUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_fibra_alimentar_g)
+
+
+
+```
+
+
+```{r}
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_FibraWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_fibra_alimentar_g)
+
+
+
+```
+
+Alcool
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_AlcoolUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_alcool_g)
+
+
+
+```
+
+```{r}
+
+
+# Realizar a PERMANOVA
+PERMANOVA_AlcoolWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_alcool_g)
+
+
+
+```
+
+Colesterol
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_ColesterolUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_colesterol_mg)
+
+
+
+```
+
+```{r}
+
+
+# Realizar a PERMANOVA
+PERMANOVA_ColesterolWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_colesterol_mg)
+
+
+
+```
+Acidos Graxos Saturados
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxosSaturadosUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_saturados_g)
+
+
+
+```
+
+```{r}
+
+
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxosSaturadosWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_saturados_g)
+
+
+
+```
+
+Acidos graxos monoinsaturados
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxosmonoinSaturadosUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_monoinsaturados_g)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxosmonoinSaturadosWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_monoinsaturados_g)
+
+```
+
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxospoliUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_poliinsaturados_g)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxospoliWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_poliinsaturados_g)
+
+```
+
+Acidos graxos trans
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxosTransUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_trans_g)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_AcidosGraxosTransWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_acidos_graxos_trans_g)
+```
+Calcio
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_CalcioUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_calcio_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_CalcioWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_calcio_mg)
+
+```
+
+Ferro
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_FerroUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_ferro_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_FerroWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_ferro_mg)
+
+```
+
+Sodio
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_SodioUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_sodio_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_SodioWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_sodio_mg)
+
+```
+
+Magnesio
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_MagnesioUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_magnesio_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_MagnesioWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_magnesio_mg)
+
+```
+
+Fosforo
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_FosforoUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_fosforo_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_FosforoWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_fosforo_mg)
+
+```
+Manganes
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_ManganesUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_manganes_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_ManganesWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_manganes_mg)
+
+```
+
+Zinco
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_ZincoUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_zinco_mg)
+
+
+
+```
+
+```{r}
+
+# Realizar a PERMANOVA
+PERMANOVA_ZincoWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_zinco_mg)
+
+```
+Cobre
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_CobreUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_cobre_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_CobreWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_cobre_mg)
+
+```
+Selenio
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_SelenioUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_selenio_mcg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_SelenioWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_selenio_mcg)
+
+```
+Vitamina A RE
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_VitAREUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_A_RE_mcg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_VitAREWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_A_RE_mcg)
+
+
+```
+Vit A RAE
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_VitA_RAEUnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_A_RAE_mcg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_VitA_RAEWei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_A_RAE_mcg)
+
+```
+
+Vitamina D
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_VitD_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_D_mcg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_VitD_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_D_mcg)
+
+```
+
+Vitamina E
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_VitE_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_E_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_VitE_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_E_mg)
+
+
+```
+Tiamina
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_tiamina_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_tiamina_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_tiamina_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_tiamina_mg)
+
+
+```
+Riboflavina
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_riboflavina_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_riboflavina_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_riboflavina_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_riboflavina_mg)
+
+
+```
+
+Niacina
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_niacina_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_niacina_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_niacina_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_niacina_mg)
+
+
+```
+
+B6
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_B6_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_B6_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_B6_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_B6_mg)
+
+```
+B12
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_B12_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_B12_mcg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_B12_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_B12_mcg)
+
+
+```
+Vit C
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_VitC_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_vitamina_C_mg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_VitC_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_vitamina_C_mg)
+
+
+```
+
+Folato
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_Folato_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_equivalente_de_folato_mcg)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_Folato_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_equivalente_de_folato_mcg)
+```
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_SalAdicao_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_sal_de_adicao_g)
+
+
+
+```
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_SalAdicao_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_sal_de_adicao_g)
+
+
+```
+
+```{r}
+
+
+colnames(metadados_dieta)
+
+# Realizar a PERMANOVA
+PERMANOVA_AcucarAdicao_UnWei <- adonis2(unweighted_unifrac_dieta~metadados_dieta$residual_acucar_de_adicao_g)
+
+
+
+```
+
+```{r}
+# Realizar a PERMANOVA
+PERMANOVA_AcucarAdicao_Wei <- adonis2(weighted_unifrac_dieta~metadados_dieta$residual_acucar_de_adicao_g)
+
+```
+
+```{r}
+ggplot((merge(merge(unwunifrac.pcoa$points, data.frame(holder$clustering), by = "row.names"), subset(metadados, !is.na(Region)), by.x = "Row.names", by.y = "Sample.id"))) + 
+    geom_point(aes(x = V1, y = V2, color = paste(holder.clustering,Region), shape = as.character(Treponema)), size = 2) +
+    labs(title = "UnWeighted Unifrac", x = "V1", y = "V2") +
+    theme_minimal()
+```
+
+
+```{r}
+ggplot((merge(merge(unwunifrac.pcoa$points, data.frame(holder$clustering), by = "row.names"), subset(metadados, !is.na(Region)), by.x = "Row.names", by.y = "Sample.id"))) + 
+    geom_point(aes(x = V1, y = V2, color = paste(Treponema,Region), shape = as.character(holder.clustering)), size = 2) + 
+    scale_color_manual("green", "blue", "red", "purple", "orange"), name = "Region") +
+    labs(title = "UnWeighted Unifrac", x = "V1", y = "V2") +
+    theme_minimal()
+    
+```
+
+```{r}
+
+merge (saude_dieta, Info_clusters$cluster, by = IdVoluntario, by.y = row.names() )
+
+rm(saude_dieta)
+   
+   
+```
+
+```{r}
+# Gerando o gráfico com uma escala contínua de cores
+ggplot(merge(unwunifrac.pcoa$points, subset(metadados_MetS, !is.na(TyG_WC)), by.x = "row.names", by.y = "Sample.id")) +
+    geom_point(aes(x = V1, y = V2, color = TyG_WC), size = 2) +
+    geom_text(aes(x = V1, y = V2, label = Row.names), vjust = -1, size = 3) +  # Adiciona os IDs como rótulos nos pontos
+    scale_color_gradient(low = "blue", high = "red", name = "TyG-WC") +  # Escala contínua para TyG-WC
+    labs(title = "UnWeighted UniFrac - PCoA", x = "V1", y = "V2") +
+    theme_minimal()
+```
+
+
+```{r}
+# Carregar pacotes necessários
+library(ggplot2)
+library(vegan)
+
+# Calcular PERMANOVA
+permanova_result_TyG <- adonis2(as.dist(unweighted_unifrac) ~ TyG, data = metadados_MetS, method = "bray")
+permanova_p <- signif(permanova_result$`Pr(>F)`[1], 3)  # Extrai o valor de p da PERMANOVA
+
+# Merge dos dados de PCoA com metadados (remover NAs)
+pcoa_data <- merge(
+  unwunifrac.pcoa$points,
+  subset(metadados_MetS, !is.na(TyG_WC)),
+  by.x = "row.names",
+  by.y = "Sample.id"
+)
+
+# Criar o gráfico PCoA com o valor da PERMANOVA
+ggplot(pcoa_data) +
+  geom_point(aes(x = V1, y = V2, color = TyG_WC), size = 3) +  # Pontos coloridos por TyG_WC
+  scale_color_gradient(low = "blue", high = "red", name = "TyG-WC") +  # Escala contínua
+  labs(
+    title = paste("UnWeighted UniFrac - PCoA (PERMANOVA p =", permanova_p, ")"),  # Adiciona o valor de p no título
+    x = "PCoA Axis 1",
+    y = "PCoA Axis 2"
+  ) +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Carregar pacotes necessários
+library(ggplot2)
+
+# Criar dataframe com coordenadas do PCoA e a variável TyG
+pcoa_data_weighted <- data.frame(
+  Sample.id = rownames(wunifrac.pcoa$points),  # Ajuste se necessário
+  V1 = wunifrac.pcoa$points[,1],
+  V2 = wunifrac.pcoa$points[,2]
+)
+
+# Adicionar a variável TyG ao dataframe
+pcoa_data_weighted <- merge(pcoa_data_weighted, metadados_MetS[, c("Sample.id", "TyG", "VAI", "QUICKI","METS_IR", "TyG_BMI", "TyG_WC"   )], by = "Sample.id", all.x = TRUE)
+
+# Criar gráfico PCoA com pontos normais coloridos por TyG e NAs em cinza
+ggplot(pcoa_data_weighted, aes(x = V1, y = V2)) +
+  # Camada para os pontos sem NA
+  geom_point(data = subset(pcoa_data_weighted, !is.na(TyG)), aes(color = TyG), size = 3) +
+  scale_color_gradient(low = "blue", high = "red", na.value = "grey50") +  # Gradiente contínuo
+  # Camada para os pontos com NA, que serão cinza
+  geom_point(data = subset(pcoa_data_weighted, is.na(TyG)), color = "grey50", size = 3) +
+  labs(x = "PCoA V 1", y = "PCoA V", color = "TyG", title = "PCoA - Weighted UniFrac - TyG com NA") +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+# Criar dataframe com coordenadas do PCoA e a variável TyG
+# Criar dataframe com coordenadas do PCoA e a variável TyG
+pcoa_data_unweighted <- data.frame(
+  Sample.id = rownames(unwunifrac.pcoa$points),  # Ajuste se necessário
+  V1 = unwunifrac.pcoa$points[,1],
+  V2 = unwunifrac.pcoa$points[,2]
+)
+
+# Adicionar a variável TyG ao dataframe
+pcoa_data_unweighted <- merge(pcoa_data_unweighted, metadados_MetS[, c("Sample.id", "TyG", "VAI", "QUICKI","METS_IR", "TyG_BMI", "TyG_WC"   )], by = "Sample.id", all.x = TRUE)
+
+# Criar gráfico PCoA com pontos normais coloridos por TyG e NAs em cinza
+ggplot(pcoa_data_unweighted, aes(x = V1, y = V2)) +
+  # Camada para os pontos sem NA
+  geom_point(data = subset(pcoa_data_unweighted, !is.na(TyG)), aes(color = TyG), size = 3) +
+  scale_color_gradient(low = "blue", high = "red", na.value = "grey50") +  # Gradiente contínuo
+  # Camada para os pontos com NA, que serão cinza
+  geom_point(data = subset(pcoa_data_unweighted, is.na(TyG)), color = "grey50", size = 3) +
+  labs(x = "PCoA V 1", y = "PCoA V", color = "TyG", title = "PCoA - Unweighted UniFrac - TyG com NA") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Carregar pacotes necessários
+library(vegan)
+
+# Criar um dataframe com SampleID e TyG (removendo NAs)
+metadados_MetS_filtrados <- na.omit(metadados_MetS[, c("Sample.id", "TyG", "VAI", "QUICKI","METS_IR", "TyG_BMI", "TyG_WC")])
+
+#============
+# Criar um vetor com os IDs comuns
+common_ids <- intersect(metadados_MetS_filtrados$Sample.id, rownames(unweighted_unifrac))
+
+# Filtrar metadados para manter apenas os IDs presentes na matriz de distância
+metadados_filtrados <- metadados_MetS_filtrados[metadados_MetS_filtrados$Sample.id %in% common_ids, ]
+
+# Filtrar matriz de distância usando rownames() e colnames()
+unweighted_unifrac_filtrado <- unweighted_unifrac[common_ids, common_ids]
+
+# Reordenar metadados para seguir a ordem de weighted_unifrac_filtrado
+metadados_filtrados <- metadados_filtrados[match(rownames(unweighted_unifrac_filtrado), metadados_filtrados$Sample.id), ]
+```
+
+
+#==========PERMANOVA WEIGHTED=============#
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_wei_TyG <- adonis2(weighted_unifrac_filtrado ~ TyG, data = metadados_filtrados, method = "euclidean")
+
+# Exibir resultados
+print(permanova_wei_TyG)
+
+```
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_wei_QUICKI <- adonis2(weighted_unifrac_filtrado ~ QUICKI, data = metadados_filtrados, method = "euclidean")
+
+# Exibir resultados
+print(permanova_wei_QUICKI)
+
+#TyG"       "VAI"       "QUICKI"    "METS_IR"   "TyG_BMI"  "TyG_WC"   
+
+```
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_wei_METS_IR <- adonis2(weighted_unifrac_filtrado ~ METS_IR, data = metadados_filtrados, method = "euclidean")
+
+# Exibir resultados
+print(permanova_wei_METS_IR)
+
+#TyG"       "VAI"       "QUICKI"    "METS_IR"   "TyG_BMI"  "TyG_WC"   
+
+```
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_wei_TyG_BMI <- adonis2(weighted_unifrac_filtrado ~ TyG_BMI, data = metadados_filtrados, method = "euclidean")
+
+# Exibir resultados
+print(permanova_wei_TyG_BMI)
+
+#TyG"       "VAI"       "QUICKI"    "METS_IR"   "TyG_BMI"  "TyG_WC"   
+
+```
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_wei_TyG_WC <- adonis2(weighted_unifrac_filtrado ~ TyG_WC, data = metadados_filtrados, method = "euclidean")
+
+# Exibir resultados
+print(permanova_wei_TyG_WC)
+
+#TyG"       "VAI"       "QUICKI"    "METS_IR"   "TyG_BMI"  "TyG_WC"   
+
+```
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_wei_VAI <- adonis2(weighted_unifrac_filtrado ~ VAI, data = metadados_filtrados, method = "euclidean")
+
+# Exibir resultados
+print(permanova_wei_VAI)
+
+#TyG"       "VAI"       "QUICKI"    "METS_IR"   "TyG_BMI"  "TyG_WC"   
+
+```
+
+#==========PERMANOVA UNWEIGHTED=============#
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_unwei_VAI <- adonis2(unweighted_unifrac_filtrado ~ VAI, data = metadados_filtrados, method = "bray")
+
+# Exibir resultados
+print(permanova_unwei_VAI)
+```
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_unwei_QUICKI <- adonis2(unweighted_unifrac_filtrado ~ QUICKI, data = metadados_filtrados, method = "bray")
+
+# Exibir resultados
+print(permanova_unwei_QUICKI)
+```
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_unwei_METS_IR <- adonis2(unweighted_unifrac_filtrado ~ METS_IR, data = metadados_filtrados, method = "bray")
+
+# Exibir resultados
+print(permanova_unwei_METS_IR)
+```
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_unwei_TyG_BMI <- adonis2(unweighted_unifrac_filtrado ~ TyG_BMI, data = metadados_filtrados, method = "bray")
+
+# Exibir resultados
+print(permanova_unwei_TyG_BMI)
+```
+
+
+```{r}
+# Rodar PERMANOVA com adonis2()
+set.seed(123)  # Garantir reprodutibilidade
+permanova_unwei_TyG_WC <- adonis2(unweighted_unifrac_filtrado ~ TyG_WC, data = metadados_filtrados, method = "bray")
+
+# Exibir resultados
+print(permanova_unwei_TyG_WC)
+```
+
+CLUSTERS
+```{r}
+#=============Volunteers by cluster =======#
+
+# Supondo que a PCoA está armazenada em pcoa_df e tem as colunas V1 e V2
+set.seed(123)  # Garantir reprodutibilidade
+
+# Definir o número de clusters
+num_clusters <- 2
+
+# Aplicar K-means clustering
+cluster_results <- kmeans(pcoa_df_completo[, c("V1", "V2")], centers = num_clusters, nstart = 25)
+
+# Adicionar os clusters ao dataframe
+pcoa_df_completo$Cluster <- as.factor(cluster_results$cluster)
+
+```
+
+
+```{r}
+#=============Cluster by Hclust =============
+
+# usando matriz distâncias unifrac para analise  (plotar dendrograma)
+hclust_res <- hclust(as.dist(unweighted_unifrac), method = "ward.D2")  # Aplicar agrupamento hierárquico
+plot(hclust_res)
+
+# Cortar o dendrograma para formar clusters
+pcoa_df_completo$Cluster <- cutree(hclust_res, k = 2)  # Exemplo com 2 clusters
+
+# Verificar os clusters atribuídos
+table(pcoa_df_completo$Cluster)
+
+```
+
+
+```{r}
+#======= Prediction Strenght ========
+
+library(fpc)  # Certifique-se de que o pacote fpc está carregado
+
+# Definir valores de k para testar (por exemplo, de 2 a 6 clusters)
+k_values <- 2:6  
+
+# Verificar se a matriz é quadrada e sem valores NA
+dim(unweighted_unifrac)  # Deve ser n x n
+sum(is.na(unweighted_unifrac))  # Deve ser 0
+
+# Rodar a análise de Prediction Strength com Unweighted UniFrac
+set.seed(123)  # Para reprodutibilidade
+pred_strength <- prediction.strength(
+  xdata = unweighted_unifrac,  # Agora estamos usando a matriz de distâncias correta
+  Gseq = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = hclustCBI,  # Método de clustering hierárquico
+  method = "ward.D2"  # Adicionando o argumento obrigatório
+)
+
+# Exibir os valores de Prediction Strength para cada k
+print(pred_strength$mean.pred)
+```
+
+
+```{r}
+# Encontrar o número ótimo de clusters (aquele com a maior Prediction Strength)
+optimal_k <- which.max(pred_strength$mean.pred) + 1  # +1 porque os índices começam em 1
+
+print(paste("Número ótimo de clusters:", optimal_k))
+```
+
+
+```{r}
+library(ggplot2)
+
+# Criar dataframe para visualização
+df_pred_strength <- data.frame(
+  k = 2:(length(pred_strength$mean.pred) + 1),  # Valores de k
+  strength = pred_strength$mean.pred  # Valores de Prediction Strength
+)
+
+# Criar o gráfico
+ggplot(df_pred_strength, aes(x = k, y = strength)) +
+  geom_line() + 
+  geom_point() +
+  geom_vline(xintercept = optimal_k, linetype = "dashed", color = "red") +  # Linha vertical no melhor k
+  labs(title = "Prediction Strength vs Número de Clusters",
+       x = "Número de Clusters (k)",
+       y = "Prediction Strength") +
+  theme_minimal()
+
+```
+
+```{r}
+# Obter os IDs dos voluntários no Cluster 1
+cluster_1_samples <- pcoa_df_completo$Sample.id[pcoa_df_completo$Cluster == 1]
+
+# Obter os IDs dos voluntários no Cluster 2
+cluster_2_samples <- pcoa_df_completo$Sample.id[pcoa_df_completo$Cluster == 2]
+
+# Exibir os IDs de cada cluster
+print("IDs do Cluster 1:")
+print(cluster_1_samples)
+
+
+```
+
+
+```{r}
+print("IDs do Cluster 2:")
+print(cluster_2_samples)
+```
+
+```{r}
+library(vegan)  # Pacote para análises ecológicas
+
+# Rodar PERMANOVA (Bray-Curtis)
+set.seed(123)
+adonis_result <- adonis2(umatrix ~ Cluster_Hclust, data = metadados.alpha.all, method = "bray")
+
+# Exibir os resultados
+print(adonis_result)
+```
+
+
+
+```{r}
+library(ggplot2)
+
+# Realizar a análise de PCoA
+pcoa_results <- cmdscale(as.dist(umatrix), k = 2, eig = TRUE)  # Mantém 2 dimensões principais
+
+# Criar um dataframe para plotagem
+pcoa_df <- data.frame(
+  Sample.id = rownames(umatrix),
+  PCoA1 = pcoa_results$points[, 1],
+  PCoA2 = pcoa_results$points[, 2]
+)
+
+# Adicionar informações dos clusters
+pcoa_df <- merge(pcoa_df, metadados.alpha.all[, c("Sample.id", "Cluster_Hclust", "Region", "Region_type")], by = "Sample.id")
+
+# Extrair valores da PERMANOVA
+r2_value <- round(adonis_result$R2[1], 3)  # Pegando o R² da primeira linha (modelo)
+p_value <- format(adonis_result$`Pr(>F)`[1], digits = 3, scientific = TRUE)  # Pegando o p-value
+
+# Criar o gráfico de PCoA com PERMANOVA anotada
+ggplot(pcoa_df, aes(x = PCoA1, y = PCoA2, color = as.factor(Cluster_Hclust))) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(title = "PCoA - Beta Diversidade (Bray-Curtis)",
+       x = paste("PCoA 1 (", round(100 * (pcoa_results$eig[1] / sum(pcoa_results$eig)), 2), "%)", sep = ""),
+       y = paste("PCoA 2 (", round(100 * (pcoa_results$eig[2] / sum(pcoa_results$eig)), 2), "%)", sep = ""),
+       color = "Cluster") +
+  annotate("text", x = min(pcoa_df$PCoA1), y = max(pcoa_df$PCoA2), 
+           label = paste("PERMANOVA: R² =", r2_value, "\np =", p_value),
+           hjust = 0, size = 5) +  # Adiciona R² e p-value no gráfico
+  theme_minimal()
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Criar o gráfico de PCoA com cor por Region e formato por Cluster_Hclust
+ggplot(pcoa_df, aes(x = PCoA1, y = PCoA2, color = as.factor(Region), shape = as.factor(Cluster_Hclust))) +
+  geom_point(size = 4, alpha = 0.8) +
+  labs(title = "PCoA - Beta Diversidade (Bray-Curtis)",
+       x = paste("PCoA 1 (", round(100 * (pcoa_results$eig[1] / sum(pcoa_results$eig)), 2), "%)", sep = ""),
+       y = paste("PCoA 2 (", round(100 * (pcoa_results$eig[2] / sum(pcoa_results$eig)), 2), "%)", sep = ""),
+       color = "Region", shape = "Cluster") +
+  annotate("text", x = min(pcoa_df$PCoA1), y = max(pcoa_df$PCoA2), 
+           label = paste("PERMANOVA: R² =", r2_value, "\np =", p_value),
+           hjust = 0, size = 5) +  # Adiciona PERMANOVA no gráfico
+  theme_minimal()
+
+```
+
+```{r}
+# Criar o gráfico de PCoA com cor por Region e formato por Cluster_Hclust
+ggplot(pcoa_df, aes(x = PCoA1, y = PCoA2, color = as.factor(Region_type), shape = as.factor(Cluster_Hclust))) +
+  geom_point(size = 4, alpha = 0.8) +
+  labs(title = "PCoA - Beta Diversidade (Bray-Curtis)",
+       x = paste("PCoA 1 (", round(100 * (pcoa_results$eig[1] / sum(pcoa_results$eig)), 2), "%)", sep = ""),
+       y = paste("PCoA 2 (", round(100 * (pcoa_results$eig[2] / sum(pcoa_results$eig)), 2), "%)", sep = ""),
+       color = "Region_type", shape = "Cluster") +
+  annotate("text", x = min(pcoa_df$PCoA1), y = max(pcoa_df$PCoA2), 
+           label = paste("PERMANOVA: R² =", r2_value, "\np =", p_value),
+           hjust = 0, size = 5) +  # Adiciona PERMANOVA no gráfico
+  theme_minimal()
+
+```
+
+```{r}
+
+unweighted_unifrac <- unweighted_unifrac.raw
+
+unweighted_unifrac[ grepl(x = rownames(unweighted_unifrac), pattern =  "\\F00$" ), grepl(x = colnames(unweighted_unifrac), pattern =  "\\F00$" )][1:5,1:5]
+
+unweighted_unifrac <- unweighted_unifrac[ grepl(x = rownames(unweighted_unifrac), pattern =  "\\F00$" ), grepl(x = colnames(unweighted_unifrac), pattern =  "\\F00$" )]
+
+unweighted_unifrac[1:5,1:5]
+
+gsub(x = rownames(unweighted_unifrac), pattern =  "-", replacement = "." )
+
+rownames(unweighted_unifrac) <- gsub(x = rownames(unweighted_unifrac), pattern =  "-", replacement = "." )
+colnames(unweighted_unifrac) <- gsub(x = colnames(unweighted_unifrac), pattern =  "-", replacement = "." )
+
+unweighted_unifrac[1:5,1:5]
+
+weighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/weighted_unifrac_distance_matrix.qza")$data)
+
+#weighted
+weighted_unifrac <- weighted_unifrac.raw
+
+
+weighted_unifrac <- weighted_unifrac[ grepl(x = rownames(weighted_unifrac), pattern =  "\\F00$" ), grepl(x = colnames(weighted_unifrac), pattern =  "\\F00$" )]
+
+rownames(weighted_unifrac) <- gsub(x = rownames(weighted_unifrac), pattern =  "-", replacement = "." )
+
+colnames(weighted_unifrac) <- gsub(x = colnames(weighted_unifrac), pattern =  "-", replacement = "." )
+
+weighted_unifrac[1:5,1:5]
+
+unweighted_unifrac[1:5,1:5]
+
+hclust(as.dist(unweighted_unifrac), method = "ward.D2")
+
+plot(hclust(as.dist(unweighted_unifrac)))
+
+plot(hclust(as.dist(unweighted_unifrac), method = "ward.D2"))
+
+# usando matriz distâncias unifrac para analise  (plotar dendrograma)
+hclust_res <- hclust(as.dist(unweighted_unifrac), method = "ward.D2")  # Aplicar agrupamento hierárquico
+
+plot(hclust_res)
+cutree(hclust_res, k = 2)
+
+# Definir valores de k para testar (por exemplo, de 2 a 6 clusters)
+k_values <- 2:6
+
+# Verificar se a matriz é quadrada e sem valores NA
+dim(unifrac_matrix)  # Deve ser n x n
+# Verificar se a matriz é quadrada e sem valores NA
+dim(unweighted_unifrac)  # Deve ser n x n
+
+sum(is.na(unifrac_matrix))  # Deve ser 0
+sum(is.na(unweighted_unifrac))  # Deve ser 0
+
+library(fpc
+
+pred_strength <- prediction.strength(
+  xdata = unweighted_unifrac,  # Agora estamos usando a matriz de distâncias correta
+  Gseq = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = hclusttreeCBI,  # Método de clustering hierárquico
+  method = "ward.D2"  # Adicionando o argumento obrigatório
+)
+
+pred_strength <- prediction.strength(
+  xdata = unweighted_unifrac,  # Agora estamos usando a matriz de distâncias correta
+  Gseq = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = hclustCBI,  # Método de clustering hierárquico
+  method = "ward.D2"  # Adicionando o argumento obrigatório
+)
+
+prediction.strength(
+  xdata = unweighted_unifrac,  # Agora estamos usando a matriz de distâncias correta
+  krange = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = pamkCBI,  # Método de clustering hierárquico
+    # Adicionando o argumento obrigatório
+)
+
+pamk(data = unweighted_unifrac, krange = 2)
+
+kmeans(x = unweighted_unifrac, centers = 2)
+
+# Executa a PCoA
+wunifrac.pcoa <- cmdscale(weighted_unifrac, eig = TRUE, k = 3)
+
+unwunifrac.pcoa <- cmdscale(unweighted_unifrac, eig = TRUE, k = 3)  # k = número de dimensões
+
+unwunifrac.pcoa
+
+cutree(hclust_res, k = 2)
+
+merge(unwunifrac.pcoa$points, cutree(hclust_res, k = 2))
+
+merge(unwunifrac.pcoa$points, data.frame(cutree(hclust_res, k = 2)), by = "row.names")
+
+merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")
+
+library(ggplot2)
+
+ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color =clusterHclust))
+
+cutree(hclust_res, k = 3)
+
+ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 3)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color = as.factor(clusterHclust)))
+
+ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 3)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color = as.factor(clusterHclust)))
+
+plot(hclust_res)
+
+ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color =clusterHclust))
+
+
+```
+
+
+```{r}
+
+library(vegan)
+?metaMDS()
+
+plot(metaMDS(as.dist(unweighted_unifrac)))
+(metaMDS(as.dist(unweighted_unifrac)))
+my.mds <- (metaMDS(as.dist(unweighted_unifrac)))
+my.mds$points
+ggplot(data = merge(my.mds$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")) + geom_point(aes(x = MDS1, y = MDS2, color =clusterHclust))
+```
+####=============== Filtrar IDs Contaminados ========================#
+
+```{r}
+# Filtrar apenas os IDs até S40371.F00
+filtered_ids <- row.names(unwunifrac.pcoa$points)[row.names(unwunifrac.pcoa$points) <= "S40371.F00"]
+filtered_data <- unwunifrac.pcoa$points[row.names(unwunifrac.pcoa$points) %in% filtered_ids, ]
+
+# Filtrar metadados correspondentes
+filtered_metadata <- subset(metadados, Sample.id %in% filtered_ids)
+
+# Criar o gráfico PCoA
+ggplot(merge(filtered_data, filtered_metadata, by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = Region), size = 3) + 
+  geom_text(aes(x = V1, y = V2, label = Row.names), vjust = -1, size = 3) +  
+  scale_color_manual(values = rainbow(length(unique(filtered_metadata$Region))), name = "Region") +  
+  labs(title = "UnWeighted Unifrac - IDs até S40371.F00", x = "PCoA 1", y = "PCoA 2") +
+  theme_minimal()
+
+```
+

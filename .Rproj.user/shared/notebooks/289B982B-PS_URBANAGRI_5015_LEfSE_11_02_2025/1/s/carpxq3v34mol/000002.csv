@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWxsKHRheGFfbmFtZXModGF4X3RhYmxlX3BzKSAlaW4lIHRheGFfbmFtZXMocGh5X3RyZWVfcHMpKVxuXG5gYGAifQ== -->
+
+```r
+all(taxa_names(tax_table_ps) %in% taxa_names(phy_tree_ps))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+all(taxa_names(tax_table_ps) %in% taxa_names(phy_tree_ps))
+
+```"
+"1","[1] FALSE
+"

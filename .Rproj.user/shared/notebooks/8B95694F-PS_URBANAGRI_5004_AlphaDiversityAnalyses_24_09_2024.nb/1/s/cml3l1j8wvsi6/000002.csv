@@ -1,0 +1,56 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5jb2xuYW1lcyhzYXVkZV9kaWV0YSlcbiNwaWVsb3VfZXZlbm5lc3MgeCB0cmlnbGljZXJpZGVzXG5cbiMgdXNlaSBlc3NlIG1lc21vIGPDs2RpZ28gcGFyYSBvIHBlbG91LCBGYWl0aCwgb2JzZXJ2ZWQsIHNoYW5ub25cblxuZ2dwbG90KHNhdWRlX2RpZXRhLCBhZXMoeCA9IEhpcCwgeSA9IHNoYW5ub25fZW50cm9weSkpICtcblxuICBnZW9tX3BvaW50KCkgKyBcblxuICBsYWJzKHggPSBcIkhpcFwiLCB5ID0gXCJTaGFubm9uXCIpICsgXG5cbiAgdGhlbWVfbWluaW1hbCgpICsgXG5cbiAgZ2VvbV9zbW9vdGgobWV0aG9kID0gXCJsbVwiKSArXG5cbiAgc3RhdF9wb2x5X2VxKGFlcyhsYWJlbCA9IHBhc3RlKC4ucC52YWx1ZS5sYWJlbC4uLCBzZXAgPSBcIn5+flwiKSksXG5cbiAgICAgICAgICAgICAgIGZvcm11bGEgPSB5IH4geCwgXG5cbiAgICAgICAgICAgICAgIHBhcnNlID0gVFJVRSkgXG5cblxuYGBgIn0= -->
+
+```r
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = Hip, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = \"Hip\", y = \"Shannon\") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = \"lm\") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = \"~~~\")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = Hip, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = \"Hip\", y = \"Shannon\") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = \"lm\") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = \"~~~\")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```"

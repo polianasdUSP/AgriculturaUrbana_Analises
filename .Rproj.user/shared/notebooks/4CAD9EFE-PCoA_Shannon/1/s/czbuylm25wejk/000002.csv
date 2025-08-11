@@ -1,0 +1,9 @@
+"0","```r
+
+# Verificar se todas as colunas necessárias estão disponíveis
+
+if(length(colunas_existentes) != length(colunas_relevantes)) {
+  cat(\"As seguintes colunas estão ausentes:\", setdiff(colunas_relevantes, colunas_existentes), \"\n\")
+}
+
+```"

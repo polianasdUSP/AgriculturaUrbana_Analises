@@ -1,0 +1,58 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTZWxlY2lvbmFyIGFzIGNvbHVuYXMgbnVtw6lyaWNhcyBkZSBpbnRlcmVzc2UgZSByZW5vbWXDoS1sYXMgcGFyYSBtZXRhZGFkb3Nfc2hhbm5vbl9zZWxlY3RlZFxubWV0YWRhZG9zLmRpZXRhLmFscGhhMiA8LSBzYXVkZV9kaWV0YSAlPiVcbnNlbGVjdChcInNoYW5ub25fZW50cm9weVwiLCBTaW1wc29uLCBcInBpZWxvdV9ldmVubmVzc1wiLCBcIm9ic2VydmVkX2ZlYXR1cmVzXCIsIEFDRSwgQ2hhbzEsIFwiZmFpdGhfcGRcIiwgcmVzaWR1YWxfY2FyYm9pZHJhdG9fdG90YWxfZywgcmVzaWR1YWxfcHJvdGVpbmFfZywgcmVzaWR1YWxfbGlwaWRpb3NfZywgcmVzaWR1YWxfZmlicmFfYWxpbWVudGFyX2csIHJlc2lkdWFsX2NvbGVzdGVyb2xfbWcsIHJlc2lkdWFsX2FjaWRvc19ncmF4b3Nfc2F0dXJhZG9zX2csIHJlc2lkdWFsX2FjaWRvc19ncmF4b3NfbW9ub2luc2F0dXJhZG9zX2csIHJlc2lkdWFsX2FjaWRvc19ncmF4b3NfcG9saWluc2F0dXJhZG9zX2csIHJlc2lkdWFsX2FjaWRvc19ncmF4b3NfdHJhbnNfZywgcmVzaWR1YWxfY2FsY2lvX21nLCByZXNpZHVhbF9mZXJyb19tZywgcmVzaWR1YWxfc29kaW9fbWcsIHJlc2lkdWFsX21hZ25lc2lvX21nLCByZXNpZHVhbF9mb3Nmb3JvX21nLCByZXNpZHVhbF9wb3Rhc3Npb19tZywgcmVzaWR1YWxfbWFuZ2FuZXNfbWcsIHJlc2lkdWFsX3ppbmNvX21nLCByZXNpZHVhbF9jb2JyZV9tZywgcmVzaWR1YWxfc2VsZW5pb19tY2csIHJlc2lkdWFsX3ZpdGFtaW5hX0FfUkFFX21jZywgcmVzaWR1YWxfdml0YW1pbmFfRF9tY2csIHJlc2lkdWFsX3ZpdGFtaW5hX0VfbWcsIHJlc2lkdWFsX3RpYW1pbmFfbWcsIHJlc2lkdWFsX3JpYm9mbGF2aW5hX21nLCByZXNpZHVhbF9uaWFjaW5hX21nLCByZXNpZHVhbF92aXRhbWluYV9CNl9tZywgcmVzaWR1YWxfdml0YW1pbmFfQjEyX21jZywgcmVzaWR1YWxfdml0YW1pbmFfQ19tZywgcmVzaWR1YWxfZXF1aXZhbGVudGVfZGVfZm9sYXRvX21jZywgcmVzaWR1YWxfc2FsX2RlX2FkaWNhb19nLCByZXNpZHVhbF9hY3VjYXJfZGVfYWRpY2FvX2cpXG5cbiMgUmVub21lYW5kbyBhcyBjb2x1bmFzIHBhcmEgcmVtb3ZlciBhIHBhbGF2cmEgXCJyZXNpZHVhbFwiXG5jb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSA8LSBnc3ViKFwicmVzaWR1YWxfXCIsIFwiXCIsIGNvbG5hbWVzKG1ldGFkYWRvcy5kaWV0YS5hbHBoYTIpKVxuXG4jIFJlbm9tZWFuZG8gYXMgY29sdW5hcyBwYXJhIHJlbW92ZXIgYSBwYWxhdnJhIFwiX2dcIlxuY29sbmFtZXMobWV0YWRhZG9zLmRpZXRhLmFscGhhMikgPC0gZ3N1YihcIl9nJFwiLCBcIlwiLCBjb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSlcblxuIyBSZW5vbWVhbmRvIGFzIGNvbHVuYXMgcGFyYSByZW1vdmVyIGEgcGFsYXZyYSBcIl9tZ1wiXG5jb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSA8LSBnc3ViKFwiX21nJFwiLCBcIlwiLCBjb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSlcblxuIyBSZW5vbWVhbmRvIGFzIGNvbHVuYXMgcGFyYSByZW1vdmVyIGEgcGFsYXZyYSBcIl9tY2dcIlxuY29sbmFtZXMobWV0YWRhZG9zLmRpZXRhLmFscGhhMikgPC0gZ3N1YihcIl9tY2ckXCIsIFwiXCIsIGNvbG5hbWVzKG1ldGFkYWRvcy5kaWV0YS5hbHBoYTIpKVxuXG4jIFJlbm9tZWFuZG8gYXMgY29sdW5hcyBwYXJhIHJlbW92ZXIgYSBwYWxhdnJhIFwiX21jZ1wiXG5jb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSA8LSBnc3ViKFwiX1wiLCBcIiBcIiwgY29sbmFtZXMobWV0YWRhZG9zLmRpZXRhLmFscGhhMikpXG5cbiMgVXNhbmRvIGdzdWIgY29tIHVtYSBmdW7Dp8OjbyBhbsO0bmltYSBwYXJhIGFsdGVyYXIgYSBwcmltZWlyYSBsZXRyYSBkZSBjYWRhIHBhbGF2cmEgcGFyYSBtYWnDunNjdWxhXG5jb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSA8LSBnc3ViKFwiKF58W1s6c3BhY2U6XV0pKFthLXpdKVwiLCBcIlxcXFwxXFxcXFVcXFxcMlwiLCBjb2xuYW1lcyhtZXRhZGFkb3MuZGlldGEuYWxwaGEyKSwgcGVybCA9IFRSVUUpXG5cblxuY29sbmFtZXMobWV0YWRhZG9zLmRpZXRhLmFscGhhMilcbmBgYCJ9 -->
+
+```r
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.dieta.alpha2 <- saude_dieta %>%
+select(\"shannon_entropy\", Simpson, \"pielou_evenness\", \"observed_features\", ACE, Chao1, \"faith_pd\", residual_carboidrato_total_g, residual_proteina_g, residual_lipidios_g, residual_fibra_alimentar_g, residual_colesterol_mg, residual_acidos_graxos_saturados_g, residual_acidos_graxos_monoinsaturados_g, residual_acidos_graxos_poliinsaturados_g, residual_acidos_graxos_trans_g, residual_calcio_mg, residual_ferro_mg, residual_sodio_mg, residual_magnesio_mg, residual_fosforo_mg, residual_potassio_mg, residual_manganes_mg, residual_zinco_mg, residual_cobre_mg, residual_selenio_mcg, residual_vitamina_A_RAE_mcg, residual_vitamina_D_mcg, residual_vitamina_E_mg, residual_tiamina_mg, residual_riboflavina_mg, residual_niacina_mg, residual_vitamina_B6_mg, residual_vitamina_B12_mcg, residual_vitamina_C_mg, residual_equivalente_de_folato_mcg, residual_sal_de_adicao_g, residual_acucar_de_adicao_g)
+
+# Renomeando as colunas para remover a palavra \"residual\"
+colnames(metadados.dieta.alpha2) <- gsub(\"residual_\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_g\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_g$\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_mg\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_mg$\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_mcg\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_mcg$\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_mcg\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_\", \" \", colnames(metadados.dieta.alpha2))
+
+# Usando gsub com uma função anônima para alterar a primeira letra de cada palavra para maiúscula
+colnames(metadados.dieta.alpha2) <- gsub(\"(^|[[:space:]])([a-z])\", \"\\1\\U\\2\", colnames(metadados.dieta.alpha2), perl = TRUE)
+
+
+colnames(metadados.dieta.alpha2)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.dieta.alpha2 <- saude_dieta %>%
+select(\"shannon_entropy\", Simpson, \"pielou_evenness\", \"observed_features\", ACE, Chao1, \"faith_pd\", residual_carboidrato_total_g, residual_proteina_g, residual_lipidios_g, residual_fibra_alimentar_g, residual_colesterol_mg, residual_acidos_graxos_saturados_g, residual_acidos_graxos_monoinsaturados_g, residual_acidos_graxos_poliinsaturados_g, residual_acidos_graxos_trans_g, residual_calcio_mg, residual_ferro_mg, residual_sodio_mg, residual_magnesio_mg, residual_fosforo_mg, residual_potassio_mg, residual_manganes_mg, residual_zinco_mg, residual_cobre_mg, residual_selenio_mcg, residual_vitamina_A_RAE_mcg, residual_vitamina_D_mcg, residual_vitamina_E_mg, residual_tiamina_mg, residual_riboflavina_mg, residual_niacina_mg, residual_vitamina_B6_mg, residual_vitamina_B12_mcg, residual_vitamina_C_mg, residual_equivalente_de_folato_mcg, residual_sal_de_adicao_g, residual_acucar_de_adicao_g)
+
+# Renomeando as colunas para remover a palavra \"residual\"
+colnames(metadados.dieta.alpha2) <- gsub(\"residual_\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_g\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_g$\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_mg\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_mg$\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_mcg\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_mcg$\", \"\", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra \"_mcg\"
+colnames(metadados.dieta.alpha2) <- gsub(\"_\", \" \", colnames(metadados.dieta.alpha2))
+
+# Usando gsub com uma função anônima para alterar a primeira letra de cada palavra para maiúscula
+colnames(metadados.dieta.alpha2) <- gsub(\"(^|[[:space:]])([a-z])\", \"\\1\\U\\2\", colnames(metadados.dieta.alpha2), perl = TRUE)
+
+
+colnames(metadados.dieta.alpha2)
+```"

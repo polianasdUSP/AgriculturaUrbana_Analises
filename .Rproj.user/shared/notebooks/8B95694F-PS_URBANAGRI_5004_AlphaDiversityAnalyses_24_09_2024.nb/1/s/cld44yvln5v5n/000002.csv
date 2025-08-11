@@ -1,0 +1,42 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGdW7Dp8OjbyBwYXJhIGNhbGN1bGFyIG9zIHAtdmFsb3JlcyBkYXMgY29ycmVsYcOnw7Vlc1xuY29yLm10ZXN0X3NoYW5ub24gPC0gZnVuY3Rpb24obWF0LCBjb25mLmxldmVsID0gMC45NSkge1xuICBtYXQgPC0gYXMubWF0cml4KG1hdClcbiAgbiA8LSBuY29sKG1hdClcbiAgcC5tYXQgPC0gbWF0cml4KE5BLCBuLCBuKVxuICBkaWFnKHAubWF0KSA8LSAwXG4gIGZvciAoaSBpbiAxOihuIC0gMSkpIHtcbiAgICBmb3IgKGogaW4gKGkgKyAxKTpuKSB7XG4gICAgICB0bXAgPC0gY29yLnRlc3QobWF0WywgaV0sIG1hdFssIGpdLCBjb25mLmxldmVsID0gY29uZi5sZXZlbClcbiAgICAgIHAubWF0W2ksIGpdIDwtIHAubWF0W2osIGldIDwtIHRtcCRwLnZhbHVlXG4gICAgfVxuICB9XG4gIGNvbG5hbWVzKHAubWF0KSA8LSByb3duYW1lcyhwLm1hdCkgPC0gY29sbmFtZXMobWF0KVxuICByZXR1cm4ocC5tYXQpXG59XG5cbmBgYCJ9 -->
+
+```r
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+```"

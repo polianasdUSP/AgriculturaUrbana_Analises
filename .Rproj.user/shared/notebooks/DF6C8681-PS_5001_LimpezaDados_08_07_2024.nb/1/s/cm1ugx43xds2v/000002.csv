@@ -1,0 +1,28 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5hbHBoYS5ldmVubmVzcy5wZCA8LSBtZXJnZShhbHBoYS5ldmVubmVzcy5yYXcsIGFscGhhLnBkLnJhdywgYnkgPSBcInJvdy5uYW1lc1wiKVxuYWxwaGEucmljaG5lc3Muc2hhbm5vbiA8LSBtZXJnZShhbHBoYS5yaWNobmVzcy5yYXcsIGFscGhhLnNoYW5ub24ucmF3LCBieSA9IFwicm93Lm5hbWVzXCIpXG5cbmFscGhhLmFsbCA8LSBtZXJnZShhbHBoYS5ldmVubmVzcy5wZCwgYWxwaGEucmljaG5lc3Muc2hhbm5vbiwgYnkgPSBcIlJvdy5uYW1lc1wiKVxuXG53cml0ZS5jc3YoeCA9IGFscGhhLmFsbCwgXG4gICAgICAgICAgZmlsZSA9IFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL1BsYW5pbGhhc19VcmJhbkFncmkvYWxwaGEuYWxsLmNzdlwiLCByb3cubmFtZXMgPSBGQUxTRSlcblxuYGBgIn0= -->
+
+```r
+
+alpha.evenness.pd <- merge(alpha.evenness.raw, alpha.pd.raw, by = \"row.names\")
+alpha.richness.shannon <- merge(alpha.richness.raw, alpha.shannon.raw, by = \"row.names\")
+
+alpha.all <- merge(alpha.evenness.pd, alpha.richness.shannon, by = \"Row.names\")
+
+write.csv(x = alpha.all, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.all.csv\", row.names = FALSE)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+alpha.evenness.pd <- merge(alpha.evenness.raw, alpha.pd.raw, by = \"row.names\")
+alpha.richness.shannon <- merge(alpha.richness.raw, alpha.shannon.raw, by = \"row.names\")
+
+alpha.all <- merge(alpha.evenness.pd, alpha.richness.shannon, by = \"Row.names\")
+
+write.csv(x = alpha.all, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.all.csv\", row.names = FALSE)
+
+```"

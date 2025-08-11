@@ -1,0 +1,112 @@
+---
+title: "ASVs"
+output: html_notebook
+---
+
+
+
+```{r}
+library(qiime2R)
+library(phyloseq)
+library(ggrepel)
+library(gridExtra)
+library(viridis)
+library(ggpubr)
+library(tidyverse)
+library(dplyr)
+library(correlation)
+library(corrplot)
+
+
+```
+
+```{r}
+# Número total de amostras (linhas na matriz)
+nrow(t.my.asvs)
+
+# Filtrando ASVs que estão presentes em 10% ou mais das amostras
+t.my.asvs_filtered <- t.my.asvs[, colSums(t.my.asvs > 0, na.rm = TRUE) / 130 >= 0.10]
+
+# Visualizando a matriz filtrada
+str(t.my.asvs_filtered)
+
+```
+
+
+```{r}
+# Fazer o merge dos dataframes
+merged_data <- merge(metadados.dietasaude.alpha, t.my.asvs_filtered, by.x = "IdVoluntario", by.y = "row.names")
+```
+
+```{r}
+# Remover a coluna "IdVoluntario"
+merged_data <- merged_data[, -1]
+```
+
+```{r}
+
+# Verificando e exibindo diretamente as colunas que contêm apenas zeros
+print(names(merged_data)[sapply(merged_data, function(x) all(x == 0, na.rm = TRUE))])
+
+
+```
+
+```{r}
+colnames(merged_data)
+
+# Selecionando apenas as colunas de interesse
+# Definindo as colunas que você deseja remover
+colunas_excluir <- c("Systolic", "Diastolic", "Weight", "Height", "Waist", "Hip", 
+                     "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", 
+                     "TGO", "TGP", "GGT", "GLICOSE", "INSULINA", "HOMA", 
+                     "residual_energia2_kcal", "residual_carboidrato_total_g", 
+                     "residual_proteina_g", "residual_lipidios_g", "residual_fibra_alimentar_g", 
+                     "residual_colesterol_mg", "residual_acidos_graxos_saturados_g", 
+                     "residual_acidos_graxos_monoinsaturados_g", "residual_acidos_graxos_poliinsaturados_g", 
+                     "residual_acidos_graxos_trans_g", "residual_calcio_mg", "residual_ferro_mg", 
+                     "residual_sodio_mg", "residual_magnesio_mg", "residual_fosforo_mg", 
+                     "residual_potassio_mg", "residual_manganes_mg", "residual_zinco_mg", 
+                     "residual_cobre_mg", "residual_selenio_mcg", "residual_vitamina_A_RE_mcg", 
+                     "residual_vitamina_A_RAE_mcg", "residual_vitamina_D_mcg", "residual_vitamina_E_mg", 
+                     "residual_tiamina_mg", "residual_riboflavina_mg", "residual_niacina_mg", 
+                     "residual_vitamina_B6_mg", "residual_vitamina_B12_mcg", "residual_vitamina_C_mg", 
+                     "residual_equivalente_de_folato_mcg", "residual_sal_de_adicao_g", 
+                     "residual_acucar_de_adicao_g")
+
+
+# Visualizando a estrutura do novo dataframe
+str(merged_data)
+
+# Usando na.omit para remover NAs nas colunas específicas diretamente no objeto merged_data
+# Usando na.omit apenas nas linhas que tenham NA nas colunas especificadas, mas sem remover outras colunas
+merged_data_filtered <- na.omit(merged_data)
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+my.cor <- cor(merged_data_filtered, method = "spearman")
+
+```
+
+```{r}
+
+
+# Visualizar a matriz de correlação
+print(my.cor)
+
+
+
+```
+
+```{r}
+
+# Plotar a matriz de correlação como um heatmap
+heatmap(my.cor, symm = TRUE)
+```
+
+

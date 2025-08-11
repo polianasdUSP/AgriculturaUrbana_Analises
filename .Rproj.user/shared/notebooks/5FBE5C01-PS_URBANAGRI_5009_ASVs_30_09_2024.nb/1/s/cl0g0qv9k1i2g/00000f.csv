@@ -1,0 +1,10 @@
+"0","physeq <- qza_to_phyloseq(
+  features = ""table.qza"", 
+  tree = ""rooted-tree.qza"", 
+  taxonomy = ""taxonomy.qza"", 
+  metadata = ""Metadata.tsv""
+)
+"
+"2","Error in read_qza(features, tmp = tmp) : 
+  Input artifact (table.qza) not found. Please check path and/or use list.files() to see files in current working directory.
+"

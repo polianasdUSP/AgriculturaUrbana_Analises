@@ -1,0 +1,34 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmxpYnJhcnkoZ2dwbG90MilcblxuIyBGaWx0cmFyIGNvbHVuYXMgZXNwZWPDrWZpY2FzIGUgdG9kYXMgYXMgY29sdW5hcyBudW3DqXJpY2FzXG5udW1lcmljX21ldGFkYXRhX3NhdWRlX2RpZXRhIDwtIG1ldGFkYXRhX0FTVnNfU2F1ZGVfZGlldGEgJT4lXG4gIHNlbGVjdChTYW1wbGUuaWQsIEZlYXR1cmUuSUQsIFRheG9uLCB3aGVyZShpcy5udW1lcmljKSlcblxuIyBWaXN1YWxpemFyIG8gcmVzdWx0YWRvXG5nbGltcHNlKG51bWVyaWNfbWV0YWRhdGFfc2F1ZGVfZGlldGEpXG5cbiMgU2FsdmFyIGVtIHVtIGFycXVpdm8gQ1NWXG53cml0ZS5jc3YobnVtZXJpY19tZXRhZGF0YV9zYXVkZV9kaWV0YSwgXCJudW1lcmljX21ldGFkYXRhX3NhdWRlX2RpZXRhLmNzdlwiLCByb3cubmFtZXMgPSBGQUxTRSlcbmBgYCJ9 -->
+
+```r
+library(dplyr)
+library(ggplot2)
+
+# Filtrar colunas específicas e todas as colunas numéricas
+numeric_metadata_saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, Feature.ID, Taxon, where(is.numeric))
+
+# Visualizar o resultado
+glimpse(numeric_metadata_saude_dieta)
+
+# Salvar em um arquivo CSV
+write.csv(numeric_metadata_saude_dieta, \"numeric_metadata_saude_dieta.csv\", row.names = FALSE)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(dplyr)
+library(ggplot2)
+
+# Filtrar colunas específicas e todas as colunas numéricas
+numeric_metadata_saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, Feature.ID, Taxon, where(is.numeric))
+
+# Visualizar o resultado
+glimpse(numeric_metadata_saude_dieta)
+
+# Salvar em um arquivo CSV
+write.csv(numeric_metadata_saude_dieta, \"numeric_metadata_saude_dieta.csv\", row.names = FALSE)
+```"

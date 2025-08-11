@@ -1,0 +1,16 @@
+"0","# Gráfico
+ggplot(medias, aes(x = reorder(Genus, -Abundancia_media), y = Abundancia_media, fill = TyG_group)) +
+  geom_bar(stat = ""identity"", position = ""dodge"") +
+  coord_flip() +
+  labs(title = ""Relative Abundance of Significant Genera by Triglyceride-Glucose (TyG) Index Group"",
+       x = ""Genus"", y = ""Mean Relative Abundance"") +
+  scale_fill_manual(values = c(""Low"" = ""#1f77b4"", ""High"" = ""#ff7f0e"")) +
+  theme_minimal(base_size = 14)
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/2C38EB69-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F241fd9b6/cgrduukwwg0j6_t/cd8c4a72f4894ce2ada446b9f53f7000.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

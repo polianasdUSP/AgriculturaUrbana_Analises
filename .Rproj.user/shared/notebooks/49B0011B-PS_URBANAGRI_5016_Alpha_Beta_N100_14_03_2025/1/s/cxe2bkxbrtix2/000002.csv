@@ -1,0 +1,22 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTZWxlY2lvbmFyIGFzIGNvbHVuYXMgbnVtw6lyaWNhcyBkZSBpbnRlcmVzc2UgZSByZW5vbWXDoS1sYXMgcGFyYSBtZXRhZGFkb3Nfc2hhbm5vbl9zZWxlY3RlZFxubWV0YWRhZG9zLnNhdWRlLmFscGhhIDwtIG1ldGFkYWRvcy5hbGwgJT4lXG5zZWxlY3QoXCJzaGFubm9uX2VudHJvcHlcIiwgXCJzaW1wc29uXCIsIFwicGllbG91X2V2ZW5uZXNzXCIsIFwib2JzZXJ2ZWRfZmVhdHVyZXNcIiwgXCJBQ0VcIiwgXCJjaGFvMVwiLCBcImZhaXRoX3BkXCIsXCJBZ2VcIiBcIkJNSVwiLCBcIldIUlwiLCBcIlR5R1wiLCBcIlZBSVwiLCBcIlFVSUNLSVwiLCBcIk1FVFNfSVJcIiwgXCJUeUdfQk1JXCIsICBcIlR5R19XQ1wiLCAgIFwiSUwxN0FcIiwgXCJJRk5HYW1tYVwiICwgXCJIYkExY1wiLCAgXCJHTElDT1NFXCIsIFwiSU5TVUxJTkFcIiwgIFwiSE9NQS5JUlwiLCBcIlN5c3RvbGljXCIsICBcIkRpYXN0b2xpY1wiLCBcIkNPTEVTVEVST0xcIiwgIFwiTERMXCIsIFwiSERMXCIsICBcIlZMRExcIiAsIFwiVFJJR0xJQ0VSSURFU1wiICwgXCJUR09cIiwgXCJUR1BcIiwgXCJHR1RcIiwgXCJQQ1JcIiwgIFwiVE5GXCIsIFwiSUZOR2FtbWFcIiAsIFwiSUwyXCIsIFwiSUw0XCIsIFwiSUw2XCIsIFwiSUwxMFwiLCAgICAgKVxuXG5gYGAifQ== -->
+
+```r
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- metadados.all %>%
+select(\"shannon_entropy\", \"simpson\", \"pielou_evenness\", \"observed_features\", \"ACE\", \"chao1\", \"faith_pd\",\"Age\" \"BMI\", \"WHR\", \"TyG\", \"VAI\", \"QUICKI\", \"METS_IR\", \"TyG_BMI\",  \"TyG_WC\",   \"IL17A\", \"IFNGamma\" , \"HbA1c\",  \"GLICOSE\", \"INSULINA\",  \"HOMA.IR\", \"Systolic\",  \"Diastolic\", \"COLESTEROL\",  \"LDL\", \"HDL\",  \"VLDL\" , \"TRIGLICERIDES\" , \"TGO\", \"TGP\", \"GGT\", \"PCR\",  \"TNF\", \"IFNGamma\" , \"IL2\", \"IL4\", \"IL6\", \"IL10\",     )
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- metadados.all %>%
+select(\"shannon_entropy\", \"simpson\", \"pielou_evenness\", \"observed_features\", \"ACE\", \"chao1\", \"faith_pd\",\"Age\" \"BMI\", \"WHR\", \"TyG\", \"VAI\", \"QUICKI\", \"METS_IR\", \"TyG_BMI\",  \"TyG_WC\",   \"IL17A\", \"IFNGamma\" , \"HbA1c\",  \"GLICOSE\", \"INSULINA\",  \"HOMA.IR\", \"Systolic\",  \"Diastolic\", \"COLESTEROL\",  \"LDL\", \"HDL\",  \"VLDL\" , \"TRIGLICERIDES\" , \"TGO\", \"TGP\", \"GGT\", \"PCR\",  \"TNF\", \"IFNGamma\" , \"IL2\", \"IL4\", \"IL6\", \"IL10\",     )
+
+```"
+"1","Erro: unexpected string constant em:
+\"metadados.saude.alpha <- metadados.all %>%
+select(\"shannon_entropy\", \"simpson\", \"pielou_evenness\", \"observed_features\", \"ACE\", \"chao1\", \"faith_pd\",\"Age\" \"BMI\"\"
+"

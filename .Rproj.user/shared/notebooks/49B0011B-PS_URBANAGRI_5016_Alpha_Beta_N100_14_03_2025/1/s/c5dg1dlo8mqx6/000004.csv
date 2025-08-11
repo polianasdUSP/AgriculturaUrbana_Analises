@@ -1,0 +1,18 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFpbmVsX3NhdHVyYWRvXG5cbmBgYCJ9 -->
+
+```r
+painel_saturado
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+painel_saturado
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/AF6D5EA6-PS_URBANAGRI_5016_Alpha_Beta_N100_14_03_2025/1/4E7A587Ff595eb3c/cb0srmz2l4mxj_t/1bd1db5ca121474ea3f66cb1a2824706.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

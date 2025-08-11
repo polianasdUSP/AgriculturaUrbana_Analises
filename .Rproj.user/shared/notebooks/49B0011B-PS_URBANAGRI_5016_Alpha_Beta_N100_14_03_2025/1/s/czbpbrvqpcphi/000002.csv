@@ -1,0 +1,40 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXJhIG8gaGVhdG1hcCBjb20gZ2dwbG90MlxuZ2dwbG90KGRmX3Bsb3RfZGlldGEsIGFlcyhWYXIxLCBWYXIyLCBmaWxsID0gY29yKSkgK1xuICBnZW9tX3RpbGUoY29sb3IgPSBcIndoaXRlXCIpICtcbiAgc2NhbGVfZmlsbF9ncmFkaWVudDIobG93ID0gXCJibHVlXCIsIGhpZ2ggPSBcInJlZFwiLCBtaWQgPSBcIndoaXRlXCIsXG4gICAgICAgICAgICAgICAgICAgICAgIG1pZHBvaW50ID0gMCwgbGltaXQgPSBjKC0xLCAxKSwgbmFtZSA9IFwiU3BlYXJtYW5cIikgK1xuICBnZW9tX3RleHQoYWVzKGxhYmVsID0gYXN0ZXJpc2tzKSwgc2l6ZSA9IDMpICtcbiAgdGhlbWVfbWluaW1hbCgpICtcbiAgdGhlbWUoYXhpcy50ZXh0LnggPSBlbGVtZW50X3RleHQoYW5nbGUgPSA0NSwgaGp1c3QgPSAxKSxcbiAgICAgICAgYXhpcy50ZXh0LnkgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDgpLFxuICAgICAgICBwYW5lbC5ncmlkID0gZWxlbWVudF9ibGFuaygpKSArXG4gIGNvb3JkX2ZpeGVkKCkgK1xuICBsYWJzKHRpdGxlID0gXCJBbHBoYSBEaXZlcnNpdHkgYW5kIERpZXQgKEZEUiBhanVzdGFkbylcIiwgeCA9IFwiXCIsIHkgPSBcIlwiKVxuXG5gYGAifQ== -->
+
+```r
+# Gera o heatmap com ggplot2
+ggplot(df_plot_dieta, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", high = \"red\", mid = \"white\",
+                       midpoint = 0, limit = c(-1, 1), name = \"Spearman\") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = \"Alpha Diversity and Diet (FDR ajustado)\", x = \"\", y = \"\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Gera o heatmap com ggplot2
+ggplot(df_plot_dieta, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", high = \"red\", mid = \"white\",
+                       midpoint = 0, limit = c(-1, 1), name = \"Spearman\") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = \"Alpha Diversity and Diet (FDR ajustado)\", x = \"\", y = \"\")
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/AF6D5EA6-PS_URBANAGRI_5016_Alpha_Beta_N100_14_03_2025/1/4E7A587Ff595eb3c/ch8yyk6j3f6m9_t/dfa7db5469a34f11bca8ad3c55d2e391.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

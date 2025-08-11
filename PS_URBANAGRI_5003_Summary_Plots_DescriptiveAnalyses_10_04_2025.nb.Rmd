@@ -1,0 +1,874 @@
+---
+title: "Summary, Plots and Descriptive Stats"
+output: html_notebook
+---
+
+```{r}
+# Pacotes necessários
+library(dplyr)
+
+# Carregando os dados
+metadados.all <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/metadados.all.corrigido - metadados.all.corrigido.csv") # Atualize com o caminho correto do arquivo
+
+metadados.all.filtrado <- metadados.all[metadados.all$Sample.id != "S40142.F00", ]
+
+```
+
+```{r}
+#criar uma coluna com IMC
+
+# Adicionando uma coluna de IMC ao metadados
+metadados <- metadados %>%
+  mutate(
+    IMC = Weight / (Height^2) # Cálculo do IMC
+  )
+
+# Visualizando as primeiras linhas para verificar o resultado
+head(metadados$IMC)
+
+write.csv(x = metadados, 
+          file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.csv", row.names = FALSE)
+
+metadados.saude.alpha <- metadados.all.filtrado[, c("Sample.id",
+  "IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2",
+  "Age", "Sex", "Systolic", "Diastolic", "Weight", "Height", "IMC", "Waist", "Hip",
+  "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT",
+  "GLICOSE", "INSULINA", "HOMA.IR", "PCR", "TyG", "VAI", "QUICKI", "METS_IR", 
+  "TyG_BMI", "TyG_WC", "WHR", "shannon_entropy", "pielou_evenness", "faith_pd",
+  "observed_features", "simpson", "chao1"
+)]
+
+
+#tirar voluntaris S30092.F00 que tinha diagnostico de cancer
+metadados.all <- metadados.all[metadados.all$Sample.id != "S30092.F00", ]
+metadados.all.filtrado <- metadados.all.filtrado[metadados.all.filtrado$Sample.id != "S30092.F00", ]
+
+summary(metadados.all.filtrado)
+
+```
+
+```{r}
+
+
+# Salvando como CSV
+write.csv(caracteristicas, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/population_characteristics_corrected.csv", row.names = FALSE)
+```
+
+
+```{r}
+resumo_completo <- data.frame(
+  Variavel = names(metadados.all.filtrado),
+  Media = sapply(metadados.all.filtrado, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else NA),
+  DesvioPadrao = sapply(metadados.all.filtrado, function(x) if(is.numeric(x)) sd(x, na.rm = TRUE) else NA),
+  Minimo = sapply(metadados.all.filtrado, function(x) if(is.numeric(x)) min(x, na.rm = TRUE) else NA),
+  Maximo = sapply(metadados.all.filtrado, function(x) if(is.numeric(x)) max(x, na.rm = TRUE) else NA)
+)
+
+# Visualizar
+head(resumo_completo, 10)
+
+# (opcional) salvar como planilha
+write.csv(resumo_completo, "resumo_numerico.csv", row.names = FALSE)
+
+#idade homens e mulheres
+
+library(dplyr)
+
+metadados.all.filtrado %>%
+  group_by(Sex) %>%
+  summarise(
+    Mean = mean(Age, na.rm = TRUE),
+    SD = sd(Age, na.rm = TRUE),
+    Min = min(Age, na.rm = TRUE),
+    Max = max(Age, na.rm = TRUE)
+  )
+
+
+```
+
+
+```{r}
+
+#tabela com dados basicos
+
+
+library(dplyr)
+library(gt)
+
+# Suponha que df_sex_age seja o seu resumo:
+df_sex_age <- metadados.all.filtrado %>%
+  group_by(Sex) %>%
+  summarise(
+    Count = n(),
+    `Mean Age` = round(mean(Age, na.rm = TRUE), 2),
+    `Standard Deviation` = round(sd(Age, na.rm = TRUE), 2),
+    `Minimum Age` = min(Age, na.rm = TRUE),
+    `Maximum Age` = max(Age, na.rm = TRUE)
+  )
+
+# Criar tabela estilizada
+df_sex_age %>%
+  gt() %>%
+  tab_header(
+    title = md("**General Information (n=105)**")
+  ) %>%
+  cols_label(
+    Sex = "Sex",
+    Count = "Count",
+    `Mean Age` = "Mean Age",
+    `Standard Deviation` = "St Dev",
+    `Minimum Age` = "Min Age",
+    `Maximum Age` = "Max Age"
+  )
+
+
+```
+
+```{r}
+library(gt)
+
+
+library(dplyr)
+library(tidyr)
+
+
+
+summary_stats <- metadados.all.filtrado %>%
+  st_drop_geometry() %>%  # REMOVE a coluna spatial
+  select(where(is.numeric)) %>%
+  pivot_longer(everything(), names_to = "Variável", values_to = "Valor") %>%
+  group_by(Variável) %>%
+  summarise(
+    Média = round(mean(Valor, na.rm = TRUE), 2),
+    `Desvio Padrão` = round(sd(Valor, na.rm = TRUE), 2),
+    Mínimo = min(Valor, na.rm = TRUE),
+    Máximo = max(Valor, na.rm = TRUE),
+    N = sum(!is.na(Valor)),
+    .groups = "drop"
+  )
+
+View(summary_stats)
+
+write.csv(summary_stats, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/summary_stats.csv", row.names = FALSE)
+
+
+
+library(readr)
+library(gt)
+library(webshot2)
+
+# Lê a tabela corrigida
+tabela_info <- read_csv("C:/Users/polia/Downloads/tabela_info_corrigida.csv", 
+                        col_types = cols(.default = col_character()))
+
+# Cria a tabela estilizada
+tabela_gt <- tabela_info %>%
+  gt() %>%
+  tab_header(title = md("**General Information**")) %>%
+  cols_label(
+    Characteristic = "Characteristic",
+    Mean = "Mean",
+    SD = "SD",
+    Min = "Min",
+    Max = "Max"
+  ) %>%
+  opt_table_font(font = list(
+    google_font("Arial"),
+    default_fonts()
+  )) %>%
+  fmt_number(
+    columns = c(Mean, SD, Min, Max),
+    decimals = 2,
+    rows = !grepl("/", tabela_info$Mean)  # evita formatar "55/53"
+  ) %>%
+  fmt_missing(columns = everything(), missing_text = "") %>%
+  cols_width(
+    Characteristic ~ px(220),
+    everything() ~ px(70)
+  ) %>%
+  tab_options(
+    table.font.size = px(14),
+    column_labels.font.weight = "bold",
+    data_row.padding = px(6),
+    table.width = pct(100)
+  )
+
+# Para salvar como imagem:
+gtsave(tabela_gt, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/tabela_general_info.png", zoom = 2, expand = 10)
+
+#salvar em alta. zoom = 2 aumenta a resolução expand = 5 adiciona margem ao redor da imagem
+gtsave(tabela_gt, "tabela_info.png", zoom = 2, expand = 5)
+
+
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(gt)
+library(webshot2)
+webshot::install_phantomjs()
+
+# Ler o CSV final
+df <- read_csv("C:/Users/polia/Downloads/tabela_info_completa_FINAL - tabela_info_completa_FINAL.csv",
+               col_types = cols(.default = col_character()))
+
+df <- df %>%
+  mutate(Characteristic = str_trim(Characteristic),  # remove espaços
+         Bloco = Characteristic %in% c("GENERAL INFORMATION (n=105)", "ANTHROPOMETRIC MARKERS (n=105)"))
+
+
+# Criar a tabela formatada
+tabela_gt <- df %>%
+  gt() %>%
+  tab_header(title = md("**General Information and Anthropometric Markers**")) %>%
+  cols_label(
+    Characteristic = "Characteristic",
+    Mean = "Mean",
+    SD = "SD",
+    Min = "Min",
+    Max = "Max"
+  ) %>%
+  fmt_number(
+    columns = c(Mean, SD, Min, Max),
+    decimals = 2,
+    rows = !grepl("/", df$Mean) & df$Mean != "-" & df$Mean != ""
+  ) %>%
+  fmt_missing(columns = everything(), missing_text = "") %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = Bloco)
+  ) %>%
+  cols_hide(columns = Bloco) %>%
+  tab_options(
+    table.font.size = px(14),
+    column_labels.font.weight = "bold",
+    data_row.padding = px(6),
+    table.width = pct(100)
+  ) %>%
+  opt_table_font(font = google_font("Arial")) %>%
+  cols_width(
+    Characteristic ~ px(220),
+    everything() ~ px(70)
+  )
+
+gtsave(
+  data = tabela_gt,
+  filename = "tabela_info_completa.png",
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri",  # ou outro caminho da sua preferência
+  expand = 10,   # aumenta a resolução
+  zoom = 2       # dobra o tamanho dos elementos para melhor nitidez
+)
+
+```
+
+
+```{r}
+library(gt)
+library(readr)
+library(dplyr)
+
+# Lê a tabela
+df <- read_csv("C:/Users/polia/Downloads/tabela_completa_para_dissertacao.csv")
+
+```
+
+#=======================================================#
+     General Information and Anthropometric Markers
+#=======================================================#
+
+```{r}
+library(readr)
+library(dplyr)
+library(gt)
+
+df <- read_csv(
+  "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/general_and_anthropometric_MANUAL - general_and_anthropometric_MANUAL.csv",
+  col_names = c("Characteristic", "Mean", "SD", "Min", "Max"),
+  skip = 1
+)
+
+# Marca os blocos com base no nome da característica
+df <- df %>%
+  mutate(Bloco = Characteristic %in% c("GENERAL INFORMATION (n=106)", "ANTHROPOMETRIC MARKERS (n=106)"))
+
+# Cria a tabela com estilo
+tabela <- df %>%
+    gt() %>%
+    tab_header(title = md("**General Information and Anthropometric Markers**")) %>%
+    cols_label(
+        Characteristic = "",
+        Mean = "Mean",
+        SD = "SD",
+        Min = "Min",
+        Max = "Max"
+    ) %>%
+    fmt_number(
+        columns = c(Mean, SD, Min, Max),
+        decimals = 2,
+        rows = !grepl("/", df$Mean) & df$Mean != "-" & df$Mean != ""
+    ) %>%
+    fmt_missing(columns = everything(), missing_text = "") %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = df$Bloco)
+    ) %>%
+    cols_width(
+        Characteristic ~ px(250),
+        Mean ~ px(150),
+        SD ~ px(150),
+        Min ~ px(150),
+        Max ~ px(150)
+        # <-- ajuste aqui
+    ) %>%
+    tab_options(
+        table.font.size = px(14),
+        column_labels.font.weight = "bold",
+        data_row.padding = px(6),
+        table.width = pct(100)
+    ) %>%
+    opt_table_font(font = google_font("Arial")) %>%
+    cols_hide(columns = Bloco)
+
+
+
+#salvar em alta
+# Salvar como PNG em alta resolução
+gtsave(
+  data = tabela,  # substitua pelo nome do seu objeto gt
+  filename = "tabela_general_anthropometric.png",
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/",
+  expand = 10          # aumenta a resolução (quanto maior, mais nítido)
+)
+
+```
+
+
+#=======================================================#
+                Inflamatory Markers
+#=======================================================#
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(gt)
+
+# Lê o CSV
+df <- read_csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/inflammatory_markers_table.csv", 
+               col_types = cols(.default = col_character()))
+
+# Remove a linha de bloco
+df <- df %>% filter(Characteristic != "Inflammatory markers (n=76)")
+
+inflammatoryMarkers <-df %>%
+  gt() %>%
+  tab_header(title = md("**Inflammatory Markers (n=76)**")) %>%
+  cols_label(
+    Characteristic = "",
+    Mean = "Mean",
+    SD = "SD",
+    Min = "Min",
+    Max = "Max"
+  ) %>%
+  fmt_number(
+    columns = c(Mean, SD, Min, Max),
+    decimals = 2,
+    rows = !grepl("/", df$Mean) & df$Mean != "-" & df$Mean != ""
+  ) %>%
+  fmt_missing(columns = everything(), missing_text = "") %>%
+  cols_hide(columns = Bloco) %>%  # <-- aqui remove a coluna extra
+  tab_options(
+    table.font.size = px(14),
+    column_labels.font.weight = "bold",
+    data_row.padding = px(6),
+    table.width = pct(100)
+  ) %>%
+  opt_table_font(font = google_font("Arial")) %>%
+  cols_width(
+    Characteristic ~ px(280),
+    everything() ~ px(70)
+  )
+
+# Salvar como PNG em alta resolução
+gtsave(
+  data = inflammatoryMarkers,  # substitua pelo nome do seu objeto gt
+  filename = "tabela_inflammatory_markers.png",
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/",
+  expand = 10          # aumenta a resolução (quanto maior, mais nítido)
+)
+
+```
+
+```{r}
+metadados.dieta.all <- metadados.all.filtrado[, c("Sample.id","carboidrato_total_g", "proteina_g", "lipidios_g", "fibra_alimentar_g",   "colesterol_mg", "acidos_graxos_saturados_g", "acidos_graxos_monoinsaturados_g", "acidos_graxos_poliinsaturados_g", "calcio_mg", "ferro_mg", "sodio_mg", "magnesio_mg", "fosforo_mg",  "potassio_mg", "manganes_mg", "zinco_mg", "cobre_mg", "selenio_mcg", "vitamina_A_RAE_mcg", "vitamina_D_mcg",  "vitamina_E_mg", "tiamina_mg", "riboflavina_mg",  "niacina_mg", "vitamina_C_mg",  "equivalente_de_folato_mcg", "sal_de_adicao_g", "acucar_de_adicao_g", "BHEI_R_Score_Total", "Percentual_NOVA_group_1", "Percentual_NOVA_group_2", "Percentual_NOVA_group_3"           
+)]
+
+as.data.frame(summary_dieta)
+
+summary_dieta <- as.data.frame (summary (metadados.dieta.all))
+
+```
+
+
+
+```{r}
+library(ggplot2)
+
+library(dplyr)
+
+region_counts <- metadados.all.filtrado %>%
+  count(Region, name = "N")
+
+#mudar nomes pro ingles
+
+region_counts <- region_counts %>%
+  mutate(Region_EN = case_when(
+    Region == "Leste" ~ "East",
+    Region == "Leste Adjacente" ~ "Adjacent East",
+    Region == "Norte" ~ "North",
+    Region == "Sul" ~ "South",
+    Region == "Sul Adjacente" ~ "Adjacent South",
+    TRUE ~ Region  # mantém original se não houver correspondência
+  ))
+
+#S40121 esta na regiao errada
+metadados.all.filtrado <- metadados.all.filtrado %>%
+  mutate(Region = ifelse(Sample.id == "S40121.F00", "Sul Adjacente", Region))
+
+metadados.all <- metadados.all %>%
+  mutate (Region = ifelse(Sample.id == "S40121.F00", "Sul Adjacente", Region))
+
+
+grafico_regiao <-ggplot(region_counts, aes(x = reorder(Region, -N), y = N, fill = Region)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of Participants by Region",
+       x = "Region",
+       y = "Number of Participants") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+# Salvar como PNG em alta resolução
+ggsave(
+  filename = "grafico_regiao.png",
+  plot = grafico_regiao,  # seu objeto ggplot
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/",
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+
+```
+
+
+
+```{r}
+# Calculando características da população (Mean, SD, Min e Max)
+caracteristicas <- data.frame(
+  Variable = c(
+    "Fasting glucose (mmol/L)",
+    "Fasting insulin (μU/mL) (n=73)", "HbA1c (%)", "Total cholesterol (mmol/L)",
+    "LDL-C (mmol/L)", "HDL-C (mmol/L)", "Triglycerides (mmol/L)",
+    "Systolic blood pressure (mmHg)", "Diastolic blood pressure (mmHg)",
+    "CRP (mg/L) (n=73)", "TyG (n=73)", "HOMA-IR (n=73)"
+  ),
+  Mean = c(
+    round(mean(metadados.all.filtrado$GLICOSE, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$INSULINA, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$HbA1c, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$COLESTEROL, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$LDL, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$HDL, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$TRIGLICERIDES, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$Systolic, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$Diastolic, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$PCR, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$TyG, na.rm = TRUE), 2),
+    round(mean(metadados.all.filtrado$HOMA, na.rm = TRUE), 2)
+  ),
+  SD = c(
+    round(sd(metadados.all.filtrado$GLICOSE, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$INSULINA, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$HbA1c, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$COLESTEROL, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$LDL, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$HDL, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$TRIGLICERIDES, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$Systolic, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$Diastolic, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$PCR, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$TyG, na.rm = TRUE), 2),
+    round(sd(metadados.all.filtrado$HOMA, na.rm = TRUE), 2)
+  ),
+  Min = c(
+    round(min(metadados.all.filtrado$GLICOSE, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$INSULINA, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$HbA1c, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$COLESTEROL, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$LDL, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$HDL, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$TRIGLICERIDES, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$Systolic, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$Diastolic, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$PCR, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$TyG, na.rm = TRUE), 2),
+    round(min(metadados.all.filtrado$HOMA, na.rm = TRUE), 2)
+  ),
+  Max = c(
+    round(max(metadados.all.filtrado$GLICOSE, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$INSULINA, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$HbA1c, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$COLESTEROL, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$LDL, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$HDL, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$TRIGLICERIDES, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$Systolic, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$Diastolic, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$PCR, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$TyG, na.rm = TRUE), 2),
+    round(max(metadados.all.filtrado$HOMA, na.rm = TRUE), 2)
+  )
+)
+
+
+
+# Visualizando o resultado final
+print(caracteristicas)
+
+# Salvando como CSV
+write.csv(caracteristicas, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/population_characteristics_final.csv", row.names = FALSE)
+
+
+
+```
+
+Fazer uma tabela com formatação bonita
+```{r}
+install.packages("gt")
+
+library(gt)
+
+column_labels.font.weight = "bold"
+
+
+# Criar a tabela bonitinha com gt
+TableClinicalTraits <- caracteristicas %>%
+  gt() %>%
+  tab_header(
+    title = "Clinical Traits",
+    subtitle = "(n=98)"
+  ) %>%
+  fmt_number(
+    columns = c(Mean, SD),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Variable = "Variable",
+    Mean = "Mean",
+    SD = "SD",
+    Min = "Min",
+    Max = "Max"
+  ) %>%
+  cols_width(
+    Variable ~ px(250),
+    everything() ~ px(90)
+  ) %>%
+  tab_options(
+    table.font.size = 12,
+    heading.align = "center",
+    table.width = pct(100),
+    column_labels.font.weight = "bold"  # ⬅️ aqui ativa o negrito do cabeçalho
+  )
+
+
+
+# Exibir a tabela
+TableClinicalTraits
+
+install.packages("pagedown")
+install.packages("xfun")
+library(pagedown)
+
+gtsave(TableClinicalTraits, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/TableClinicalTraits.html")
+
+gtsave(
+  data = TableClinicalTraits,
+  filename = "TableClinicalTraits.png",
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/",  # ou outro caminho da sua preferência
+  expand = 10,   # aumenta a resolução do fundo
+  zoom = 2       # dobra a nitidez da tabela
+)
+
+
+
+```
+
+```{r}
+install.packages("kableExtra")
+library(kableExtra)
+
+# Criando a tabela com kableExtra
+tabela_características_população2 <- caracteristicas %>%
+  knitr::kable("html", col.names = c("Variable", "Mean", "Standard Deviation")) %>%
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    font_size = 14
+  )
+
+# Exibir a tabela no Viewer
+tabela_características_população2
+
+```
+```{r}
+# Salvar a tabela como HTML
+tabela_características_população2 %>%
+  save_kable("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/population_characteristics_table2.html")
+
+```
+
+#Tabela com idade, IMC e sexo
+
+```{r}
+#Kruskal-Wallis para mais de dois grupos
+#Para comparar IMC ou Idade entre Sul, Norte, Leste, etc.:
+
+
+# Kruskal-Wallis para IMC
+kruskal.test(IMC ~ Region, data = metadados)
+```
+
+
+```{r}
+# Kruskal-Wallis para Idade
+
+
+kruskal.test(Age ~ Region, data = metadados)
+
+```
+
+Se o resultado do Kruskal-Wallis for significativo, você pode fazer comparações par-a-par usando Dunn's Test:
+
+```{r}
+install.packages("FSA")
+library(FSA)
+# Comparações par-a-par
+dunnTest(IMC ~ Region, data = metadados, method = "bonferroni")
+
+```
+Mann-Whitney U para dois grupos (Rural vs Urbano)
+Para comparar IMC ou Idade entre Rural e Urbano:
+```{r}
+# Mann-Whitney para IMC
+wilcox.test(IMC ~ Region_type, data = metadados)
+```
+
+
+```{r}
+# Mann-Whitney para Idade
+wilcox.test(Age ~ Region_type, data = metadados)
+
+```
+Qui-quadrado ou Fisher para variáveis categóricas (Sexo)
+Se você quiser comparar Sexo entre regiões ou tipos de região:
+
+Para mais de dois grupos (Sul, Norte, etc.):
+
+
+```{r}
+# Tabela cruzada para Sexo e Região
+tabela_sexo <- table(metadados$Sex, metadados$Region)
+
+# Qui-quadrado
+chisq.test(tabela_sexo)
+
+```
+
+#Para dois grupos (Rural vs Urbano):
+```{r}
+# Tabela cruzada para Sexo e Tipo de Região
+tabela_sexo <- table(metadados$Sex, metadados$Region_type)
+
+# Teste exato de Fisher (para pequenas amostras)
+fisher.test(tabela_sexo)
+
+```
+### IMPORTANTE PARA ESCOLHER OS TESTES ###
+Resumo de Como Escolher o Teste
+
+Variável: IMC, Idade	Grupos: 2 grupos (Rural/Urbano)	=> Mann-Whitney U
+
+Variável: IMC, Idade	Grupos: Mais de 2 grupos =>	Kruskal-Wallis
+
+Variável: Sexo (categórica)	Grupos: 2 grupos (Rural/Urbano)	=> Fisher ou Qui-quadrado
+
+Variável: Sexo (categórica)	Grupos: Mais de 2 grupos	=> Qui-quadrado
+
+
+#Não deu diferença estatística!
+O que fazer a seguir?
+Verificar os dados:
+
+Certifique-se de que os dados de idade estão corretos e completos.
+Visualize os dados por região usando boxplots para identificar diferenças visuais ou outliers.
+Exemplo de código para boxplots:
+
+```{r}
+library(ggplot2)
+
+#Alterar a paleta de cores. Se quiser mudar as cores, substitua scale_fill_brewer(palette = "Set3") por outra paleta disponível, como: "Paired", "Pastel1", "Dark2" Ou use cores personalizadas: 
+
+boxplot_idade <- ggplot(metadados, aes(x = Region, y = Age, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Distribuição da idade por região",
+       x = "Região",
+       y = "Idade") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")  # Paleta de cores
+
+# Exibir o gráfico
+boxplot_idade
+
+# Salvar como PNG
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/boxplot_idade.png", plot = boxplot_idade, width = 8, height = 6, dpi = 300)
+
+# Salvar como PDF
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/boxplot_idade.pdf", plot = boxplot_idade, width = 8, height = 6)
+
+
+```
+
+Tabela com : Idade, Sexo, Média de Idade entre os sexos e Número Total. 
+Criar a tabela resumida
+Usaremos o dplyr para calcular os resumos e o gt para formatar a tabela.
+
+```{r}
+# Carregar os pacotes necessários
+library(dplyr)
+library(gt)
+
+# Ajustar os rótulos para inglês (Male e Female)
+tabela_resumo <- metadados %>%
+  mutate(Sex = ifelse(Sex == "Feminino", "Female", 
+                      ifelse(Sex == "Masculino", "Male", Sex))) %>%
+  group_by(Sex) %>%
+  summarise(
+    `N` = n(),  # Contagem total por sexo
+    `Mean Age` = round(mean(Age, na.rm = TRUE), 2),  # Média de idade
+    `SD` = round(sd(Age, na.rm = TRUE), 2),  # Desvio padrão da idade
+    `Min Age` = min(Age, na.rm = TRUE),  # Idade mínima
+    `Max Age` = max(Age, na.rm = TRUE)   # Idade máxima
+  ) %>%
+  ungroup()
+
+# Criar uma tabela formatada com gt
+tabela_final <- tabela_resumo %>%
+  gt() %>%
+  tab_header(
+    title = "Age and Sex (n=130)"
+  ) %>%
+  fmt_number(
+    columns = c(`Mean Age`, `SD`, `Min Age`, `Max Age`),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Sex = "Sex",
+    `N` = "Count",
+    `Mean Age` = "Mean Age",
+    `SD` = "Standard Deviation",
+    `Min Age` = "Minimum Age",
+    `Max Age` = "Maximum Age"
+  ) %>%
+  tab_options(
+    table.font.size = 12,
+    heading.align = "center"
+  )
+
+# Exibir a tabela
+tabela_final
+
+# Salvar como HTML
+gtsave(tabela_final, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/age_sex_summary.html")
+
+# Salvar como PDF
+gtsave(tabela_final, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/age_sex_summary.jpg")
+
+gtsave(
+  tabela_final, 
+  "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/age_sex_summary.png"
+)
+
+
+```
+
+### Parasitológico. ###
+Tabela que mostre quantos voluntários têm resultado positivo no parasitológico e listar os tipos de parasitas encontrados
+
+```{r}
+# Carregar os pacotes necessários
+library(dplyr)
+library(gt)
+
+# Substituir "e" por "and" na coluna Parasitas
+metadados <- metadados %>%
+  mutate(Parasitas = gsub(" e ", " and ", Parasitas))
+
+# Substituir "Nana" por "nana" na coluna Parasitas
+metadados <- metadados %>%
+  mutate(Parasitas = gsub("Nana", "nana", Parasitas))
+
+# Fazer as substituições na coluna Parasitas
+metadados <- metadados %>%
+  mutate(
+    Parasitas = gsub("Prersença", "Presença", Parasitas)  # Corrigir "Prersença" para "Presença"
+  )
+
+# Substituir "/" por vírgula e ajustar o formato
+metadados <- metadados %>%
+  mutate(
+    Parasitas = gsub(" . ", ", ", Parasitas)  # Substituir " / " por ", "
+  )
+
+# Verificar se as alterações foram realizadas corretamente
+unique(metadados$Parasitas)
+
+# Contar os resultados do parasitológico
+resumo_parasitologico <- metadados %>%
+  group_by(ParasitologicoPositivo) %>%
+  summarise(N = n()) %>%
+  arrange(desc(N))
+
+# Exibir o resumo
+print(resumo_parasitologico)
+
+
+# Substituir "e" por "and" na coluna de tipos de parasitas
+tabela_parasitologico <- metadados %>%
+  filter(ParasitologicoPositivo == "Sim") %>%  # Selecionar apenas positivos no parasitológico
+  group_by(Parasitas) %>%  # Agrupar por tipos de parasitas
+  summarise(`Número de casos` = n()) %>%  # Contar ocorrências de cada parasita
+  arrange(desc(`Número de casos`)) %>%  # Ordenar por número de casos
+  ungroup()
+
+# Criar uma tabela formatada com gt
+tabela_final_parasitas <- tabela_parasitologico %>%
+  gt() %>%
+  tab_header(
+    title = "Parasitological Test (n=130) ("
+  ) %>%
+  cols_label(
+    Parasitas = "Parasite Type",
+    `Número de casos` = "Number of Cases"
+  ) %>%
+  tab_options(
+    table.font.size = 12,
+    heading.align = "center"
+  )
+
+# Exibir a tabela
+tabela_final_parasitas
+
+```
+

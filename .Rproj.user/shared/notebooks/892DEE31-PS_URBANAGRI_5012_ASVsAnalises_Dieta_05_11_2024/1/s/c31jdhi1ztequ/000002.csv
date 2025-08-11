@@ -1,0 +1,34 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDYXJyZWd1ZSBvIHBhY290ZVxubGlicmFyeShEVClcblxuIyBSZW5vbWVhciBvIG9iamV0byBjb3JyZXRhbWVudGUgYW50ZXMgZGUgdXNhciBvIGRhdGF0YWJsZVxuZm9ybWF0dGVkX3RhYmxlIDwtIGNvcl9zaWduaWZpY2FudF9zYXVkZV9kaWV0YV93aXRoX3RheG9ub215XG5cblxuIyBNb3N0cmFyIGEgdGFiZWxhIGludGVyYXRpdmFcbmRhdGF0YWJsZShmb3JtYXR0ZWRfdGFibGUsIFxuICAgICAgICAgIG9wdGlvbnMgPSBsaXN0KHBhZ2VMZW5ndGggPSAxMCksIFxuICAgICAgICAgIGNhcHRpb24gPSAnQ29ycmVsYcOnw7VlcyBTaWduaWZpY2F0aXZhcyBlbnRyZSBUYXhvbiBlIFBhcsOibWV0cm9zIGRlIFNhw7pkZScpXG5cbmBgYCJ9 -->
+
+```r
+# Carregue o pacote
+library(DT)
+
+# Renomear o objeto corretamente antes de usar o datatable
+formatted_table <- cor_significant_saude_dieta_with_taxonomy
+
+
+# Mostrar a tabela interativa
+datatable(formatted_table, 
+          options = list(pageLength = 10), 
+          caption = 'Correlações Significativas entre Taxon e Parâmetros de Saúde')
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Carregue o pacote
+library(DT)
+
+# Renomear o objeto corretamente antes de usar o datatable
+formatted_table <- cor_significant_saude_dieta_with_taxonomy
+
+
+# Mostrar a tabela interativa
+datatable(formatted_table, 
+          options = list(pageLength = 10), 
+          caption = 'Correlações Significativas entre Taxon e Parâmetros de Saúde')
+
+```"

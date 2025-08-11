@@ -1,0 +1,56 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5jb2xuYW1lcyhzYXVkZV9kaWV0YSlcbiNwaWVsb3VfZXZlbm5lc3MgeCB0cmlnbGljZXJpZGVzXG5cbiMgdXNlaSBlc3NlIG1lc21vIGPDs2RpZ28gcGFyYSBvIHBlbG91LCBGYWl0aCwgb2JzZXJ2ZWQsIHNoYW5ub25cblxuZ2dwbG90KHNhdWRlX2RpZXRhLCBhZXMoeCA9IFcySFJhdGlvLCB5ID0gc2hhbm5vbl9lbnRyb3B5KSkgK1xuXG4gIGdlb21fcG9pbnQoKSArIFxuXG4gIGxhYnMoeCA9IFwiV2Fpc3QgdG8gSGlwIFJhdGlvXCIsIHkgPSBcIlNoYW5ub25cIikgKyBcblxuICB0aGVtZV9taW5pbWFsKCkgKyBcblxuICBnZW9tX3Ntb290aChtZXRob2QgPSBcImxtXCIpICtcblxuICBzdGF0X3BvbHlfZXEoYWVzKGxhYmVsID0gcGFzdGUoLi5wLnZhbHVlLmxhYmVsLi4sIHNlcCA9IFwifn5+XCIpKSxcblxuICAgICAgICAgICAgICAgZm9ybXVsYSA9IHkgfiB4LCBcblxuICAgICAgICAgICAgICAgcGFyc2UgPSBUUlVFKSBcblxuXG5gYGAifQ== -->
+
+```r
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = W2HRatio, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = \"Waist to Hip Ratio\", y = \"Shannon\") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = \"lm\") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = \"~~~\")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = W2HRatio, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = \"Waist to Hip Ratio\", y = \"Shannon\") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = \"lm\") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = \"~~~\")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```"

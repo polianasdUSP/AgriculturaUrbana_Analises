@@ -1,0 +1,5 @@
+"0","data$X.SampleID [grepl (x=data$X.SampleID, pattern = ""1$""), ]
+"
+"2","Error in data$X.SampleID[grepl(x = data$X.SampleID, pattern = ""1$""), ] : 
+  número incorreto de dimensões
+"

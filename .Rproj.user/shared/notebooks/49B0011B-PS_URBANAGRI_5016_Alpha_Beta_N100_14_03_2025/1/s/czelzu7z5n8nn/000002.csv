@@ -1,0 +1,42 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGRwbHlyKVxuXG5tZXRhZGFkb3MuZGlldGEucmVzaWR1YWwuYWxwaGEgPC0gbWV0YWRhZG9zLmRpZXRhLnJlc2lkdWFsLmFscGhhICU+JVxuICBtdXRhdGUoXG4gICAgdGVyY2lsX3NhdHVyYWRvcyA9IG50aWxlKGFjaWRvc19ncmF4b3Nfc2F0dXJhZG9zX2csIDMpLFxuICAgIHRlcmNpbF90cmFucyA9IG50aWxlKGFjaWRvc19ncmF4b3NfdHJhbnNfZywgMyksXG4gICAgdGVyY2lsX2NvbGVzdGVyb2wgPSBudGlsZShjb2xlc3Rlcm9sX21nLCAzKVxuICApICU+JVxuICBtdXRhdGUoXG4gICAgdGVyY2lsX3NhdHVyYWRvcyA9IGZhY3Rvcih0ZXJjaWxfc2F0dXJhZG9zLCBsYWJlbHMgPSBjKFwiTG93XCIsIFwiTWVkaXVtXCIsIFwiSGlnaFwiKSksXG4gICAgdGVyY2lsX3RyYW5zID0gZmFjdG9yKHRlcmNpbF90cmFucywgbGFiZWxzID0gYyhcIkxvd1wiLCBcIk1lZGl1bVwiLCBcIkhpZ2hcIikpLFxuICAgIHRlcmNpbF9jb2xlc3Rlcm9sID0gZmFjdG9yKHRlcmNpbF9jb2xlc3Rlcm9sLCBsYWJlbHMgPSBjKFwiTG93XCIsIFwiTWVkaXVtXCIsIFwiSGlnaFwiKSlcbiAgKVxuXG5cbmBgYCJ9 -->
+
+```r
+
+library(dplyr)
+
+metadados.dieta.residual.alpha <- metadados.dieta.residual.alpha %>%
+  mutate(
+    tercil_saturados = ntile(acidos_graxos_saturados_g, 3),
+    tercil_trans = ntile(acidos_graxos_trans_g, 3),
+    tercil_colesterol = ntile(colesterol_mg, 3)
+  ) %>%
+  mutate(
+    tercil_saturados = factor(tercil_saturados, labels = c(\"Low\", \"Medium\", \"High\")),
+    tercil_trans = factor(tercil_trans, labels = c(\"Low\", \"Medium\", \"High\")),
+    tercil_colesterol = factor(tercil_colesterol, labels = c(\"Low\", \"Medium\", \"High\"))
+  )
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+library(dplyr)
+
+metadados.dieta.residual.alpha <- metadados.dieta.residual.alpha %>%
+  mutate(
+    tercil_saturados = ntile(acidos_graxos_saturados_g, 3),
+    tercil_trans = ntile(acidos_graxos_trans_g, 3),
+    tercil_colesterol = ntile(colesterol_mg, 3)
+  ) %>%
+  mutate(
+    tercil_saturados = factor(tercil_saturados, labels = c(\"Low\", \"Medium\", \"High\")),
+    tercil_trans = factor(tercil_trans, labels = c(\"Low\", \"Medium\", \"High\")),
+    tercil_colesterol = factor(tercil_colesterol, labels = c(\"Low\", \"Medium\", \"High\"))
+  )
+
+
+```"

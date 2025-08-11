@@ -1,0 +1,11 @@
+"0","```r
+# Box plot de Shannon Entropy por Region com resultados do teste de Kruskal-Wallis
+ggplot(metadados_raw, aes(x = Region, y = shannon_entropy, fill = Region)) +
+  geom_boxplot() +
+  geom_signif(comparisons = combn(unique(metadados_raw$Region), 2, simplify = FALSE), 
+              map_signif_level = TRUE) +  # Adicionar resultados do teste de Kruskal-Wallis
+  labs(title = \"Shannon Entropy por Região\", x = \"Região\", y = \"Shannon Entropy\") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotacionar labels do eixo x para melhor visualização
+
+```"

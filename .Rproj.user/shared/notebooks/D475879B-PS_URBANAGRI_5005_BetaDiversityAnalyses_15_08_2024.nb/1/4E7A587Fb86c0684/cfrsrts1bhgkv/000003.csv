@@ -1,0 +1,14 @@
+"0","# Plot PCoA Weighted Unifrac ajustado com variável contínua COLESTEROL
+ggplot(merge(wunifrac.pcoa$points, subset(metadados_dieta, !is.na(residual_cobre_mg)), by.x = ""row.names"", by.y = ""IdVoluntario"")) + 
+  geom_point(aes(x = V1, y = V2, color = residual_cobre_mg), size = 2) + 
+  scale_color_gradient(low = ""blue"", high = ""red"", name = ""residual_cobre_mg"") +
+  labs(title = ""Weighted Unifrac"", x = ""V1"", y = ""V2"") +
+  theme_minimal()
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/D475879B-PS_URBANAGRI_5005_BetaDiversityAnalyses_15_08_2024.nb/1/4E7A587Fb86c0684/cfrsrts1bhgkv_t/7b700400bb634741baa4faa0f52dbf0e.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

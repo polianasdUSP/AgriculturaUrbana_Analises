@@ -1,0 +1,18 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUobWV0YWRhZG9zLmRpZXQuaW5kZXguYWxwaGEkQkhFSV9jYXRlZ29yeSwgdXNlTkEgPSBcImFsd2F5c1wiKVxuXG5gYGAifQ== -->
+
+```r
+table(metadados.diet.index.alpha$BHEI_category, useNA = \"always\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+table(metadados.diet.index.alpha$BHEI_category, useNA = \"always\")
+
+```"
+"1","
+Poor diet quality Needs improvement Good diet quality              <NA> 
+               40                69                 0                 0 
+"

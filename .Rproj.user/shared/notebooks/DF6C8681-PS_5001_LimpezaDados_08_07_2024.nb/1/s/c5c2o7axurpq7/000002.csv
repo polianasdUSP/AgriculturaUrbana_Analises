@@ -1,0 +1,28 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZW5vbWVhciBhIGNvbHVuYSBcIlBhcmFzaXRvbG9naWNvICtcIiBwYXJhIFwiUGFyYXNpdG9sb2dpY29Qb3NpdGl2b1wiXG5tZXRhZGFkb3MuYWxwaGEuYWxsIDwtIG1ldGFkYWRvcy5hbHBoYS5hbGwgJT4lXG4gIHJlbmFtZShQYXJhc2l0b2xvZ2ljb1Bvc2l0aXZvID0gYFBhcmFzaXRvbG9naWNvICtgKVxuXG5tZXRhZGFkb3MucmF3IDwtIG1ldGFkYWRvcy5yYXcgJT4lXG4gIHJlbmFtZShQYXJhc2l0b2xvZ2ljb1Bvc2l0aXZvID0gYFBhcmFzaXRvbG9naWNvICtgKVxuXG4jIFZlcmlmaWNhIGFzIHByaW1laXJhcyBsaW5oYXMgcGFyYSBjb25maXJtYcOnw6NvXG5wcmludChoZWFkKG1ldGFkYWRvcy5yYXcpKVxuYGBgIn0= -->
+
+```r
+# Renomear a coluna \"Parasitologico +\" para \"ParasitologicoPositivo\"
+metadados.alpha.all <- metadados.alpha.all %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+metadados.raw <- metadados.raw %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+# Verifica as primeiras linhas para confirmação
+print(head(metadados.raw))
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Renomear a coluna \"Parasitologico +\" para \"ParasitologicoPositivo\"
+metadados.alpha.all <- metadados.alpha.all %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+metadados.raw <- metadados.raw %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+# Verifica as primeiras linhas para confirmação
+print(head(metadados.raw))
+```"

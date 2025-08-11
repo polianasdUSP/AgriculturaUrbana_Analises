@@ -1,0 +1,28 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KG1lcmdlKHVud2VpX3VuaWZyYWMucGNvYSRwb2ludHMsIG1ldGFkYXRhLCBieS54ID0gXCJyb3cubmFtZXNcIiwgYnkueSA9IFwiU2FtcGxlLmlkXCIpKSArIFxuICBnZW9tX3BvaW50KGFlcyh4ID0gVjEsIHkgPSBWMiwgY29sb3IgPSBJTUMpLCBzaXplID0gMykgKyBcbiAgc2NhbGVfY29sb3JfdmlyaWRpc19jKG9wdGlvbiA9IFwiQ1wiLCBuYW1lID0gXCJCTUlcIikgK1xuICBsYWJzKHRpdGxlID0gcGFzdGUoXCJVbndlaWdodGVkIFVuaUZyYWNcIiwgcmVzX3Vud2VpZ2h0ZWQpLFxuICAgICAgIHggPSBcIlBDb0ExXCIsIHkgPSBcIlBDb0EyXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpXG5cbmBgYCJ9 -->
+
+```r
+ggplot(merge(unwei_unifrac.pcoa$points, metadata, by.x = \"row.names\", by.y = \"Sample.id\")) + 
+  geom_point(aes(x = V1, y = V2, color = IMC), size = 3) + 
+  scale_color_viridis_c(option = \"C\", name = \"BMI\") +
+  labs(title = paste(\"Unweighted UniFrac\", res_unweighted),
+       x = \"PCoA1\", y = \"PCoA2\") +
+  theme_minimal()
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+ggplot(merge(unwei_unifrac.pcoa$points, metadata, by.x = \"row.names\", by.y = \"Sample.id\")) + 
+  geom_point(aes(x = V1, y = V2, color = IMC), size = 3) + 
+  scale_color_viridis_c(option = \"C\", name = \"BMI\") +
+  labs(title = paste(\"Unweighted UniFrac\", res_unweighted),
+       x = \"PCoA1\", y = \"PCoA2\") +
+  theme_minimal()
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/AF6D5EA6-PS_URBANAGRI_5016_Alpha_Beta_N100_14_03_2025/1/4E7A587Ff595eb3c/cbar8kmakwi3l_t/d8ba4b3aac4448159a9770fd4a635409.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

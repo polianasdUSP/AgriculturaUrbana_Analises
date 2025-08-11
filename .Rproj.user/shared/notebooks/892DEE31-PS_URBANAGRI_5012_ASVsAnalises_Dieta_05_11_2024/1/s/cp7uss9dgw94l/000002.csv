@@ -1,0 +1,48 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDcmlhciBvIGhlYXRtYXAgdXNhbmRvIFRheG9uIG5vIGVpeG8geVxuaGVhdG1hcF9zYXVkZV9kaWV0YV90YXhvbiA8LSBnZ3Bsb3QoY29yX3NpZ25pZmljYW50X3NhdWRlX2RpZXRhX3dpdGhfdGF4b25vbXksIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWVzKHggPSBwYXJhbWV0ZXIsIHkgPSBUYXhvbiwgZmlsbCA9IGNvcnJlbGF0aW9uKSkgK1xuICBnZW9tX3RpbGUoY29sb3IgPSBcIndoaXRlXCIpICtcbiAgc2NhbGVfZmlsbF9ncmFkaWVudDIobG93ID0gXCJibHVlXCIsIG1pZCA9IFwid2hpdGVcIiwgaGlnaCA9IFwicmVkXCIsIG1pZHBvaW50ID0gMCwgXG4gICAgICAgICAgICAgICAgICAgICAgIG5hbWUgPSBcIkNvcnJlbGHDp8Ojb1wiKSArXG4gIHRoZW1lX21pbmltYWwoKSArXG4gIHRoZW1lKFxuICAgIGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNDUsIGhqdXN0ID0gMSksXG4gICAgYXhpcy50aXRsZS54ID0gZWxlbWVudF9ibGFuaygpLFxuICAgIGF4aXMudGl0bGUueSA9IGVsZW1lbnRfYmxhbmsoKSxcbiAgICBheGlzLnRleHQueSA9IGVsZW1lbnRfdGV4dChzaXplID0gOCkgIyBBanVzdGEgbyB0YW1hbmhvIGRvIHRleHRvIHBhcmEgbWVsaG9yIHZpc3VhbGl6YcOnw6NvXG4gICkgK1xuICBsYWJzKHRpdGxlID0gXCJIZWF0bWFwIGRlIENvcnJlbGHDp8O1ZXMgU2lnbmlmaWNhdGl2YXNcIixcbiAgICAgICBzdWJ0aXRsZSA9IFwiQXBlbmFzIGNvcnJlbGHDp8O1ZXMgY29tIHAtdmFsb3Ig4omkIDAsMDVcIilcblxuIyBNb3N0cmFyIG8gaGVhdG1hcFxucHJpbnQoaGVhdG1hcF9zYXVkZV9kaWV0YV90YXhvbilcblxuYGBgIn0= -->
+
+```r
+# Criar o heatmap usando Taxon no eixo y
+heatmap_saude_dieta_taxon <- ggplot(cor_significant_saude_dieta_with_taxonomy, 
+                                    aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(size = 8) # Ajusta o tamanho do texto para melhor visualização
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas\",
+       subtitle = \"Apenas correlações com p-valor ≤ 0,05\")
+
+# Mostrar o heatmap
+print(heatmap_saude_dieta_taxon)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Criar o heatmap usando Taxon no eixo y
+heatmap_saude_dieta_taxon <- ggplot(cor_significant_saude_dieta_with_taxonomy, 
+                                    aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(size = 8) # Ajusta o tamanho do texto para melhor visualização
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas\",
+       subtitle = \"Apenas correlações com p-valor ≤ 0,05\")
+
+# Mostrar o heatmap
+print(heatmap_saude_dieta_taxon)
+
+```"

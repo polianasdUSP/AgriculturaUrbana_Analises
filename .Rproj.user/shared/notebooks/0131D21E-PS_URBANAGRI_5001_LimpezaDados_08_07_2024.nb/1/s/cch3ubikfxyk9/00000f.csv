@@ -1,0 +1,6 @@
+"0","# Supondo que o nome do seu dataframe seja df, por exemplo:"
+"0","colnames(metadados.metabolicos) <- gsub(""\\?$"", """", colnames(metadados.metabolicos)"
+"2","Erro: unexpected symbol em:
+""# Supondo que o nome do seu dataframe seja df, por exemplo:
+colnames""
+"

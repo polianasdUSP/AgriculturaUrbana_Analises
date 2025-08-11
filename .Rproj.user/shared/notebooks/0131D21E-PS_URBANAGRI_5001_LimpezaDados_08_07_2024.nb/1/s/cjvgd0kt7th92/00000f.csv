@@ -1,0 +1,4 @@
+"0","metadata_shannon <- merge(metadados, alpha.shannon, by.x = ""Sample.id"", by.y = ""Row.names"")
+"
+"2","Error in fix.by(by.y, y) : 'by' must specify a uniquely valid column
+"

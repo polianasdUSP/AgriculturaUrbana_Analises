@@ -1,0 +1,82 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmxpYnJhcnkodGlkeXIpXG5cbiMgU2VsZWNpb25hciBhcyBjb2x1bmFzIGRlIGNvcnJlbGHDp8OjbyBlIHBfdmFsdWUgc2VwYXJhZGFtZW50ZVxuY29ycmVsYXRpb25fY29sdW1ucyA8LSBncmVwKFwiX2NvcnJlbGF0aW9uJFwiLCBjb2xuYW1lcyhjb3JfcmVzdWx0c19zYXVkZV9kaWV0YSksIHZhbHVlID0gVFJVRSlcbnBfdmFsdWVfY29sdW1ucyA8LSBncmVwKFwiX3BfdmFsdWUkXCIsIGNvbG5hbWVzKGNvcl9yZXN1bHRzX3NhdWRlX2RpZXRhKSwgdmFsdWUgPSBUUlVFKVxuXG4jIENyaWFyIGRhdGFmcmFtZXMgbG9uZ29zIHBhcmEgY29ycmVsYcOnw6NvIGUgcF92YWx1ZVxuY29ycmVsYXRpb25fbG9uZyA8LSBjb3JfcmVzdWx0c19zYXVkZV9kaWV0YSAlPiVcbiAgc2VsZWN0KEZlYXR1cmUuSURfMSwgYWxsX29mKGNvcnJlbGF0aW9uX2NvbHVtbnMpKSAlPiVcbiAgcGl2b3RfbG9uZ2VyKFxuICAgIGNvbHMgPSAtRmVhdHVyZS5JRF8xLFxuICAgIG5hbWVzX3RvID0gXCJwYXJhbWV0ZXJcIixcbiAgICB2YWx1ZXNfdG8gPSBcImNvcnJlbGF0aW9uXCJcbiAgKSAlPiVcbiAgbXV0YXRlKHBhcmFtZXRlciA9IGdzdWIoXCJfY29ycmVsYXRpb24kXCIsIFwiXCIsIHBhcmFtZXRlcikpXG5cbnBfdmFsdWVfbG9uZyA8LSBjb3JfcmVzdWx0c19zYXVkZV9kaWV0YSAlPiVcbiAgc2VsZWN0KEZlYXR1cmUuSURfMSwgYWxsX29mKHBfdmFsdWVfY29sdW1ucykpICU+JVxuICBwaXZvdF9sb25nZXIoXG4gICAgY29scyA9IC1GZWF0dXJlLklEXzEsXG4gICAgbmFtZXNfdG8gPSBcInBhcmFtZXRlclwiLFxuICAgIHZhbHVlc190byA9IFwicF92YWx1ZVwiXG4gICkgJT4lXG4gIG11dGF0ZShwYXJhbWV0ZXIgPSBnc3ViKFwiX3BfdmFsdWUkXCIsIFwiXCIsIHBhcmFtZXRlcikpXG5cbiMgVW5pciBvcyBkb2lzIGRhdGFmcmFtZXNcbmNvcl9sb25nX1NhdWRlX2RpZXRhIDwtIGNvcnJlbGF0aW9uX2xvbmcgJT4lXG4gIGxlZnRfam9pbihwX3ZhbHVlX2xvbmcsIGJ5ID0gYyhcIkZlYXR1cmUuSURfMVwiLCBcInBhcmFtZXRlclwiKSkgJT4lXG4gIGZpbHRlcighaXMubmEoY29ycmVsYXRpb24pKSAgIyBGaWx0cmEgY29ycmVsYcOnw7VlcyB2w6FsaWRhc1xuXG4jIFZpc3VhbGl6YXIgbyByZXN1bHRhZG9cbnByaW50KGNvcl9sb25nX1NhdWRlX2RpZXRhKVxuXG5cbmNvbG5hbWVzKGNvcl9sb25nX1NhdWRlX2RpZXRhKVxuYGBgIn0= -->
+
+```r
+library(dplyr)
+library(tidyr)
+
+# Selecionar as colunas de correlação e p_value separadamente
+correlation_columns <- grep(\"_correlation$\", colnames(cor_results_saude_dieta), value = TRUE)
+p_value_columns <- grep(\"_p_value$\", colnames(cor_results_saude_dieta), value = TRUE)
+
+# Criar dataframes longos para correlação e p_value
+correlation_long <- cor_results_saude_dieta %>%
+  select(Feature.ID_1, all_of(correlation_columns)) %>%
+  pivot_longer(
+    cols = -Feature.ID_1,
+    names_to = \"parameter\",
+    values_to = \"correlation\"
+  ) %>%
+  mutate(parameter = gsub(\"_correlation$\", \"\", parameter))
+
+p_value_long <- cor_results_saude_dieta %>%
+  select(Feature.ID_1, all_of(p_value_columns)) %>%
+  pivot_longer(
+    cols = -Feature.ID_1,
+    names_to = \"parameter\",
+    values_to = \"p_value\"
+  ) %>%
+  mutate(parameter = gsub(\"_p_value$\", \"\", parameter))
+
+# Unir os dois dataframes
+cor_long_Saude_dieta <- correlation_long %>%
+  left_join(p_value_long, by = c(\"Feature.ID_1\", \"parameter\")) %>%
+  filter(!is.na(correlation))  # Filtra correlações válidas
+
+# Visualizar o resultado
+print(cor_long_Saude_dieta)
+
+
+colnames(cor_long_Saude_dieta)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(dplyr)
+library(tidyr)
+
+# Selecionar as colunas de correlação e p_value separadamente
+correlation_columns <- grep(\"_correlation$\", colnames(cor_results_saude_dieta), value = TRUE)
+p_value_columns <- grep(\"_p_value$\", colnames(cor_results_saude_dieta), value = TRUE)
+
+# Criar dataframes longos para correlação e p_value
+correlation_long <- cor_results_saude_dieta %>%
+  select(Feature.ID_1, all_of(correlation_columns)) %>%
+  pivot_longer(
+    cols = -Feature.ID_1,
+    names_to = \"parameter\",
+    values_to = \"correlation\"
+  ) %>%
+  mutate(parameter = gsub(\"_correlation$\", \"\", parameter))
+
+p_value_long <- cor_results_saude_dieta %>%
+  select(Feature.ID_1, all_of(p_value_columns)) %>%
+  pivot_longer(
+    cols = -Feature.ID_1,
+    names_to = \"parameter\",
+    values_to = \"p_value\"
+  ) %>%
+  mutate(parameter = gsub(\"_p_value$\", \"\", parameter))
+
+# Unir os dois dataframes
+cor_long_Saude_dieta <- correlation_long %>%
+  left_join(p_value_long, by = c(\"Feature.ID_1\", \"parameter\")) %>%
+  filter(!is.na(correlation))  # Filtra correlações válidas
+
+# Visualizar o resultado
+print(cor_long_Saude_dieta)
+
+
+colnames(cor_long_Saude_dieta)
+```"

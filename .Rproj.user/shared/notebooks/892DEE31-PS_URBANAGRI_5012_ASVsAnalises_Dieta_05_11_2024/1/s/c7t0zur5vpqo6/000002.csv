@@ -1,0 +1,26 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBBZGljaW9uYSBhIGNvbHVuYSBkZSB0YXhvbm9taWEgYSBjb3Jfc2lnbmlmaWNhbnRfc2F1ZGVfZGlldGFcbmNvcl9zaWduaWZpY2FudF9zYXVkZV9kaWV0YV93aXRoX3RheG9ub215IDwtIGNvcl9zaWduaWZpY2FudF9zYXVkZV9kaWV0YSAlPiVcbiAgZHBseXI6OmxlZnRfam9pbih0YXhvbm9teSwgYnkgPSBjKFwiRmVhdHVyZS5JRF8xXCIgPSBcIkZlYXR1cmUuSURcIikpICU+JSAgIyBKdW50YSBjb20gYmFzZSBubyBGZWF0dXJlLklEXzEgZSBGZWF0dXJlLklEXG4gIGRwbHlyOjpyZWxvY2F0ZShUYXhvbiwgLmFmdGVyID0gRmVhdHVyZS5JRF8xKSAgIyBNb3ZlIGEgY29sdW5hIFRheG9uIGxvZ28gYXDDs3MgRmVhdHVyZS5JRF8xXG5cbiMgVmlzdWFsaXphciBhcyBwcmltZWlyYXMgbGluaGFzXG5oZWFkKGNvcl9zaWduaWZpY2FudF9zYXVkZV9kaWV0YV93aXRoX3RheG9ub215KVxuXG5gYGAifQ== -->
+
+```r
+# Adiciona a coluna de taxonomia a cor_significant_saude_dieta
+cor_significant_saude_dieta_with_taxonomy <- cor_significant_saude_dieta %>%
+  dplyr::left_join(taxonomy, by = c(\"Feature.ID_1\" = \"Feature.ID\")) %>%  # Junta com base no Feature.ID_1 e Feature.ID
+  dplyr::relocate(Taxon, .after = Feature.ID_1)  # Move a coluna Taxon logo após Feature.ID_1
+
+# Visualizar as primeiras linhas
+head(cor_significant_saude_dieta_with_taxonomy)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Adiciona a coluna de taxonomia a cor_significant_saude_dieta
+cor_significant_saude_dieta_with_taxonomy <- cor_significant_saude_dieta %>%
+  dplyr::left_join(taxonomy, by = c(\"Feature.ID_1\" = \"Feature.ID\")) %>%  # Junta com base no Feature.ID_1 e Feature.ID
+  dplyr::relocate(Taxon, .after = Feature.ID_1)  # Move a coluna Taxon logo após Feature.ID_1
+
+# Visualizar as primeiras linhas
+head(cor_significant_saude_dieta_with_taxonomy)
+
+```"

@@ -1,0 +1,4 @@
+"0","alpha.all <- merge(alpha.evenness.pd, alpha.richness.raw, by = ""Row.names"")
+"
+"2","Error in fix.by(by.y, y) : 'by' deve unicamente especificar coluna válida
+"

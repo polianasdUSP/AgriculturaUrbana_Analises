@@ -1,0 +1,26 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGaWx0cmFyIGNvcnJlbGHDp8O1ZXMgc2lnbmlmaWNhdGl2YXMgYXDDs3MgY29ycmXDp8OjbyBkZSBGRFJcbmNvcl9zaWduaWZpY2FudF9mZHIgPC0gY29yX3dpdGhfZmRyICU+JVxuICBkcGx5cjo6ZmlsdGVyKGZkcl9hZGp1c3RlZF9wIDw9IDAuMDUpXG5cbiMgVmlzdWFsaXphciBvcyBkYWRvcyBmaWx0cmFkb3MgKG9wY2lvbmFsKVxuRFQ6OmRhdGF0YWJsZShjb3Jfc2lnbmlmaWNhbnRfZmRyLCBvcHRpb25zID0gbGlzdChwYWdlTGVuZ3RoID0gMTApLFxuICAgICAgICAgICAgICBjYXB0aW9uID0gJ0NvcnJlbGHDp8O1ZXMgU2lnbmlmaWNhdGl2YXMgY29tIENvcnJlw6fDo28gZGUgRkRSICjiiaQgMC4wNSknKVxuXG5gYGAifQ== -->
+
+```r
+# Filtrar correlações significativas após correção de FDR
+cor_significant_fdr <- cor_with_fdr %>%
+  dplyr::filter(fdr_adjusted_p <= 0.05)
+
+# Visualizar os dados filtrados (opcional)
+DT::datatable(cor_significant_fdr, options = list(pageLength = 10),
+              caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)')
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Filtrar correlações significativas após correção de FDR
+cor_significant_fdr <- cor_with_fdr %>%
+  dplyr::filter(fdr_adjusted_p <= 0.05)
+
+# Visualizar os dados filtrados (opcional)
+DT::datatable(cor_significant_fdr, options = list(pageLength = 10),
+              caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)')
+
+```"

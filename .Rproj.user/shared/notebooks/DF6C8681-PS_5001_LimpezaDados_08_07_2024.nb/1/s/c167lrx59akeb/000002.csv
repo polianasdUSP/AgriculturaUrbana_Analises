@@ -1,0 +1,38 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTdWJzdGl0dWkgXCItXCIgcG9yIFwiLlwiIG5vcyBub21lcyBkYXMgbGluaGFzIGRvIGRhdGFmcmFtZVxuXG5yb3duYW1lcyhhbHBoYS5zaGFubm9uLnJhdykgPC0gZ3N1YihcIi1cIiwgXCIuXCIsIHJvd25hbWVzKGFscGhhLnNoYW5ub24ucmF3KSlcblxuIyBGaWx0cmEgYXMgbGluaGFzIG9uZGUgb3Mgbm9tZXMgZGFzIGxpbmhhcyBuw6NvIHRlcm1pbmFtIGNvbSBcIi5GMDFcIlxuYWxwaGEuc2hhbm5vbiA8LSBhbHBoYS5zaGFubm9uLnJhd1shZ3JlcGwoXCJcXFxcLkYwMSRcIiwgcm93bmFtZXMoYWxwaGEuc2hhbm5vbi5yYXcpKSwgLCBkcm9wID0gRkFMU0VdXG5cbiMgRmlsdHJhIGFzIGxpbmhhcyBvbmRlIG9zIG5vbWVzIGRhcyBsaW5oYXMgdGVybWluYW0gY29tIFwiLkYwMFwiXG5hbHBoYS5zaGFubm9uIDwtIGFscGhhLnNoYW5ub24ucmF3W2dyZXBsKFwiXFxcXC5GMDAkXCIsIHJvd25hbWVzKGFscGhhLnNoYW5ub24ucmF3KSksICwgZHJvcCA9IEZBTFNFXVxuXG53cml0ZS5jc3YoeCA9IGFscGhhLnNoYW5ub24sIFxuICAgICAgICAgIGZpbGUgPSBcIkM6L1VzZXJzL3BvbGlhL09uZURyaXZlL0Rlc2t0b3AvRXN0YXRpc3RpY2FSL0FnclVyYmFuYS8xNlNfQWdyaVVyYmFuYS9QbGFuaWxoYXNfVXJiYW5BZ3JpL2FscGhhLnNoYW5ub24uY3N2XCIsIHJvdy5uYW1lcyA9IEZBTFNFKVxuXG5cbmBgYCJ9 -->
+
+```r
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+rownames(alpha.shannon.raw) <- gsub(\"-\", \".\", rownames(alpha.shannon.raw))
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+alpha.shannon <- alpha.shannon.raw[!grepl(\"\\.F01$\", rownames(alpha.shannon.raw)), , drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com \".F00\"
+alpha.shannon <- alpha.shannon.raw[grepl(\"\\.F00$\", rownames(alpha.shannon.raw)), , drop = FALSE]
+
+write.csv(x = alpha.shannon, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.shannon.csv\", row.names = FALSE)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+rownames(alpha.shannon.raw) <- gsub(\"-\", \".\", rownames(alpha.shannon.raw))
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+alpha.shannon <- alpha.shannon.raw[!grepl(\"\\.F01$\", rownames(alpha.shannon.raw)), , drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com \".F00\"
+alpha.shannon <- alpha.shannon.raw[grepl(\"\\.F00$\", rownames(alpha.shannon.raw)), , drop = FALSE]
+
+write.csv(x = alpha.shannon, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.shannon.csv\", row.names = FALSE)
+
+
+```"

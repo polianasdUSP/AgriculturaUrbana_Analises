@@ -1,0 +1,38 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KGRmX3ZhaSwgYWVzKHggPSBsb2cyRkMsIHkgPSAtbG9nMTAocHZhbHVlKSwgY29sb3IgPSBwdmFsX3NpZ25pZikpICtcbiAgZ2VvbV9wb2ludCgpICtcbiAgZ2VvbV9obGluZSh5aW50ZXJjZXB0ID0gLWxvZzEwKDAuMDUpLCBsaW5ldHlwZSA9IFwiZGFzaGVkXCIpICtcbiAgZ2VvbV92bGluZSh4aW50ZXJjZXB0ID0gYygtMSwgMSksIGxpbmV0eXBlID0gXCJkYXNoZWRcIikgK1xuICBzY2FsZV9jb2xvcl9tYW51YWwodmFsdWVzID0gYyhcIk5vXCIgPSBcImdyYXlcIiwgXCJZZXNcIiA9IFwicmVkXCIpKSArXG4gIGxhYnMoXG4gICAgdGl0bGUgPSBcIlZvbGNhbm8gUGxvdCAtIFZBSSAoQVNWcykgdXNhbmRvIHAtdmFsb3JcIixcbiAgICB4ID0gXCJsb2cyIEZvbGQgQ2hhbmdlXCIsXG4gICAgeSA9IFwiLWxvZzEwKHAtdmFsdWUpXCJcbiAgKSArXG4gIHRoZW1lX21pbmltYWwoKVxuXG5gYGAifQ== -->
+
+```r
+ggplot(df_vai, aes(x = log2FC, y = -log10(pvalue), color = pval_signif)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), linetype = \"dashed\") +
+  geom_vline(xintercept = c(-1, 1), linetype = \"dashed\") +
+  scale_color_manual(values = c(\"No\" = \"gray\", \"Yes\" = \"red\")) +
+  labs(
+    title = \"Volcano Plot - VAI (ASVs) usando p-valor\",
+    x = \"log2 Fold Change\",
+    y = \"-log10(p-value)\"
+  ) +
+  theme_minimal()
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+ggplot(df_vai, aes(x = log2FC, y = -log10(pvalue), color = pval_signif)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), linetype = \"dashed\") +
+  geom_vline(xintercept = c(-1, 1), linetype = \"dashed\") +
+  scale_color_manual(values = c(\"No\" = \"gray\", \"Yes\" = \"red\")) +
+  labs(
+    title = \"Volcano Plot - VAI (ASVs) usando p-valor\",
+    x = \"log2 Fold Change\",
+    y = \"-log10(p-value)\"
+  ) +
+  theme_minimal()
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/A8B65409-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F2419ec22/c17czx7l2vok1_t/b749ab5a97b149428d58a216469154c9.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

@@ -1,0 +1,402 @@
+---
+title: "PS_URBANAGRI_5010_ASVs_Parte2_24_10_2024.nb"
+output: html_notebook
+---
+
+
+
+```{r}
+
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+library(writexl)
+library(ggplot2)
+library(reshape2)
+
+```
+
+```{r}
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+
+```
+
+```{r}
+
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs[!grepl("\\.F01$", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep("\\.F00$", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+
+```{r}
+
+# Supondo que o objeto SVs é uma matriz onde as colunas são voluntários e as linhas são ASVs.
+# Filtra as ASVs que têm pelo menos 13 valores não zero
+
+filtered_SVs <- SVs[rowSums(SVs > 0) >= 13, ]
+
+```
+
+```{r}
+# Supondo que o objeto 'taxonomy' contém a coluna 'Feature.ID' que corresponde aos IDs das ASVs
+# e a coluna 'Taxon' com a classificação taxonômica.
+
+# Converta a matriz filtrada em um dataframe para facilitar a mesclagem
+filtered_SVs_df <- as.data.frame(filtered_SVs)
+
+# Adiciona uma coluna com os Feature.IDs (ASV IDs)
+filtered_SVs_df$Feature.ID <- rownames(filtered_SVs_df)
+
+# Agora, faça a mesclagem com a tabela de taxonomia
+merged_data <- merge(filtered_SVs_df, taxonomy, by = "Feature.ID", all.x = TRUE)
+
+head(merged_data)
+
+```
+```{r}
+library(tidyr)
+
+# Supondo que o objeto 'merged_data' contém a coluna 'Taxon'
+# Vamos usar a função separate do pacote tidyr para dividir a coluna 'Taxon' em várias colunas
+
+merged_data <- merged_data %>%
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = "; ", fill = "right", extra = "merge")
+
+# Preservar também a coluna original 'Taxon'
+merged_data$Taxon_original <- merged_data$Taxon
+
+# Verifique as primeiras linhas para confirmar
+head(merged_data)
+
+```
+
+```{r}
+colnames(merged_data)
+```
+```{r}
+library(tidyr)
+library(ggplot2)
+
+# Remover a coluna 'Short_Taxon', pois não é necessária
+merged_data <- merged_data %>% select(-Short_Taxon)
+
+# Identificar as colunas que contêm os voluntários (colunas que começam com "S")
+volunteer_columns <- grep("^S", colnames(merged_data), value = TRUE)
+
+# Remover a coluna "Species" da lista de colunas de voluntários, se necessário
+volunteer_columns <- setdiff(volunteer_columns, "Species")
+
+# Pivotar apenas as colunas dos voluntários, mantendo as outras colunas (taxonomia) intactas
+merged_data_long <- merged_data %>%
+  pivot_longer(cols = all_of(volunteer_columns), names_to = "Sample", values_to = "Abundance")
+
+# Agora, calcular a proporção de abundância para cada phylum em cada voluntário
+merged_data_long <- merged_data_long %>%
+  group_by(Sample) %>%
+  mutate(Proportion = Abundance / sum(Abundance))
+
+# Criar o gráfico de barras empilhadas para as proporções de phylum
+ggplot(merged_data_long, aes(x = Sample, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Set3")  # Paleta de cores para diferenciar os phyla
+
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+
+
+# Para ordenar: descobrir o phylum dominante para cada voluntário
+dominant_phylum <- merged_data_long %>%
+  group_by(Sample, Phylum) %>%
+  summarise(Total_Abundance = sum(Abundance)) %>%
+  top_n(1, Total_Abundance) %>%
+  ungroup() %>%
+  arrange(Phylum)
+
+# Reordenar as amostras de acordo com o phylum dominante
+merged_data_long$Sample <- factor(merged_data_long$Sample, levels = dominant_phylum$Sample)
+
+# Criar o gráfico de barras empilhadas para as proporções de phylum, agora com as amostras ordenadas
+ggplot(merged_data_long, aes(x = Sample, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Set3")  # Paleta de cores para diferenciar os phyla
+
+```
+
+```{r}
+library(RColorBrewer)
+
+# Criar o gráfico de barras empilhadas com a paleta 'Spectral'
+ggplot(merged_data_long, aes(x = Sample, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Spectral")  # Usar a paleta 'Spectral' para maior contraste
+
+```
+```{r}
+# Usar a paleta 'Paired'
+
+ggplot(merged_data_long, aes(x = Sample, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Paired")  # Paleta 'Paired' com cores bem diferenciadas
+
+```
+
+```{r}
+# Definir as cores para todos os phyla que você tem
+phyla_colors <- c(
+  "p__Actinobacteriota" = "#1f78b4",  # Azul
+  "p__Bacteroidota" = "#33a02c",  # Verde
+  "p__Cyanobacteria" = "#a6cee3",  # Azul claro
+  "p__Desulfobacterota" = "#fb9a99",  # Rosa claro
+  "p__Elusimicrobiota" = "#e31a1c",  # Vermelho
+  "p__Euryarchaeota" = "#fdbf6f",  # Amarelo claro
+  "p__Firmicutes" = "#ff7f00",  # Laranja
+  "p__Fusobacteriota" = "#cab2d6",  # Roxo claro
+  "p__Proteobacteria" = "#6a3d9a",  # Roxo
+  "p__Spirochaetota" = "#ffff99",  # Amarelo
+  "p__Verrucomicrobiota" = "#b15928",  # Marrom
+  "p__WPS-2" = "#ffed6f",  # Amarelo claro
+  "NA" = "#666666"  # Cinza para valores ausentes
+)
+
+# Criar o gráfico de barras empilhadas com a paleta de cores personalizada
+ggplot(merged_data_long, aes(x = Sample, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_manual(values = phyla_colors)  # Aplicar a paleta de cores personalizada
+
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Ordenar os voluntários por Cluster e garantir que os 107 primeiros sejam do Cluster 1
+merged_data_updated <- merged_data_updated %>%
+  arrange(Cluster, Sample)
+
+# Criar uma nova variável para distinguir os clusters no eixo X
+merged_data_updated$Sample_Cluster <- paste(merged_data_updated$Cluster, merged_data_updated$Sample, sep = "_")
+
+# Criar o gráfico com a paleta 'Paired'
+ggplot(merged_data_updated, aes(x = Sample_Cluster, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Spectral") +  # Paleta 'Paired' com cores bem diferenciadas
+  
+  # Adicionar uma linha vertical para marcar a separação após o 107º voluntário (Cluster 1)
+  geom_vline(xintercept = 107.5, linetype = "dashed", color = "black", size = .5) +
+  
+  # Adicionar rótulos para Cluster 1 e Cluster 2
+  annotate("text", x = 107 / 2, y = 1.05, label = "Cluster 1", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = 107 + (23 / 2), y = 1.05, label = "Cluster 2", size = 5, color = "black", hjust = 0.5) +
+  
+  # Ajustar a escala do eixo Y para que os rótulos fiquem visíveis
+  ylim(0, 1.1)
+
+```
+
+
+
+```{r}
+library(dplyr)
+
+# Contar quantos "SIM" e quantos "NÃO" temos na coluna Treponema
+treponema_counts <- metadados %>%
+  count(Treponema)
+
+# Exibir a contagem
+treponema_counts
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Ordenar os voluntários por Treponema (NÃO antes de SIM) e garantir que estejam agrupados
+merged_data_updated <- merged_data_updated %>%
+  arrange(desc(Treponema), Sample)
+
+# Criar uma nova variável para distinguir os voluntários no eixo X
+merged_data_updated$Sample_Treponema <- paste(merged_data_updated$Treponema, merged_data_updated$Sample, sep = "_")
+
+# Definir o número de voluntários com Treponema NÃO e SIM
+n_treponema_nao <- 98
+n_treponema_sim <- 32
+
+# Criar o gráfico com a paleta 'Paired'
+ggplot(merged_data_updated, aes(x = Sample_Treponema, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  
+  # Remover os títulos dos eixos
+  labs(x = NULL, y = NULL, fill = "Phylum") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Paired") +  # Paleta 'Paired' com cores bem diferenciadas
+  
+  # Adicionar uma linha vertical para marcar a separação após os voluntários com Treponema NÃO
+  geom_vline(xintercept = n_treponema_nao + 0.5, linetype = "dashed", color = "black", size = 1) +
+  
+  # Adicionar rótulos para Treponema NÃO e Treponema SIM
+  annotate("text", x = n_treponema_nao / 2, y = 1.05, label = "Treponema NÃO", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = n_treponema_nao + (n_treponema_sim / 2), y = 1.05, label = "Treponema SIM", size = 5, color = "black", hjust = 0.5) +
+  
+  # Ajustar a escala do eixo Y para que os rótulos fiquem visíveis
+  ylim(0, 1.1)
+
+```
+
+
+```{r}
+library(dplyr)
+
+# Contar quantas vezes cada região aparece na coluna Region de metadados.clean
+region_counts <- metadados.clean %>%
+  count(Region)
+
+# Exibir o resultado
+region_counts
+
+```
+```{r}
+# Selecionar apenas as colunas necessárias de metadados.clean
+metadados_clean_selected <- metadados.clean %>%
+  select(Sample.id, Region)
+
+# Juntar com merged_data_updated usando os IDs
+merged_data_updated <- merged_data_updated %>%
+  left_join(metadados_clean_selected, by = c("Sample" = "Sample.id"))
+
+# Verificar as primeiras linhas do novo objeto
+head(merged_data_updated)
+
+```
+```{r}
+library(ggplot2)
+
+# Ordenar os voluntários por Region e garantir que estejam agrupados conforme a ordem solicitada
+merged_data_updated <- merged_data_updated %>%
+  mutate(Region = factor(Region, levels = c("Leste", "Leste Adjacente", "Norte", "Sul", "Sul Adjacente"))) %>%
+  arrange(Region, Sample)
+
+# Criar uma nova variável para distinguir os voluntários no eixo X
+merged_data_updated$Sample_Region <- paste(merged_data_updated$Region, merged_data_updated$Sample, sep = "_")
+
+# Definir o número de voluntários em cada grupo
+n_leste <- 23
+n_leste_adj <- 28
+n_norte <- 8
+n_sul <- 50
+n_sul_adj <- 21
+
+# Criar o gráfico com a paleta 'Spectral'
+ggplot(merged_data_updated, aes(x = Sample_Region, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  
+  # Remover os títulos dos eixos
+  labs(x = NULL, y = NULL, fill = "Phylum") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Spectral") +  # Paleta 'Spectral' com cores diferenciadas
+  
+  # Adicionar linhas verticais para marcar as separações entre as regiões
+  geom_vline(xintercept = n_leste + 0.5, linetype = "dashed", color = "black", size = 1) +
+  geom_vline(xintercept = n_leste + n_leste_adj + 0.5, linetype = "dashed", color = "black", size = 1) +
+  geom_vline(xintercept = n_leste + n_leste_adj + n_norte + 0.5, linetype = "dashed", color = "black", size = 1) +
+  geom_vline(xintercept = n_leste + n_leste_adj + n_norte + n_sul + 0.5, linetype = "dashed", color = "black", size = 1) +
+  
+  # Adicionar rótulos para cada região
+  annotate("text", x = n_leste / 2, y = 1.05, label = "Leste", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = n_leste + (n_leste_adj / 2), y = 1.05, label = "Leste Adjacente", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = n_leste + n_leste_adj + (n_norte / 2), y = 1.05, label = "Norte", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = n_leste + n_leste_adj + n_norte + (n_sul / 2), y = 1.05, label = "Sul", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = n_leste + n_leste_adj + n_norte + n_sul + (n_sul_adj / 2), y = 1.05, label = "Sul Adjacente", size = 5, color = "black", hjust = 0.5) +
+  
+  # Ajustar a escala do eixo Y para que os rótulos fiquem visíveis
+  ylim(0, 1.1)
+
+```
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+
+# Calcular a soma total de abundância para cada voluntário
+merged_data_updated <- merged_data_updated %>%
+  group_by(Sample) %>%
+  mutate(Total_Abundance = sum(Abundance)) %>%
+  ungroup()
+
+# Calcular a proporção de cada família dividindo pela abundância total
+merged_data_updated <- merged_data_updated %>%
+  mutate(Proportion = Abundance / Total_Abundance)
+
+# Criar o gráfico com a paleta 'Spectral'
+ggplot(merged_data_updated, aes(x = Sample, y = Proportion, fill = Family)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  
+  # Remover os títulos dos eixos
+  labs(x = "Volunteers", y = "Proportion of Family", fill = "Family") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Spectral") +  # Paleta 'Spectral' com cores diferenciadas
+  
+  # Ajustar a escala do eixo Y para que as proporções sejam visíveis corretamente
+  ylim(0, 1.1)
+
+```
+
+

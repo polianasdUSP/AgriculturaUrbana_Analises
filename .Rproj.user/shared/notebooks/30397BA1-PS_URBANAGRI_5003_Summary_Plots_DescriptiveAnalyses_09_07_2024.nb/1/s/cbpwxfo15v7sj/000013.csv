@@ -1,0 +1,7 @@
+"0","metadados.saude.alpha <- metadados.all.filtrado[, c(""Sample.id""
+  ""IL17A"", ""IFNGamma"", ""TNF"", ""IL10"", ""IL6"", ""IL4"", ""IL2"",
+"
+"2","Erro: unexpected string constant em:
+""metadados.saude.alpha <- metadados.all.filtrado[, c(""Sample.id""
+  ""IL17A""""
+"

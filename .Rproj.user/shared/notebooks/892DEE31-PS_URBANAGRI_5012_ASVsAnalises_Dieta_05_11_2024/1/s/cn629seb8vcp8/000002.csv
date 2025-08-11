@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBWZXJpZmljYXIgY29sdW5hcyBkZSB0YXhvbm9teVxuY29sbmFtZXModGF4b25vbXkpXG5cbmBgYCJ9 -->
+
+```r
+# Verificar colunas de taxonomy
+colnames(taxonomy)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Verificar colunas de taxonomy
+colnames(taxonomy)
+
+```"

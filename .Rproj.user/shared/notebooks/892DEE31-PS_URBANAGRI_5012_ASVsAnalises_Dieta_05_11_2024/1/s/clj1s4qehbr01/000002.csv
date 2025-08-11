@@ -1,0 +1,20 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh3cml0ZXhsKVxuXG4jIFNhbHZhciBhIHRhYmVsYSBjb21vIHVtIGFycXVpdm8gRXhjZWxcbndyaXRlX3hsc3goc2lnbmlmaWNhbnRfY29ycmVsYXRpb25zX3dpdGhfdGF4b25vbXksIFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL1BsYW5pbGhhcy9zaWduaWZpY2FudF9jb3JyZWxhdGlvbnNfd2l0aF90YXhvbm9teV9kaWV0YS54bHN4XCIpXG5cbmBgYCJ9 -->
+
+```r
+library(writexl)
+
+# Salvar a tabela como um arquivo Excel
+write_xlsx(significant_correlations_with_taxonomy, \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/significant_correlations_with_taxonomy_dieta.xlsx\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(writexl)
+
+# Salvar a tabela como um arquivo Excel
+write_xlsx(significant_correlations_with_taxonomy, \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/significant_correlations_with_taxonomy_dieta.xlsx\")
+
+```"

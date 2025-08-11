@@ -1,0 +1,36 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIFN1YnN0aXR1aSBcIi1cIiBwb3IgXCIuXCIgbm9zIG5vbWVzIGRhcyBsaW5oYXMgZG8gZGF0YWZyYW1lXG5cbnJvd25hbWVzKEFTVi50YWJsZS5yYXcpIDwtIGdzdWIoXCItXCIsIFwiLlwiLCByb3duYW1lcyhBU1YudGFibGUucmF3KSlcblxuXG4jIEZpbHRyYSBhcyBsaW5oYXMgb25kZSBvcyBub21lcyBkYXMgbGluaGFzIG7Do28gdGVybWluYW0gY29tIFwiLkYwMVwiXG5BU1YudGFibGUgPC0gQVNWLnRhYmxlLnJhd1shZ3JlcGwoXCJcXFxcLkYwMSRcIiwgcm93bmFtZXMoQVNWLnRhYmxlLnJhdykpLCAsIGRyb3AgPSBGQUxTRV1cblxuXG4jIEZpbHRyYSBhcyBsaW5oYXMgb25kZSBvcyBub21lcyBkYXMgbGluaGFzIHRlcm1pbmFtIGNvbSBcIi5GMDBcIlxuQVNWLnRhYmxlIDwtIEFTVi50YWJsZVtncmVwbChcIlxcXFwuRjAwJFwiLCByb3duYW1lcyhBU1YudGFibGUpKSwgLCBkcm9wID0gRkFMU0VdXG5cbmBgYCJ9 -->
+
+```r
+
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+rownames(ASV.table.raw) <- gsub(\"-\", \".\", rownames(ASV.table.raw))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+ASV.table <- ASV.table.raw[!grepl(\"\\.F01$\", rownames(ASV.table.raw)), , drop = FALSE]
+
+
+# Filtra as linhas onde os nomes das linhas terminam com \".F00\"
+ASV.table <- ASV.table[grepl(\"\\.F00$\", rownames(ASV.table)), , drop = FALSE]
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+rownames(ASV.table.raw) <- gsub(\"-\", \".\", rownames(ASV.table.raw))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+ASV.table <- ASV.table.raw[!grepl(\"\\.F01$\", rownames(ASV.table.raw)), , drop = FALSE]
+
+
+# Filtra as linhas onde os nomes das linhas terminam com \".F00\"
+ASV.table <- ASV.table[grepl(\"\\.F00$\", rownames(ASV.table)), , drop = FALSE]
+
+```"

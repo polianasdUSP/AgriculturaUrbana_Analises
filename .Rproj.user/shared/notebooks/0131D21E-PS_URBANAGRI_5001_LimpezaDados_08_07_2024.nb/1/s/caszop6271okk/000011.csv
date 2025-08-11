@@ -1,0 +1,15 @@
+"0","# Carregar o arquivo TSV usando read_tsv
+metadados.raw <- read_tsv(""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01.tsv"")
+"
+"1","[1mRows: [22m[34m130[39m [1mColumns: [22m[34m71[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m ""\t""
+[31mchr[39m  (21): Sample.id, Edulcorante?, Coordinates, Region_type, Region, Sex, R...
+[32mdbl[39m  (48): Treponema, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age, Systol...
+[34mtime[39m  (2): Dorme, Acorda
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"

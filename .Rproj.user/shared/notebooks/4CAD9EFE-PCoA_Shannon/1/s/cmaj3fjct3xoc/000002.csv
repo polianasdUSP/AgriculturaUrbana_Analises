@@ -1,0 +1,10 @@
+"0","```r
+
+# Realizar o teste t de Student para comparar shannon_entropy entre Rural e Urban
+t_test_result <- t.test(shannon_entropy ~ Region_type, data = metadados_raw)
+
+# Exibir os resultados do teste t
+print(t_test_result)
+
+
+```"

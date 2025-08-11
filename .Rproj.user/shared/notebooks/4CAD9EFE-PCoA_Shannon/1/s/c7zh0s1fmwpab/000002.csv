@@ -1,0 +1,20 @@
+"0","```r
+# Realizar ANOVA para comparar shannon_entropy entre todas as regiões
+anova_result <- aov(shannon_entropy ~ Region, data = metadados_raw)
+
+# Exibir os resultados da ANOVA
+summary(anova_result)
+
+# Realizar o teste de Kruskal-Wallis para comparar shannon_entropy entre todas as regiões
+kruskal_test_result <- kruskal.test(shannon_entropy ~ Region, data = metadados_raw)
+
+# Exibir os resultados do teste de Kruskal-Wallis
+print(kruskal_test_result)
+
+# Realizar o teste post-hoc de Tukey HSD
+tukey_hsd_result <- TukeyHSD(anova_result)
+
+# Exibir os resultados do teste de Tukey HSD
+print(tukey_hsd_result)
+
+```"

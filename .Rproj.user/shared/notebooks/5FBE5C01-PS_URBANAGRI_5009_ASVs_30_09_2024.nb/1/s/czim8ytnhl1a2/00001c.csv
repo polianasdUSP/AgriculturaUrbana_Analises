@@ -1,0 +1,38 @@
+"0","metadados %>%
+  filter(!is.na(shannon_entropy)) %>%
+  ggplot(aes(x=`Treponema`, y=shannon_entropy, fill=`Treponema`)) +
+  stat_summary(geom=""bar"", fun.data=mean_se, color=""black"") + #here black is the outline for the bars
+  geom_jitter(shape=21, width=0.2, height=0) +
+  coord_cartesian(ylim=c(2,7)) + # adjust y-axis
+  facet_grid(~`Region`) + # create a panel for each Region
+  xlab(""Treponema Presence"") +
+  ylab(""Shannon Diversity"") +
+  theme_q2r() +
+  scale_fill_manual(values=c(""cornflowerblue"",""indianred"")) + #specify custom colors
+  theme(legend.position=""none"") #remove the legend as it isn't needed
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"

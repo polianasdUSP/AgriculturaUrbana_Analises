@@ -1,0 +1,1440 @@
+---
+title: "Alpha Diversity Analisys"
+output: html_notebook
+---
+
+
+
+```{r}
+# Carregar as bibliotecas necessárias
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(ggcorrplot)
+library(pheatmap)
+library(grid)
+library(patchwork)
+library(ggpubr)
+library(ggpmisc)
+library(microbiome)
+library(ggcorrplot)
+library(patchwork)  
+
+
+?microbiome
+
+```
+
+```{r}
+# Fazer o merge diretamente, selecionando apenas as colunas desejadas de metadados
+metadados.shannon <- merge(
+  metadados.shannon, 
+  metadados[, c("Sample.id", "BMI", "TyG", "VAI", "QUICKI", "METS_IR", "TyG_BMI", "TyG_WC", "WHR")], 
+  by = "Sample.id", 
+  all.x = TRUE
+)
+
+# Verificar os primeiros valores para conferir se tudo foi adicionado corretamente
+head(metadados.shannon)
+
+
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados_shannon_blood_work <- metadados.shannon %>%
+  select(shannon_entropy, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, 
+         Age, Systolic, Diastolic, Weight, Waist, HbA1c, COLESTEROL, 
+         LDL, HDL, VLDL, TRIGLICERIDES, TGO, GGT, TGP, INSULINA, 
+         HOMA, PCR, TyG, VAI, QUICKI, METS_IR, TyG_BMI, TyG_WC, WHR)
+
+
+colnames(metadados.shannon)
+
+colnames(metadata__ASVs_Saude_Dieta_NOVA)
+
+colnames(Cluster)[colnames(Cluster) == "cluster.neighbor"] <- "Sample.id"
+
+# Juntar a coluna Cluster ao objeto metadata__ASVs_Saude_Dieta_NOVA
+metadados.alpha.all <- metadados.alpha.all %>%
+  left_join(Cluster, by = "Sample.id")
+
+```
+
+
+
+
+```{r}
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+
+
+```
+
+```{r}
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_shannon <- cor(metadados_shannon_blood_work, method = "spearman", use = "pairwise.complete.obs")
+
+# Calcular os p-valores
+p_values_shannon <- cor.mtest_shannon(metadados_shannon_blood_work, conf.level = 0.95)
+
+# Ajustar os p-valores usando FDR (Benjamini-Hochberg)
+p_values_fdr_shannon <- p.adjust(p_values_shannon, method = "fdr")
+
+# Transformar a matriz ajustada de volta ao formato correto
+p_values_fdr_matrix <- matrix(p_values_fdr_shannon, ncol = ncol(p_values_shannon), nrow = nrow(p_values_shannon))
+colnames(p_values_fdr_matrix) <- rownames(p_values_fdr_matrix) <- colnames(p_values_shannon)
+
+
+# Criar uma matriz de asteriscos para significância dos FDRs
+asterisks_shannon_fdr <- ifelse(p_values_fdr_matrix < 0.001, "***", 
+                                ifelse(p_values_fdr_matrix < 0.01, "**", 
+                                       ifelse(p_values_fdr_matrix < 0.05, "*", "")))
+#Definir os limites para centralizar o zero na escala de cores
+breaks <- seq(-1, 1, length.out = 51) # Define uma escala de -1 a 1 com 50 intervalos
+
+
+
+# Gerar o heatmap com os p-valores corrigidos por FDR
+pheatmap(cor_matrix_shannon, 
+         display_numbers = asterisks_shannon_fdr,  # Mostra os asteriscos baseados no FDR
+         color = colorRampPalette(c("blue", "white", "red"))(50),  # Escala de cores com branco no centro
+         breaks = breaks,  # Aplica os limites para centralizar o zero
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         main = "Shannon Entropy, Inflammatory and Metabolic Parameters (FDR)")
+
+
+```
+
+
+
+
+ALPHA.ALL
+```{r}
+
+# Fazer o merge diretamente, selecionando apenas as colunas desejadas de metadados
+metadados.alpha.all <- merge(
+  metadados.alpha.all, 
+  metadados[, c("Sample.id", "BMI", "TyG", "VAI", "QUICKI", "METS_IR", "TyG_BMI", "TyG_WC", "WHR")], 
+  by = "Sample.id", 
+  all.x = TRUE
+)
+
+colnames(metadados.alpha.all)
+
+# Verificar os primeiros valores para conferir se tudo foi adicionado corretamente
+head(metadados.alpha.all)
+
+
+
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_faith_pd_selected
+metadados_alpha_all_METABOLICOS <- metadados.alpha.all %>%
+  select(Sample.id, shannon_entropy, observed_features, pielou_evenness,faith_pd, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, 
+         Age, Systolic, Diastolic, Weight, Waist, HbA1c, COLESTEROL, 
+         LDL, HDL, VLDL, TRIGLICERIDES, TGO, GGT, TGP, INSULINA, 
+         HOMA, PCR, TyG, VAI, QUICKI, METS_IR, TyG_BMI, TyG_WC, WHR)
+
+colnames(metadados.alpha.all)
+```
+
+```{r}
+# Função para calcular os p-valores das correlações
+cor.mtest_alpha <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+```
+
+
+```{r}
+# Calcular a matriz de correlação Spearman sem remover a coluna Sample.id
+cor_matrix_alpha <- cor(metadados_alpha_all_METABOLICOS %>% select(-Sample.id), 
+                        method = "spearman", 
+                        use = "pairwise.complete.obs")
+
+
+# Calcular os p-valores
+p_values_alpha <- cor.mtest_alpha(metadados_alpha_all_METABOLICOS %>% select(-Sample.id), conf.level = 0.95)
+
+# Aplicar correção FDR (Benjamini-Hochberg)
+p_values_fdr_alpha <- p.adjust(p_values_alpha, method = "fdr")
+
+
+# Transformar a matriz ajustada de volta ao formato correto
+p_values_fdr_matrix_alpha <- matrix(p_values_fdr_alpha, ncol = ncol(p_values_alpha), nrow = nrow(p_values_alpha))
+colnames(p_values_fdr_matrix_alpha) <- rownames(p_values_fdr_matrix_alpha) <- colnames(p_values_alpha)
+
+# Criar matriz de asteriscos para significância FDR
+asterisks_alpha_fdr <- ifelse(p_values_fdr_matrix_alpha < 0.001, "***", 
+                              ifelse(p_values_fdr_matrix_alpha < 0.01, "**", 
+                                     ifelse(p_values_fdr_matrix_alpha < 0.05, "*", "")))
+```
+
+
+
+```{r}
+#library(pheatmap)
+
+# Definir os limites para centralizar o zero na escala de cores
+breaks <- seq(-1, 1, length.out = 51)  # Escala de -1 a 1 com 50 intervalos
+
+# Criar matriz de asteriscos para significância ANTES do FDR
+asterisks_alpha_raw <- ifelse(p_values_alpha < 0.001, "***", 
+                              ifelse(p_values_alpha < 0.01, "**", 
+                                     ifelse(p_values_alpha < 0.05, "*", "")))
+
+# Gerar o heatmap com os p-valores BRUTOS
+pheatmap(cor_matrix_alpha, 
+         display_numbers = asterisks_alpha_raw,  # Mostra os asteriscos antes do FDR
+         color = colorRampPalette(c("blue", "white", "red"))(50),  # Escala de cores centrada
+         breaks = breaks,  
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         main = "Metabolic Parameters (Spearman - Raw p-values)")
+```
+
+
+```{r}
+# Definir os limites para centralizar o zero na escala de cores
+breaks <- seq(-1, 1, length.out = 51)  # Escala de -1 a 1 com 50 intervalos
+
+# Gerar o heatmap com os p-valores corrigidos por FDR
+pheatmap(cor_matrix_alpha, 
+         display_numbers = asterisks_alpha_fdr,  # Mostra os asteriscos baseados no FDR
+         color = colorRampPalette(c("blue", "white", "red"))(50),  # Escala de cores com branco no centro
+         breaks = breaks,  # Aplica os limites para centralizar o zero
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         main = "Heatmap (Spearman - FDR Adjusted)")
+
+```
+
+
+
+```{r}
+ggplot(metadados_alpha_all_METABOLICOS, aes(x = TyG_WC, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "TyG_WC", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+```
+
+```{r}
+ggplot(metadados_alpha_all_METABOLICOS, aes(x = TyG_WC, y = observed_features)) +
+
+  geom_point() + 
+
+  labs(x = "TyG_WC", y = "Richness") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+```
+
+```{r}
+ggplot(metadados_alpha_all_METABOLICOS, aes(x = TyG_WC, y = observed_features)) +
+
+  geom_point() + 
+
+  labs(x = "TyG_WC", y = "Richness") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+```
+
+
+
+
+ParasitologicoXAlpha
+```{r}
+# Selecionar as colunas de interesse
+metadados_alpha_Parasito <- saude_dieta %>%
+  select(ParasitologicoPositivo, pielou_evenness, faith_pd, observed_features, shannon_entropy)
+```
+
+
+```{r}
+# Realizar o Teste de Wilcoxon para cada índice de diversidade alfa
+
+# Pielou Evenness
+wilcox_pielou <- wilcox.test(pielou_evenness ~ ParasitologicoPositivo, data = metadados_alpha_Parasito)
+p_value_pielou <- wilcox_pielou$p.value
+
+# Faith PD
+wilcox_faith <- wilcox.test(faith_pd ~ ParasitologicoPositivo, data = metadados_alpha_Parasito)
+p_value_faith <- wilcox_faith$p.value
+
+# Observed Features
+wilcox_observed <- wilcox.test(observed_features ~ ParasitologicoPositivo, data = metadados_alpha_Parasito)
+p_value_observed <- wilcox_observed$p.value
+
+# Shannon Entropy
+wilcox_shannon <- wilcox.test(shannon_entropy ~ ParasitologicoPositivo, data = metadados_alpha_Parasito)
+p_value_shannon <- wilcox_shannon$p.value
+
+# Exibir os p-valores
+p_value_pielou
+```
+
+
+```{r}
+p_value_faith
+```
+
+
+```{r}
+p_value_observed
+```
+
+
+```{r}
+p_value_shannon
+
+```
+
+```{r}
+
+# Gráfico para pielou_evenness
+plot_pielou <- ggplot(metadados_alpha_Parasito, aes(x = ParasitologicoPositivo, y = pielou_evenness)) +
+  geom_boxplot(aes(fill = ParasitologicoPositivo), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  labs(title = "Pielou Evenness vs Parasitologico", y = "Pielou Evenness", x = "Parasitologico Positivo") +
+  theme_minimal() +
+  annotate("text", x = 1.5, y = max(metadados_alpha_Parasito$pielou_evenness, na.rm = TRUE), 
+           label = paste("p =", round(p_value_pielou, 4)), size = 5)
+
+print(plot_pielou)
+
+```
+
+
+```{r}
+# Gráfico para faith_pd
+plot_faith <- ggplot(metadados_alpha_Parasito, aes(x = ParasitologicoPositivo, y = faith_pd)) +
+  geom_boxplot(aes(fill = ParasitologicoPositivo), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  labs(title = "Faith PD vs Parasitologico", y = "Faith PD", x = "Parasitologico Positivo") +
+  theme_minimal() +
+  annotate("text", x = 1.5, y = max(metadados_alpha_Parasito$faith_pd, na.rm = TRUE), 
+           label = paste("p =", round(p_value_faith, 4)), size = 5)
+
+print(plot_faith)
+
+
+
+```
+
+
+```{r}
+# Gráfico para observed_features
+plot_observed <- ggplot(metadados_alpha_Parasito, aes(x = ParasitologicoPositivo, y = observed_features)) +
+  geom_boxplot(aes(fill = ParasitologicoPositivo), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  labs(title = "Richness vs Parasitologico", y = "Richness", x = "Parasitologico Positivo") +
+  theme_minimal() +
+  annotate("text", x = 1.5, y = max(metadados_alpha_all$observed_features, na.rm = TRUE), 
+           label = paste("p =", round(p_value_observed, 4)), size = 5)
+
+print(plot_observed)
+```
+
+
+```{r}
+# Gráfico para shannon_entropy
+plot_shannon <- ggplot(metadados_alpha_Parasito, aes(x = ParasitologicoPositivo, y = shannon_entropy)) +
+  geom_boxplot(aes(fill = ParasitologicoPositivo), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  labs(title = "Shannon Entropy vs Parasitologico", y = "Shannon Entropy", x = "Parasitologico Positivo") +
+  theme_minimal() +
+  annotate("text", x = 1.5, y = max(metadados_alpha_Parasito$shannon_entropy, na.rm = TRUE), 
+           label = paste("p =", round(p_value_shannon, 4)), size = 5)
+
+print(plot_shannon)
+
+```
+
+```{r}
+
+# Organizar os gráficos usando ggarrange
+combined_plot <- ggarrange(plot_pielou, plot_faith, plot_observed, plot_shannon,
+                           labels = c("A", "B", "C", "D"),
+                           ncol = 2, nrow = 2, 
+                           common.legend = TRUE, legend = "right")
+
+# Exibir o gráfico combinado
+print(combined_plot)
+
+
+```
+
+TREPONEMA x ALPHA
+
+```{r}
+# Calcular os p-valores usando o teste de Wilcoxon para a coluna Treponema
+p_value_pielou <- wilcox.test(pielou_evenness ~ Treponema, data = saude_dieta)$p.value
+```
+
+
+```{r}
+p_value_faith <- wilcox.test(faith_pd ~ Treponema, data = saude_dieta)$p.value
+```
+
+
+```{r}
+p_value_observed <- wilcox.test(observed_features ~ Treponema, data = saude_dieta)$p.value
+```
+
+
+```{r}
+p_value_shannon <- wilcox.test(shannon_entropy ~ Treponema, data = saude_dieta)$p.value
+
+```
+
+```{r}
+# Gráfico para pielou_evenness
+
+# Gráfico para pielou_evenness com "Presença de Treponema"
+plot_pielou_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), y = pielou_evenness)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = "black") +
+  labs(title = "Pielou Evenness vs Presença de Treponema", y = "Pielou Evenness", x = "Presença de Treponema") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Presença de Treponema") +
+  annotate("text", x = 1.5, y = max(saude_dieta$pielou_evenness, na.rm = TRUE) * 1.05, 
+           label = paste("p =", round(p_value_pielou, 4)), size = 5)
+
+
+
+print (plot_pielou_trep)
+
+
+
+
+
+```
+
+
+```{r}
+# Gráfico para faith_pd
+plot_faith_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), y = faith_pd)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = "black") +
+  labs(title = "Faith PD vs Presença de Treponema", y = "Faith PD", x = "Presença de Treponema") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Presença de Treponema") +
+  annotate("text", x = 1.5, y = max(saude_dieta$faith_pd, na.rm = TRUE) * 1.05, 
+           label = paste("p =", round(p_value_faith, 4)), size = 5)
+
+print (plot_faith_trep)
+```
+
+
+```{r}
+# Gráfico para observed_features
+plot_observed_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), y = observed_features)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = "black") +
+  labs(title = "Richness vs Presença de Treponema", y = "Richness", x = "Presença de Treponema") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Presença de Treponema") +
+  annotate("text", x = 1.5, y = max(saude_dieta$observed_features, na.rm = TRUE) * 1.05, 
+           label = paste("p =", round(p_value_observed, 4)), size = 5)
+
+print (plot_observed_trep)
+
+```
+
+
+```{r}
+# Gráfico para shannon_entropy
+plot_shannon_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), y = shannon_entropy)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = "black") +
+  labs(title = "Shannon Entropy vs Presença de Treponema", y = "Shannon Entropy", x = "Presença de Treponema") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Presença de Treponema") +
+  annotate("text", x = 1.5, y = max(saude_dieta$shannon_entropy, na.rm = TRUE) * 1.05, 
+           label = paste("p =", round(p_value_shannon, 4)), size = 5)
+
+
+print(plot_shannon_trep)
+
+```
+
+```{r}
+# Organizar os gráficos em uma única imagem
+combined_plot_trep <- plot_pielou_trep + plot_faith_trep + plot_observed_trep + plot_shannon_trep + 
+  plot_layout(ncol = 2)  # Organiza em 2 colunas
+
+print(combined_plot_trep)
+```
+Parasitologico e Treponema
+
+```{r}
+
+# Realizar o teste exato de Fisher diretamente
+resultado_fisher <- fisher.test(table(saude_dieta$Treponema, saude_dieta$ParasitologicoPositivo))
+
+# Exibir o resultado do teste exato de Fisher
+print(resultado_fisher)
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Criar o gráfico de barras diretamente
+grafico_fisher <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), 
+                                                  fill = factor(ParasitologicoPositivo, levels = c("Nao", "Sim")))) +
+  geom_bar(position = "dodge") +
+  labs(title = "Associação entre Treponema e Parasitológico Positivo",
+       subtitle = paste("Teste Exato de Fisher\np-valor =", round(resultado_fisher$p.value, 4),
+                        "\nOdds Ratio =", round(resultado_fisher$estimate, 4),
+                        "\nIC 95%:", round(resultado_fisher$conf.int[1], 4), "-", round(resultado_fisher$conf.int[2], 4)),
+       x = "Presença de Treponema",
+       y = "Frequência") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Parasitológico Positivo")
+
+# Exibir o gráfico
+print(grafico_fisher)
+
+```
+
+DIETA x ALPHA
+
+```{r}
+
+saude_dieta <- merge(saude_dieta, alpha.all, by.x = "IdVoluntario", by.y = "Row.names", all = TRUE)
+
+```
+
+
+```{r}
+colnames(saude_dieta)
+
+saude_dieta <- merge(saude_dieta, metadados, by.x = "IdVoluntario", by.y = "Sample.id", all.x = TRUE)
+
+saude_dieta <- merge(saude_dieta, metadados, by.x = "IdVoluntario", by.y = "Sample.id", all.x = TRUE)
+```
+
+
+
+```{r}
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.dieta.alpha <- saude_dieta %>%
+  select(shannon_entropy, pielou_evenness, faith_pd, observed_features, residual_energia2_kcal, residual_carboidrato_total_g, residual_proteina_g,residual_lipidios_g, residual_fibra_alimentar_g, residual_colesterol_mg, residual_acidos_graxos_saturados_g, residual_acidos_graxos_monoinsaturados_g, residual_acidos_graxos_poliinsaturados_g, residual_acidos_graxos_trans_g, residual_calcio_mg, residual_ferro_mg, residual_sodio_mg, residual_magnesio_mg, residual_fosforo_mg, residual_potassio_mg, residual_manganes_mg, residual_zinco_mg, residual_cobre_mg, residual_selenio_mcg, residual_vitamina_A_RE_mcg, residual_vitamina_A_RAE_mcg, residual_vitamina_D_mcg, residual_vitamina_E_mg, residual_tiamina_mg, residual_riboflavina_mg, residual_niacina_mg, residual_vitamina_B6_mg, residual_vitamina_B12_mcg, residual_vitamina_C_mg, residual_equivalente_de_folato_mcg, residual_sal_de_adicao_g, residual_acucar_de_adicao_g)
+
+```
+
+
+
+
+```{r}
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+```
+
+```{r}
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_alpha.diet <- cor(metadados.dieta.alpha, method = "spearman", use = "pairwise.complete.obs")
+
+# Calcular os p-valores
+p_values_alpha.diet <- cor.mtest_shannon(metadados.dieta.alpha, conf.level = 0.95)
+
+# Criar uma matriz de asteriscos para significância
+asterisks_alpha.diet <- ifelse(p_values_alpha.diet < 0.001, "***", 
+                            ifelse(p_values_alpha.diet < 0.01, "**", 
+                                   ifelse(p_values_alpha.diet < 0.05, "*", "")))
+```
+
+
+
+
+```{r}
+# Aumentar o tamanho da figura
+options(repr.plot.width = 60, repr.plot.height = 80)
+
+# Definir a altura e largura das células
+cell_height <- 10  # Ajuste este valor conforme a necessidade
+cell_width <- 15   # Ajuste este valor conforme a necessidade
+
+# Gerar o heatmap com pheatmap, ajustando o tamanho das células e removendo a legenda do título
+pheatmap(cor_matrix_alpha.diet, 
+         display_numbers = asterisks_alpha.diet, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c("blue", "white", "red"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = cell_height,  # Ajuste da altura das células
+         cellwidth = cell_width,    # Ajuste da largura das células
+         main = "Correlação entre Alpha Diversity e Dietas")
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- saude_dieta %>%
+  select(shannon_entropy, pielou_evenness, faith_pd, observed_features, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age, Systolic, Diastolic, Weight, Height, Waist, Hip, HbA1c, COLESTEROL, LDL, HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT, GLICOSE, INSULINA, HOMA, PCR )
+
+```
+
+
+
+
+```{r}
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+```
+
+```{r}
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_alpha.saude <- cor(metadados.saude.alpha, method = "spearman", use = "pairwise.complete.obs")
+
+# Calcular os p-valores
+p_values_alpha.saude <- cor.mtest_shannon(metadados.saude.alpha, conf.level = 0.95)
+
+# Criar uma matriz de asteriscos para significância
+asterisks_alpha.saude <- ifelse(p_values_alpha.diet < 0.001, "***", 
+                            ifelse(p_values_alpha.diet < 0.01, "**", 
+                                   ifelse(p_values_alpha.diet < 0.05, "*", "")))
+```
+
+
+
+
+```{r}
+# Aumentar o tamanho da figura
+options(repr.plot.width = 60, repr.plot.height = 80)
+
+# Definir a altura e largura das células
+cell_height <- 10  # Ajuste este valor conforme a necessidade
+cell_width <- 15   # Ajuste este valor conforme a necessidade
+
+# Gerar o heatmap com pheatmap, ajustando o tamanho das células e removendo a legenda do título
+pheatmap(cor_matrix_alpha.saude, 
+         display_numbers = asterisks_alpha.saude, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c("blue", "white", "red"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = cell_height,  # Ajuste da altura das células
+         cellwidth = cell_width,    # Ajuste da largura das células
+         main = "Correlação entre Alpha Diversity e Saúde")
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pielou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = TRIGLICERIDES, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "TRIGLICERIDES", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = TRIGLICERIDES, y = faith_pd)) +
+
+  geom_point() + 
+
+  labs(x = "TRIGLICERIDES", y = "Faith") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+```
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = TRIGLICERIDES, y = observed_features)) +
+
+  geom_point() + 
+
+  labs(x = "TRIGLICERIDES", y = "Richness") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = LDL, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "LDL", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = COLESTEROL, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "LDL", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+```{r}
+saude_dieta$RazaoWH <- saude_dieta$Waist / saude_dieta$Hip
+# Renomeando a coluna RazaoWH para W2HRatio
+colnames(saude_dieta)[colnames(saude_dieta) == "RazaoWH"] <- "W2HRatio"
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = Hip, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Hip", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = Waist, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Waist", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = W2HRatio, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Waist to Hip Ratio", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = residual_magnesio_mg, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Magnesio", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = residual_acidos_graxos_trans_g, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Ácidos Graxos Trans", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = residual_colesterol_mg , y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Colesterol", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+
+```{r}
+# Selecionar as colunas desejadas de saude_dieta
+colunas_residual <- c(
+  "IdVoluntario",                              # Coluna para fazer o merge
+  "residual_carboidrato_total_g",
+  "residual_carboidrato_disponivel_g",
+  "residual_proteina_g",
+  "residual_lipidios_g",
+  "residual_fibra_alimentar_g",
+  "residual_alcool_g",
+  "residual_colesterol_mg",
+  "residual_acidos_graxos_saturados_g",
+  "residual_acidos_graxos_monoinsaturados_g",
+  "residual_acidos_graxos_poliinsaturados_g",
+  "residual_acidos_graxos_trans_g",
+  "residual_calcio_mg",
+  "residual_ferro_mg",
+  "residual_sodio_mg",
+  "residual_magnesio_mg",
+  "residual_fosforo_mg",
+  "residual_potassio_mg",
+  "residual_manganes_mg",
+  "residual_zinco_mg",
+  "residual_cobre_mg",
+  "residual_selenio_mcg",
+  "residual_vitamina_A_RAE_mcg",
+  "residual_vitamina_D_mcg",
+  "residual_vitamina_E_mg",
+  "residual_tiamina_mg",
+  "residual_riboflavina_mg",
+  "residual_niacina_mg",
+  "residual_vitamina_B6_mg",
+  "residual_vitamina_B12_mcg",
+  "residual_vitamina_C_mg",
+  "residual_equivalente_de_folato_mcg",
+  "residual_sal_de_adicao_g",
+  "residual_acucar_de_adicao_g"
+)
+
+# Filtrar as colunas necessárias de saude_dieta
+saude_dieta_residual <- saude_dieta[, colunas_residual]
+
+# Renomear IdVoluntario para Sample.id para permitir o merge
+colnames(saude_dieta_residual)[colnames(saude_dieta_residual) == "IdVoluntario"] <- "Sample.id"
+
+# Fazer o merge das duas tabelas com base em Sample.id
+metadados_alpha_saude_dieta <- merge(
+  metadados_alpha_all,
+  saude_dieta_residual,
+  by = "Sample.id",
+  all.x = TRUE
+)
+
+# Visualizar a nova tabela
+head(metadados_alpha_saude_dieta)
+
+```
+
+```{r}
+# Realizar o merge diretamente, selecionando as colunas desejadas de metadata_com_NOVA
+metadados_alpha_saude_dieta_NOVA <- merge(
+  metadados_alpha_saude_dieta, 
+  metadata_com_NOVA[, c("Sample.id", 
+                        "ConsumoGrupo_NOVA_group_1",
+                        "ConsumoGrupo_NOVA_group_2",
+                        "ConsumoGrupo_NOVA_group_3",
+                        "Percentual_NOVA_group_1",
+                        "Percentual_NOVA_group_2",
+                        "Percentual_NOVA_group_3")], 
+  by = "Sample.id", 
+  all.x = TRUE  # Mantém todas as linhas de metadados_alpha_saude_dieta
+)
+
+# Visualizar a nova tabela
+head(metadados_alpha_saude_dieta_NOVA)
+
+```
+
+```{r}
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.dieta.alpha <- metadados_alpha_saude_dieta_NOVA %>%
+  select(shannon_entropy, pielou_evenness, faith_pd, observed_features, residual_carboidrato_total_g, residual_proteina_g,residual_lipidios_g, residual_fibra_alimentar_g, residual_colesterol_mg, residual_acidos_graxos_saturados_g, residual_acidos_graxos_monoinsaturados_g, residual_acidos_graxos_poliinsaturados_g, residual_acidos_graxos_trans_g, residual_calcio_mg, residual_ferro_mg, residual_sodio_mg, residual_magnesio_mg, residual_fosforo_mg, residual_potassio_mg, residual_manganes_mg, residual_zinco_mg, residual_cobre_mg, residual_selenio_mcg, residual_vitamina_A_RAE_mcg, residual_vitamina_D_mcg, residual_vitamina_E_mg, residual_tiamina_mg, residual_riboflavina_mg, residual_niacina_mg, residual_vitamina_B6_mg, residual_vitamina_B12_mcg, residual_vitamina_C_mg, residual_equivalente_de_folato_mcg, residual_sal_de_adicao_g, residual_acucar_de_adicao_g, ConsumoGrupo_NOVA_group_1, ConsumoGrupo_NOVA_group_2, ConsumoGrupo_NOVA_group_3, Percentual_NOVA_group_1, Percentual_NOVA_group_2, Percentual_NOVA_group_3 )
+
+```
+
+
+
+
+```{r}
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+```
+
+```{r}
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_alpha.diet <- cor(metadados.dieta.alpha, method = "spearman", use = "pairwise.complete.obs")
+
+# Calcular os p-valores
+p_values_alpha.diet <- cor.mtest_shannon(metadados.dieta.alpha, conf.level = 0.95)
+
+# Criar uma matriz de asteriscos para significância
+asterisks_alpha.diet <- ifelse(p_values_alpha.diet < 0.001, "***", 
+                            ifelse(p_values_alpha.diet < 0.01, "**", 
+                                   ifelse(p_values_alpha.diet < 0.05, "*", "")))
+```
+
+
+
+
+```{r}
+# Aumentar o tamanho da figura
+options(repr.plot.width = 60, repr.plot.height = 80)
+
+# Definir a altura e largura das células
+cell_height <- 10  # Ajuste este valor conforme a necessidade
+cell_width <- 15   # Ajuste este valor conforme a necessidade
+
+# Gerar o heatmap com pheatmap, ajustando o tamanho das células e removendo a legenda do título
+pheatmap(cor_matrix_alpha.diet, 
+         display_numbers = asterisks_alpha.diet, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c("blue", "white", "red"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = cell_height,  # Ajuste da altura das células
+         cellwidth = cell_width,    # Ajuste da largura das células
+         main = "Correlação entre Alpha Diversity e Dietas")
+
+
+
+
+```
+
+Alpha Diversidade com Nova
+```{r}
+
+library(ggplot2)
+library(ggpubr)
+
+# Lista das métricas de diversidade alfa
+alpha_metrics <- c("pielou_evenness", "faith_pd", "observed_features", "shannon_entropy")
+
+# Remover NAs de `ConsumoCategoria`
+metadados_filt <- metadados.alpha.all[!is.na(metadados.alpha.all$ConsumoCategoria), ]
+
+# Loop para criar os boxplots com valores de p
+for (metric in alpha_metrics) {
+  # Filtrar NAs específicos de cada métrica
+  metadados_filt_metric <- metadados_filt[!is.na(metadados_filt[[metric]]), ]
+  
+  # Criar o boxplot com valores de p
+  p <- ggplot(metadados_filt_metric, aes(x = ConsumoCategoria, y = .data[[metric]], fill = ConsumoCategoria)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+    geom_jitter(width = 0.2, size = 1.5, alpha = 0.6) +
+    stat_compare_means(method = "anova", label = "p.format") +  # Adiciona o valor de p no gráfico
+    labs(
+      title = paste("Boxplot de", metric, "por Categoria de Consumo de Ultraprocessados"),
+      x = "Categoria de Consumo",
+      y = metric
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12),
+      legend.position = "none"
+    ) +
+    scale_fill_brewer(palette = "Set2")
+  
+  # Mostrar o gráfico
+  print(p)
+}
+
+```
+
+```{r}
+# Criar categorias para Percentual_NOVA_group_1
+metadados.alpha.all$ConsumoNaturaCategoria <- cut(metadados.alpha.all$Percentual_NOVA_group_1, 
+                                              breaks = c(0, 25, 50, 75, 100), 
+                                              labels = c("Muito Baixo", "Baixo", "Moderado", "Alto"), 
+                                              include.lowest = TRUE)
+```
+
+```{r}
+# Lista das métricas de diversidade alfa
+alpha_metrics <- c("pielou_evenness", "faith_pd", "observed_features", "shannon_entropy")
+
+# Remover NAs de `ConsumoNaturaCategoria`
+metadados_filt <- metadados.alpha.all[!is.na(metadados.alpha.all$ConsumoNaturaCategoria), ]
+
+# Loop para criar os boxplots com valores de p
+for (metric in alpha_metrics) {
+  # Filtrar NAs específicos de cada métrica
+  metadados_filt_metric <- metadados_filt[!is.na(metadados_filt[[metric]]), ]
+  
+  # Verificar o número de categorias em `ConsumoNaturaCategoria`
+  unique_categories <- unique(metadados_filt_metric$ConsumoNaturaCategoria)
+  print(paste("Métrica:", metric, "- Categorias encontradas:", paste(unique_categories, collapse = ", ")))
+
+  # Criar o boxplot com valores de p
+  p1 <- ggplot(metadados_filt_metric, aes(x = ConsumoNaturaCategoria, y = .data[[metric]], fill = ConsumoNaturaCategoria)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+    geom_jitter(width = 0.2, size = 1.5, alpha = 0.6) +
+    stat_compare_means(method = "anova", label = "p.format") +  # Adiciona o valor de p no gráfico
+    labs(
+      title = paste("Boxplot de", metric, "por Categoria de Consumo de In Natura"),
+      x = "Categoria de Consumo in Natura",
+      y = metric
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12),
+      legend.position = "none"
+    ) +
+    scale_fill_brewer(palette = "Set2")
+  
+  # Mostrar o gráfico
+  print(p1)
+}
+
+
+```
+#===========CLUSTERS============== 10/01/2025====================
+
+
+
+
+
+```{r}
+wilcox.test(shannon_entropy ~ Cluster, data = metadados.alpha.all)
+
+```
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Fazer o merge dos dados com base em Sample.id e adicionar Cluster como Cluster_2
+metadados.alpha.all <- merge(
+  metadados.alpha.all, 
+  pcoa_df_completo[, c("Sample.id", "Cluster")], 
+  by = "Sample.id", 
+  all.x = TRUE
+)
+
+
+# Garantir que Cluster seja um fator
+metadados.alpha.all$Cluster <- as.factor(metadados.alpha.all$Cluster)
+
+# Criar o boxplot com dois grupos (um para cada cluster)
+ggplot(metadados.alpha.all, aes(x = Cluster, y = shannon_entropy, fill = Cluster)) +
+  geom_boxplot(alpha = 0.7) +
+  geom_jitter(width = 0.2, alpha = 0.5) +  # Adicionar pontos individuais
+  scale_fill_manual(values = c("blue", "red")) +  # Definir cores diferentes para os clusters
+  labs(
+    title = "Alfa Diversidade - Shannon Entropy por Cluster", 
+    x = "Cluster", 
+    y = "Shannon Entropy"
+  ) +
+  theme_minimal()
+
+
+
+
+```
+```{r}
+library(ggplot2)
+
+# Definir as métricas de alfa diversidade
+alpha_metrics <- c("shannon_entropy", "faith_pd", "pielou_evenness", "observed_features")
+
+
+
+```
+
+
+```{r}
+#Cluster foi creado aqui com Hclust (Método Hierárquico) ====== USAR!!! ======
+
+# Converter Cluster_Hclust para fator antes do loop
+metadados.alpha.all$Cluster_Hclust <- as.factor(metadados.alpha.all$Cluster_Hclust)
+
+write.csv(x = metadados.alpha.all, 
+          file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.alpha.all.csv", row.names = FALSE)
+
+# Loop para gerar boxplots e incluir os p-valores nos gráficos
+for (metric in alpha_metrics) {
+  
+  # Realizar o teste de Wilcoxon
+  test_result <- wilcox.test(as.formula(paste(metric, "~ Cluster_Hclust")), data = metadados.alpha.all)
+  
+  # Extrair o p-valor do teste
+  p_value <- test_result$p.value
+  #p_label <- ifelse(p_value < 0.001, "p < 0.001", paste("p =", signif(p_value, 3)))
+  # Formatar o p-valor com 3 casas decimais
+  p_label <- paste("p =", format(p_value, digits = 3, scientific = TRUE))
+
+# Verificar o resultado
+print(p_label)
+  
+  # Criar o boxplot com o p-valor
+  plot <- ggplot(metadados.alpha.all, aes(x = Cluster_Hclust, y = .data[[metric]], fill = Cluster_Hclust)) +
+    geom_boxplot(alpha = 0.7) +
+    geom_jitter(width = 0.2, alpha = 0.5) +
+    scale_fill_manual(values = c("blue", "red")) +
+    labs(
+      title = "Alpha Diversity",
+      x = "Cluster",
+      y = metric
+    ) +
+    annotate("text", x = 1.5, y = max(metadados.alpha.all[[metric]], na.rm = TRUE), label = p_label, size = 5, hjust = 0.5) +  # Adicionar p-valor no gráfico
+    theme_minimal()
+  
+  print(plot)  # Exibir o gráfico
+}
+
+
+```
+
+```{r}
+
+library(patchwork)           
+
+
+# Criar uma lista para armazenar os gráficos
+plots <- list()
+
+# Loop para gerar os gráficos e armazená-los na lista
+for (metric in alpha_metrics) {
+  
+  # Realizar o teste de Wilcoxon
+  test_result <- wilcox.test(as.formula(paste(metric, "~ Cluster_Hclust")), data = metadados.alpha.all)
+  
+  # Extrair o p-valor do teste
+  p_value <- test_result$p.value
+  p_label <- paste("p =", format(p_value, digits = 3, scientific = TRUE))
+  
+  # Criar o boxplot com o p-valor
+  plot <- ggplot(metadados.alpha.all, aes(x = Cluster_Hclust, y = .data[[metric]], fill = Cluster_Hclust)) +
+    geom_boxplot(alpha = 0.7) +
+    geom_jitter(width = 0.2, alpha = 0.5) +
+    scale_fill_manual(values = c("blue", "red")) +
+    labs(
+      title = paste("Alpha Diversity -", metric),
+      x = "Cluster",
+      y = metric
+    ) +
+    annotate("text", x = 1.5, y = max(metadados.alpha.all[[metric]], na.rm = TRUE), label = p_label, size = 5, hjust = 0.5) +
+    theme_minimal()
+  
+  # Adicionar o gráfico à lista
+  plots[[metric]] <- plot
+}
+
+# Combinar os 4 gráficos em uma figura
+combined_plot <- (plots[["shannon_entropy"]] + plots[["faith_pd"]]) /
+                 (plots[["pielou_evenness"]] + plots[["observed_features"]])
+
+# Exibir a figura combinada
+
+print(combined_plot)
+```
+```{r}
+# Lista das métricas de diversidade alfa
+alpha_metrics <- c("shannon_entropy", "faith_pd", "observed_features", "pielou_evenness")
+
+# Criar um loop para rodar Wilcoxon entre os clusters
+resultado_alpha <- data.frame(Variavel = character(), p_value = numeric())
+
+for (metric in alpha_metrics) {
+  test <- wilcox.test(as.formula(paste(metric, "~ Cluster_Hclust")), data = metadados.alpha.all)
+  resultado_alpha <- rbind(resultado_alpha, data.frame(Variavel = metric, p_value = test$p.value))
+}
+
+# Ajustar p-values para FDR
+resultado_alpha$FDR <- p.adjust(resultado_alpha$p_value, method = "fdr")
+
+# Verificar os resultados
+print(resultado_alpha)
+
+```
+```{r}
+library(ggplot2)
+library(patchwork)  # Para combinar os gráficos
+
+# Criar lista para armazenar os gráficos
+plots_list <- list()
+
+# Criar boxplots para as métricas de diversidade alfa
+for (i in 1:nrow(resultado_alpha)) {
+  
+  metric <- resultado_alpha$Variavel[i]  # Nome da métrica
+  p_value <- resultado_alpha$p_value[i]  # P-valor
+  fdr_value <- resultado_alpha$FDR[i]  # P-valor ajustado (FDR)
+  
+  # Formatar os valores para exibição
+  p_label <- paste("p =", format(p_value, digits = 3, scientific = TRUE))
+  fdr_label <- paste("FDR =", format(fdr_value, digits = 3, scientific = TRUE))
+  
+  # Criar o gráfico
+  p <- ggplot(metadados.alpha.all, aes(x = Cluster_Hclust, y = .data[[metric]], fill = Cluster_Hclust)) +
+    geom_boxplot(alpha = 0.7) +
+    geom_jitter(width = 0.2, alpha = 0.5) +
+    scale_fill_manual(values = c("blue", "red")) +
+    labs(title = paste("Comparação de", metric, "entre Clusters"),
+         x = "Cluster", y = metric) +
+    annotate("text", x = 1.5, y = max(metadados.alpha.all[[metric]], na.rm = TRUE), 
+             label = paste(p_label, "\n", fdr_label), size = 5, hjust = 0.5) +  # Adiciona p-value e FDR no gráfico
+    theme_minimal()
+  
+  # Adicionar o gráfico à lista
+  plots_list[[i]] <- p
+}
+
+# Combinar os 4 gráficos em uma única figura
+final_plot <- plots_list[[1]] + plots_list[[2]] + plots_list[[3]] + plots_list[[4]] + 
+  plot_layout(ncol = 2)  # Organiza em 2 colunas
+
+# Exibir o gráfico final
+print(final_plot)
+
+```
+

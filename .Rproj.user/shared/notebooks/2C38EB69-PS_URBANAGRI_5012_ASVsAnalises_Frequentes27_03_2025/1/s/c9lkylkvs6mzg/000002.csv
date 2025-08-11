@@ -1,0 +1,50 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTZXBhcmFyIGdydXBvc1xuU1ZzX3ZhaSA8LSBTVnNfbWV0YVssIC0xXSAgIyBSZW1vdmUgU2FtcGxlLmlkXG5ncnVwb192YWkgPC0gU1ZzX21ldGEkVkFJX2dyb3VwXG5cbiMgVGVzdGUgZGUgTWFubi1XaGl0bmV5IHBhcmEgY2FkYSBBU1ZcbnB2YWxzX3ZhaSA8LSBhcHBseShTVnNfdmFpWywgLWMobmNvbChTVnNfdmFpKS0xLCBuY29sKFNWc192YWkpKV0sIDIsIGZ1bmN0aW9uKHgpIHtcbiAgd2lsY294LnRlc3QoeCB+IGdydXBvX3ZhaSkkcC52YWx1ZVxufSlcblxuIyBDYWxjdWxhciBsb2cyRkNcbmxvZzJGQ192YWkgPC0gYXBwbHkoU1ZzX3ZhaVssIC1jKG5jb2woU1ZzX3ZhaSktMSwgbmNvbChTVnNfdmFpKSldLCAyLCBmdW5jdGlvbih4KSB7XG4gIGxvZzIobWVhbih4W2dydXBvX3ZhaSA9PSBcIkhpZ2hcIl0gKyAxKSAvIG1lYW4oeFtncnVwb192YWkgPT0gXCJMb3dcIl0gKyAxKSlcbn0pXG5cbiMgQ3JpYXIgZGF0YWZyYW1lIGRlIHJlc3VsdGFkb3NcbmRmX3ZhaSA8LSBkYXRhLmZyYW1lKEFTViA9IG5hbWVzKHB2YWxzX3ZhaSksXG4gICAgICAgICAgICAgICAgICAgICBwdmFsdWUgPSBwdmFsc192YWksXG4gICAgICAgICAgICAgICAgICAgICBsb2cyRkMgPSBsb2cyRkNfdmFpLFxuICAgICAgICAgICAgICAgICAgICAgRkRSID0gcC5hZGp1c3QocHZhbHNfdmFpLCBtZXRob2QgPSBcImZkclwiKSlcblxuYGBgIn0= -->
+
+```r
+# Separar grupos
+SVs_vai <- SVs_meta[, -1]  # Remove Sample.id
+grupo_vai <- SVs_meta$VAI_group
+
+# Teste de Mann-Whitney para cada ASV
+pvals_vai <- apply(SVs_vai[, -c(ncol(SVs_vai)-1, ncol(SVs_vai))], 2, function(x) {
+  wilcox.test(x ~ grupo_vai)$p.value
+})
+
+# Calcular log2FC
+log2FC_vai <- apply(SVs_vai[, -c(ncol(SVs_vai)-1, ncol(SVs_vai))], 2, function(x) {
+  log2(mean(x[grupo_vai == \"High\"] + 1) / mean(x[grupo_vai == \"Low\"] + 1))
+})
+
+# Criar dataframe de resultados
+df_vai <- data.frame(ASV = names(pvals_vai),
+                     pvalue = pvals_vai,
+                     log2FC = log2FC_vai,
+                     FDR = p.adjust(pvals_vai, method = \"fdr\"))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Separar grupos
+SVs_vai <- SVs_meta[, -1]  # Remove Sample.id
+grupo_vai <- SVs_meta$VAI_group
+
+# Teste de Mann-Whitney para cada ASV
+pvals_vai <- apply(SVs_vai[, -c(ncol(SVs_vai)-1, ncol(SVs_vai))], 2, function(x) {
+  wilcox.test(x ~ grupo_vai)$p.value
+})
+
+# Calcular log2FC
+log2FC_vai <- apply(SVs_vai[, -c(ncol(SVs_vai)-1, ncol(SVs_vai))], 2, function(x) {
+  log2(mean(x[grupo_vai == \"High\"] + 1) / mean(x[grupo_vai == \"Low\"] + 1))
+})
+
+# Criar dataframe de resultados
+df_vai <- data.frame(ASV = names(pvals_vai),
+                     pvalue = pvals_vai,
+                     log2FC = log2FC_vai,
+                     FDR = p.adjust(pvals_vai, method = \"fdr\"))
+
+```"

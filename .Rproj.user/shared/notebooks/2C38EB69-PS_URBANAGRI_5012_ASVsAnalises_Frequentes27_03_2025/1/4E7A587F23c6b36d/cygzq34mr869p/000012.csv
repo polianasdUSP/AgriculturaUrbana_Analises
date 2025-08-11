@@ -1,0 +1,21 @@
+"0","# Heatmap
+pheatmap(cor_matrix_health,
+         display_numbers = star_matrix_health,
+         clustering_method = ""ward.D2"",
+         clustering_distance_rows = ""euclidean"",
+         clustering_distance_cols = ""euclidean"",
+         color = colorRampPalette(c(""blue"", ""white"", ""red""))(100),
+         breaks = seq(-0.5, 0.5, length.out = 101),
+         main = ""Correlação entre Taxa e Parâmetros de Saúde\n(* FDR < 0.05)"",
+         fontsize_row = 7,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA)
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/2C38EB69-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F23c6b36d/cygzq34mr869p_t/e09e1793bb4d406084ba834ebf608e7d.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

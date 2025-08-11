@@ -1,0 +1,124 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBMb29wIHBlbGFzIHZhcmnDoXZlaXMgZGUgc2HDumRlXG5mb3IgKHZhciBpbiBoZWFsdGhfdmFycykge1xuICBcbiAgdGVtcCA8LSBjb21iaW5lZF9kYXRhICU+JVxuICAgIGdyb3VwX2J5KEZlYXR1cmUuSUQpICU+JVxuICAgIHN1bW1hcmlzZShcbiAgICAgIGNvcnJlbGF0aW9uID0gY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCAuZGF0YVtbdmFyXV0pW1wiY29ycmVsYXRpb25cIl0sXG4gICAgICBwX3ZhbHVlID0gY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCAuZGF0YVtbdmFyXV0pW1wicF92YWx1ZVwiXVxuICAgICkgJT4lXG4gICAgdW5ncm91cCgpICU+JVxuICAgIG11dGF0ZSh2YXJpYWJsZSA9IHZhcikgJT4lXG4gICAgbXV0YXRlKFxuICAgICAgY29ycmVsYXRpb24gPSBhcy5udW1lcmljKGNvcnJlbGF0aW9uKSxcbiAgICAgIHBfdmFsdWUgPSBhcy5udW1lcmljKHBfdmFsdWUpXG4gICAgKVxuICBcbiAgIyBBcm1hemVuYXIgbmEgbGlzdGFcbiAgY29yX2xpc3RbW3Zhcl1dIDwtIHRlbXBcbn1cbiMgTG9vcCBwZWxhcyB2YXJpw6F2ZWlzIGRlIHNhw7pkZVxuZm9yICh2YXIgaW4gaGVhbHRoX3ZhcnMpIHtcbiAgXG4gIHRlbXAgPC0gY29tYmluZWRfZGF0YSAlPiVcbiAgICBncm91cF9ieShGZWF0dXJlLklEKSAlPiVcbiAgICBzdW1tYXJpc2UoXG4gICAgICBjb3JyZWxhdGlvbiA9IGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgLmRhdGFbW3Zhcl1dKVtcImNvcnJlbGF0aW9uXCJdLFxuICAgICAgcF92YWx1ZSA9IGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgLmRhdGFbW3Zhcl1dKVtcInBfdmFsdWVcIl1cbiAgICApICU+JVxuICAgIHVuZ3JvdXAoKSAlPiVcbiAgICBtdXRhdGUodmFyaWFibGUgPSB2YXIpICU+JVxuICAgIG11dGF0ZShcbiAgICAgIGNvcnJlbGF0aW9uID0gYXMubnVtZXJpYyhjb3JyZWxhdGlvbiksXG4gICAgICBwX3ZhbHVlID0gYXMubnVtZXJpYyhwX3ZhbHVlKVxuICAgIClcbiAgXG4gICMgQXJtYXplbmFyIG5hIGxpc3RhXG4gIGNvcl9saXN0W1t2YXJdXSA8LSB0ZW1wXG59XG4jIFVuaXIgdG9kb3Mgb3MgcmVzdWx0YWRvc1xuY29yX2FsbCA8LSBiaW5kX3Jvd3MoY29yX2xpc3QpXG4jIEFqdXN0YXIgcC12YWxvciBjb20gRkRSXG5jb3JfYWxsIDwtIGNvcl9hbGwgJT4lXG4gIGdyb3VwX2J5KHZhcmlhYmxlKSAlPiVcbiAgbXV0YXRlKHBfYWRqID0gcC5hZGp1c3QocF92YWx1ZSwgbWV0aG9kID0gXCJmZHJcIikpICU+JVxuICB1bmdyb3VwKClcbiMgTWFyY2FyIHNpZ25pZmljw6JuY2lhXG5jb3JfYWxsIDwtIGNvcl9hbGwgJT4lXG4gIG11dGF0ZShzdGFyID0gY2FzZV93aGVuKFxuICAgIHBfYWRqIDwgMC4wMDEgfiBcIioqKlwiLFxuICAgIHBfYWRqIDwgMC4wMSB+IFwiKipcIixcbiAgICBwX2FkaiA8IDAuMDUgfiBcIipcIixcbiAgICBUUlVFIH4gXCJcIlxuICApKVxuIyBWaXN1YWxpemFyIHJlc3VsdGFkb3MgZm9ybWF0YWRvc1xuaGVhZChjb3JfYWxsKVxuXG5gYGAifQ== -->
+
+```r
+# Loop pelas variáveis de saúde
+for (var in health_vars) {
+  
+  temp <- combined_data %>%
+    group_by(Feature.ID) %>%
+    summarise(
+      correlation = calc_cor_p(NormAbundance, .data[[var]])[\"correlation\"],
+      p_value = calc_cor_p(NormAbundance, .data[[var]])[\"p_value\"]
+    ) %>%
+    ungroup() %>%
+    mutate(variable = var) %>%
+    mutate(
+      correlation = as.numeric(correlation),
+      p_value = as.numeric(p_value)
+    )
+  
+  # Armazenar na lista
+  cor_list[[var]] <- temp
+}
+# Loop pelas variáveis de saúde
+for (var in health_vars) {
+  
+  temp <- combined_data %>%
+    group_by(Feature.ID) %>%
+    summarise(
+      correlation = calc_cor_p(NormAbundance, .data[[var]])[\"correlation\"],
+      p_value = calc_cor_p(NormAbundance, .data[[var]])[\"p_value\"]
+    ) %>%
+    ungroup() %>%
+    mutate(variable = var) %>%
+    mutate(
+      correlation = as.numeric(correlation),
+      p_value = as.numeric(p_value)
+    )
+  
+  # Armazenar na lista
+  cor_list[[var]] <- temp
+}
+# Unir todos os resultados
+cor_all <- bind_rows(cor_list)
+# Ajustar p-valor com FDR
+cor_all <- cor_all %>%
+  group_by(variable) %>%
+  mutate(p_adj = p.adjust(p_value, method = \"fdr\")) %>%
+  ungroup()
+# Marcar significância
+cor_all <- cor_all %>%
+  mutate(star = case_when(
+    p_adj < 0.001 ~ \"***\",
+    p_adj < 0.01 ~ \"**\",
+    p_adj < 0.05 ~ \"*\",
+    TRUE ~ \"\"
+  ))
+# Visualizar resultados formatados
+head(cor_all)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Loop pelas variáveis de saúde
+for (var in health_vars) {
+  
+  temp <- combined_data %>%
+    group_by(Feature.ID) %>%
+    summarise(
+      correlation = calc_cor_p(NormAbundance, .data[[var]])[\"correlation\"],
+      p_value = calc_cor_p(NormAbundance, .data[[var]])[\"p_value\"]
+    ) %>%
+    ungroup() %>%
+    mutate(variable = var) %>%
+    mutate(
+      correlation = as.numeric(correlation),
+      p_value = as.numeric(p_value)
+    )
+  
+  # Armazenar na lista
+  cor_list[[var]] <- temp
+}
+# Loop pelas variáveis de saúde
+for (var in health_vars) {
+  
+  temp <- combined_data %>%
+    group_by(Feature.ID) %>%
+    summarise(
+      correlation = calc_cor_p(NormAbundance, .data[[var]])[\"correlation\"],
+      p_value = calc_cor_p(NormAbundance, .data[[var]])[\"p_value\"]
+    ) %>%
+    ungroup() %>%
+    mutate(variable = var) %>%
+    mutate(
+      correlation = as.numeric(correlation),
+      p_value = as.numeric(p_value)
+    )
+  
+  # Armazenar na lista
+  cor_list[[var]] <- temp
+}
+# Unir todos os resultados
+cor_all <- bind_rows(cor_list)
+# Ajustar p-valor com FDR
+cor_all <- cor_all %>%
+  group_by(variable) %>%
+  mutate(p_adj = p.adjust(p_value, method = \"fdr\")) %>%
+  ungroup()
+# Marcar significância
+cor_all <- cor_all %>%
+  mutate(star = case_when(
+    p_adj < 0.001 ~ \"***\",
+    p_adj < 0.01 ~ \"**\",
+    p_adj < 0.05 ~ \"*\",
+    TRUE ~ \"\"
+  ))
+# Visualizar resultados formatados
+head(cor_all)
+
+```"
+"1","Aviso: não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/A8B65409-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F2419ec22/cvvxp0jfcxho6_t\_rs_rdf_8342fa21cb0.rdf', motivo provável 'No such file or directory'Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

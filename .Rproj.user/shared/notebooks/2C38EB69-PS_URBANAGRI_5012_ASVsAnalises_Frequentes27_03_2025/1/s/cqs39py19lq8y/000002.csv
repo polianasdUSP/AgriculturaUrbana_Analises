@@ -1,0 +1,50 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI0VuY29udHJhciBxdWFpcyBBU1ZzIChsaW5oYXMgZGEgbWF0cml6KSBlc3TDo28gcHJlc2VudGVzIGVtIHBlbG8gbWVub3MgWCUgZGFzIGFtb3N0cmFzIGRlIHVtIGRldGVybWluYWRvIGdydXBvIOKAlCBlc3NlIGNvbmp1bnRvIMOpIGNoYW1hZG8gZGUgXCJjb3JlIG1pY3JvYmlvdGFcIiBwYXJhIGFxdWVsZSBncnVwby5cbiMgRnVuw6fDo28gcGFyYSBjYWxjdWxhciBjb3JlIG1pY3JvYmlvdGEgcG9yIGdydXBvXG5cbmdldF9jb3JlX21pY3JvYmlvdGEgPC0gZnVuY3Rpb24oU1ZfbWF0cml4LCBncm91cF92ZWN0b3IsIGdyb3VwX25hbWUsIHRocmVzaG9sZCA9IDAuNSkge1xuICBcbiAgI3RocmVzaG9sZCBkZSAwLjUgPSA1MCUgZGFzIGFtb3N0cmFzXG4gIFxuICAjIFN1YnNldCBkYSBtYXRyaXogZGUgQVNWcyBwb3IgZ3J1cG9cbiAgZ3JvdXBfc2FtcGxlcyA8LSBjb2xuYW1lcyhTVl9tYXRyaXgpW2dyb3VwX3ZlY3RvciA9PSBncm91cF9uYW1lXVxuICBTVl9ncm91cCA8LSBTVl9tYXRyaXhbLCBncm91cF9zYW1wbGVzXVxuICBcbiAgIyBDYWxjdWxhciBhIHByZXNlbsOnYSByZWxhdGl2YSAoZW0gJSBkYXMgYW1vc3RyYXMpXG4gIHByZXNlbsOnYSA8LSByb3dTdW1zKFNWX2dyb3VwID4gMCkgLyBsZW5ndGgoZ3JvdXBfc2FtcGxlcylcbiAgXG4gICMgU2VsZWNpb25hciBBU1ZzIGNvbSBwcmVzZW7Dp2EgYWNpbWEgZG8gbGltaWFyXG4gIGNvcmVfYXN2cyA8LSBwcmVzZW7Dp2FbcHJlc2Vuw6dhID49IHRocmVzaG9sZF1cbiAgXG4gIHJldHVybihjb3JlX2FzdnMpXG59XG5cbmBgYCJ9 -->
+
+```r
+#Encontrar quais ASVs (linhas da matriz) estão presentes em pelo menos X% das amostras de um determinado grupo — esse conjunto é chamado de \"core microbiota\" para aquele grupo.
+# Função para calcular core microbiota por grupo
+
+get_core_microbiota <- function(SV_matrix, group_vector, group_name, threshold = 0.5) {
+  
+  #threshold de 0.5 = 50% das amostras
+  
+  # Subset da matriz de ASVs por grupo
+  group_samples <- colnames(SV_matrix)[group_vector == group_name]
+  SV_group <- SV_matrix[, group_samples]
+  
+  # Calcular a presença relativa (em % das amostras)
+  presença <- rowSums(SV_group > 0) / length(group_samples)
+  
+  # Selecionar ASVs com presença acima do limiar
+  core_asvs <- presença[presença >= threshold]
+  
+  return(core_asvs)
+}
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+#Encontrar quais ASVs (linhas da matriz) estão presentes em pelo menos X% das amostras de um determinado grupo — esse conjunto é chamado de \"core microbiota\" para aquele grupo.
+# Função para calcular core microbiota por grupo
+
+get_core_microbiota <- function(SV_matrix, group_vector, group_name, threshold = 0.5) {
+  
+  #threshold de 0.5 = 50% das amostras
+  
+  # Subset da matriz de ASVs por grupo
+  group_samples <- colnames(SV_matrix)[group_vector == group_name]
+  SV_group <- SV_matrix[, group_samples]
+  
+  # Calcular a presença relativa (em % das amostras)
+  presença <- rowSums(SV_group > 0) / length(group_samples)
+  
+  # Selecionar ASVs com presença acima do limiar
+  core_asvs <- presença[presença >= threshold]
+  
+  return(core_asvs)
+}
+
+```"

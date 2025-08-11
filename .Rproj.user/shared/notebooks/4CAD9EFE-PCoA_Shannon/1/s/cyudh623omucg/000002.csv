@@ -1,0 +1,8 @@
+"0","```r
+
+# Selecionar as colunas existentes
+
+dados <- metadados_raw[, colunas_existentes]
+
+
+```"

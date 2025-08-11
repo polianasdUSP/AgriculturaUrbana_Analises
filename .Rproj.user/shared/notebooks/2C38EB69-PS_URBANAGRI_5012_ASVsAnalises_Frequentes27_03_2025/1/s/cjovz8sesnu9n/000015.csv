@@ -1,0 +1,21 @@
+"0","# 7. Gerar o Volcano Plot sem correção FDR
+ggplot(resultado_volcano_tyg_filtrado, aes(x = log2FoldChange, y = -log10(pvalue), color = Significativo)) +
+  geom_point(alpha = 0.8, size = 2) +
+  scale_color_manual(values = c(""Sim"" = ""red"", ""Não"" = ""gray"")) +
+  geom_vline(xintercept = c(-1, 1), linetype = ""dashed"", color = ""black"") +
+  geom_hline(yintercept = -log10(0.05), linetype = ""dashed"", color = ""black"") +
+  labs(
+    title = ""Volcano Plot - Triglyceride-Glucose (TyG) Index Group (pvalue)"",
+    x = ""log2(Fold Change) (High vs Low)"",
+    y = ""-log10(p-valor)"",
+    color = ""Significativo""
+  ) +
+  theme_minimal(base_size = 14)
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/2C38EB69-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F241fd9b6/cjovz8sesnu9n_t/bc40498d55a145b88ee7c0e8d186fbfe.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

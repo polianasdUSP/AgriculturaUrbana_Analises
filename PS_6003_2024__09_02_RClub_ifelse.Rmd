@@ -1,0 +1,217 @@
+---
+title: "PS_6003_2024__09_02_RClub"
+output: html_notebook
+---
+
+ 
+
+```{r}
+chickwts
+
+View(chickwts)
+
+unique(chickwts$feed)
+
+```
+
+```{r}
+grepl (x= chickwts$feed, pattern = "^(m|c)")
+
+grepl (x= chickwts$feed, pattern = "^[mc]")
+
+#os dois acima sao logicas diferentes com o mesmo resultado. Como o que esta entre parenteses é lembrado pelo R e o que nao esta entre parenteses não é lembrado. 
+
+```
+
+```{r}
+chickwts$feed [grepl (x= chickwts$feed, pattern = "^(m|c)")]
+
+```
+
+
+```{r}
+
+gsub(x = chickwts$feed, pattern = "^(m|c)$" , replacement = "\\1.1" )
+
+#a barra (\\1, mostra que é o primeiro parenteses salvo) é pra ver o que foi salvo. Essa expressão regular nao funciona
+
+```
+
+
+```{r}
+
+data <- chickwts
+
+gsub(x = data$feed, pattern = "^([mc].+)$" , replacement = "\\1.1" )
+
+
+```
+
+```{r}
+
+grepl (x= chickwts$feed, pattern = "^([mc].+)$")
+
+
+```
+
+```{r}
+#non-veg based diet starts with m OR c
+
+grepl (x= data$feed, pattern = "^([mc].+)$")
+
+#quando der verdadeiro é a non-veg diet
+
+```
+
+```{r}
+
+#data$dietType <- ifelse(grepl(x= data$feed, pattern = "^([mc].+)$"), "non-veg", "veg")
+
+data$dietType <- ifelse(test = grepl(x= data$feed, pattern = "^([mc].+)$"),
+                        yes = "non-veg", 
+                        no = "veg")
+
+#ifelse faz a avaliacao logica, determina o que quero escrever. O primeiro argumento do ifelse é sempre uma avaliação lógica.
+
+```
+
+```{r}
+ifelse (data$feed == "meatmeal", "animalDiet", "nonAnimalDiet")
+
+
+```
+
+```{r}
+#Posso criar um pequeno vetor com as informações
+
+unique(data$feed)
+
+data$dietType <- ifelse(test = data$feed %in% c("horsebean", "linseed",   "soybean",  "sunflower"),
+                        yes = "non-veg", 
+                        no = "veg")
+
+```
+
+```{r}
+#para deletar, lembrando que 1 vez deletada, deletada sempre
+
+data$dietType <- NULL
+
+save(file = "my.data.RData", data)
+
+load ("my.data.Rdata")
+
+
+```
+
+
+
+```{r}
+
+colnames(TBCA_)
+colnames (recall_)
+
+
+
+
+# Importar o arquivo TSV
+
+recall_ <- read.table("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/urbagri_recall_nova - urbagri_recall_nova_ParaR.tsv", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+
+TBCA <-read.table("C:/Users/polia/Downloads/tbca_completa2024-10-04.txt")
+
+
+recall.withEnergy <- merge(x = recall_[c("TBCA_code", "IdVoluntario", "R24H", "Quantidade", "NOVA_group", "NOVA_subgroup", "NOVA_subgroup_description_2")], 
+                           y = tbca["energia2_kcal"], 
+                           by.x = "TBCA_code", 
+                           by.y = "cod_alimento")
+
+
+
+#convert energy based on "quantidade consumida"
+
+recall.withEnergy$consumedCals <- recall.withEnergy$energia2_kcal*recall.withEnergy$Quantidade/100
+
+#calculate energy per NOVA subcategory
+
+library (dplyr)
+
+recall.withEnergy.NOVA <- recall.withEnergy %>%
+  group_by (IdVoluntario, R24h, NOVA_group, NOVA_subgroup, NOVA_subgroup_description_1) %>%
+  summarise(consumoTotalDiario = sum(consumedCals)) %>%
+  group_by (IdVoluntario, NOVA_group, NOVA_subgroup, NOVA_subgroup_description_1) %>%
+  summarise (mediaConsumoDiario = mean (consumoTotalDiario))
+  group_by(IdVoluntario) %>% #pra conferir 
+  summarise(ConsumoDiarioTotal = sum (mediaConsumoDiario, na.rm = T))  #pra conferir
+
+#no sehundo groupby eu tiro o R24h pq nao quero mais essa coluna
+
+
+
+agregate by: Idvoluntario R24h NOVA_group  NOVA_subgroup_description_1
+
+sum this col: consumedCals
+
+
+
+```
+
+```{r}
+
+
+# Importar o arquivo TSV
+
+recall_ <- read.table("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/urbagri_recall_nova - urbagri_recall_nova_ParaR.tsv", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+```
+
+AULA 29/11/2024 - LOOP
+
+For and while (condicao interna dentro do loop. )
+
+
+```{r}
+
+#basic Syntax
+
+my.data<- letters
+
+for (my.letters in my.data) {
+    # code block
+  
+  print (my.letters)
+  
+}
+
+results.final <- character ()
+
+for (n in 1:54) {
+  #code block
+  print (n)
+  #stat test
+# my.results <- t.test ()
+# results.final[]<-my.results[1,4]
+  results.final[n] <- paste ("my result now is:", n)
+}
+
+```
+
+```{r}
+#13/12/2024
+
+subset(x=tbca, (energia2_kcal >=400 & tipo_alimento =="Preparação")|(energia2_kcal >= 600 & tipo_alimento == "Alimento in natura"))
+
+#subset(x=tbca, (energia2_kcal >=400 & tipo_alimento =="Preparação")|(energia2_kcal >= 600 & tipo_alimento == "Alimento in natura"))
+
+tbca[grepl(x=tbca$nome_pt_br, pattern = "^Az"), ]
+
+subset(x=tbca, grepl(x=tbca$nome_pt_br, pattern = "^Az") & (energia2_kcal >= 600))
+
+
+```
+```{r}
+testeMerge <- merge(x=tbca, y=recall, by.x = "cod_alimento", by.y= "TBCA_code")
+
+rm(testeMerge)
+```
+

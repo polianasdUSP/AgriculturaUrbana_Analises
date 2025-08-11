@@ -1,0 +1,32 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5hbHBoYS5hbGwkUm93Lm5hbWVzIDwtIGdzdWIoXCItXCIsIFwiLlwiLCBhbHBoYS5hbGwkUm93Lm5hbWVzKVxuICBcblxuI1RJUkFSIGRlIGFscGhhLmFsbCB0b2RvcyBvcyBpZHMgZGUgUm93Lm5hbWVzIHF1ZSB0ZWphbSBmaW5hbGl6YWRvcyBwb3IgLkYwMVxuICMgUmVtb3ZlciBJRHMgcXVlIHRlcm1pbmFtIGNvbSAuRjAxXG5hbHBoYS5hbGwgPC0gYWxwaGEuYWxsWyFncmVwbChcIlxcXFwuRjAxJFwiLCBhbHBoYS5hbGwkUm93Lm5hbWVzKSwgXVxuXG4jRGVpeGFyIHPDsyBpZHMgcXVlIHRlcm1pbmFtIGNvbSAuRjAwXG5hbHBoYS5hbGwgPC0gYWxwaGEuYWxsW2dyZXBsKFwiXFxcXC5GMDAkXCIsIGFscGhhLmFsbCRSb3cubmFtZXMpLCBdIFxuXG5gYGAifQ== -->
+
+```r
+
+alpha.all$Row.names <- gsub(\"-\", \".\", alpha.all$Row.names)
+  
+
+#TIRAR de alpha.all todos os ids de Row.names que tejam finalizados por .F01
+ # Remover IDs que terminam com .F01
+alpha.all <- alpha.all[!grepl(\"\\.F01$\", alpha.all$Row.names), ]
+
+#Deixar só ids que terminam com .F00
+alpha.all <- alpha.all[grepl(\"\\.F00$\", alpha.all$Row.names), ] 
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+alpha.all$Row.names <- gsub(\"-\", \".\", alpha.all$Row.names)
+  
+
+#TIRAR de alpha.all todos os ids de Row.names que tejam finalizados por .F01
+ # Remover IDs que terminam com .F01
+alpha.all <- alpha.all[!grepl(\"\\.F01$\", alpha.all$Row.names), ]
+
+#Deixar só ids que terminam com .F00
+alpha.all <- alpha.all[grepl(\"\\.F00$\", alpha.all$Row.names), ] 
+
+```"

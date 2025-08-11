@@ -1,0 +1,124 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+
+
+
+```
+
+```{r}
+metadata <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv", 
+                     sep = ";", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+```
+
+```{r}
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs[!grepl("\\.F01$", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep("\\.F00$", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+
+```{r}
+SVs<-apply(SVs, 2, function(x) x/sum(x)*100) #convert to percent
+
+SVsToPlot<-  
+  data.frame(MeanAbundance=rowMeans(SVs)) %>% #find the average abundance of a SV
+  rownames_to_column("Feature.ID") %>%
+  arrange(desc(MeanAbundance)) %>%
+  top_n(30, MeanAbundance) %>%
+  pull(Feature.ID) #extract only the names from the table
+
+
+
+
+```
+
+```{r}
+
+SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "Sample.id", value = "Abundance") %>%  # Corrigido para "Sample.id"
+  mutate(Feature.ID = if_else(Feature.ID %in% SVsToPlot, Feature.ID, "Remainder")) %>%
+  group_by(Sample.id, Feature.ID) %>%
+  dplyr::summarize(Abundance = sum(Abundance), .groups = "drop") %>%
+  left_join(metadata, by = "Sample.id") %>%  # Corrigido para "Sample.id"
+  mutate(NormAbundance = log10(Abundance + 0.01)) %>%
+  left_join(taxonomy, by = "Feature.ID") %>%
+  mutate(Feature = paste(Feature.ID, Taxon)) %>%
+  mutate(Feature = gsub("[kpcofgs]__", "", Feature)) %>%
+  ggplot(aes(x = Sample.id, y = Feature, fill = NormAbundance)) +
+  geom_tile() +
+  facet_grid(~`Cluster`, scales = "free_x") +
+  theme_q2r() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = "log10(% Abundance)")
+
+```
+
+
+
+
+

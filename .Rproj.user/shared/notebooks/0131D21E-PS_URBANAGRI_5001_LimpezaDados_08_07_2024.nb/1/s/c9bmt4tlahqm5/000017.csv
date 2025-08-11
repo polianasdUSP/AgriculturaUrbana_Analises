@@ -1,0 +1,8 @@
+"0","# Converte unifract objects 'dist' em um data.frame 
+unweighted_unifrac <- data.frame(as.matrix(unweighted_unifrac.raw))
+
+rowanames(unweighted_unifrac) <- colnames(unweighted_unifrac)
+"
+"2","Error in rowanames(unweighted_unifrac) <- colnames(unweighted_unifrac) : 
+  não foi possível encontrar a função ""rowanames<-""
+"

@@ -1,0 +1,9 @@
+"0","ggplot(data = my.weights) + geom_line(aes(x = round, y = weight, group = babyCode)) + facet_wrap(facets = ~`A14|&nbsp;Sexo:&nbsp;`)
+"
+"2","Aviso:"
+"2"," [38;5;232mRemoved 3 rows containing missing values or values outside the scale range
+(`geom_line()`).[39m
+"
+"1","[38;5;232m`geom_line()`: Each group consists of only one observation.
+[36mℹ[38;5;232m Do you need to adjust the [32mgroup[38;5;232m aesthetic?[39m
+"

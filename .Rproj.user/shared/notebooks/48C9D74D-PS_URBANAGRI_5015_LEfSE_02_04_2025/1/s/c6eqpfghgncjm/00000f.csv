@@ -1,0 +1,18 @@
+"0","# Verifique se deu certo
+my.phyloseq_filtrado
+"
+"1","phyloseq-class experiment-level object"
+"1","
+"
+"1","otu_table()   OTU Table:         [ 3935 taxa and 108 samples ]"
+"1","
+"
+"1","sample_data() Sample Data:       [ 108 samples by 7 sample variables ]"
+"1","
+"
+"1","tax_table()   Taxonomy Table:    [ 3935 taxa by 7 taxonomic ranks ]"
+"1","
+"
+"1","phy_tree()    Phylogenetic Tree: [ 3935 tips and 3892 internal nodes ]"
+"1","
+"

@@ -1,0 +1,12 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucF92YWx1ZV9vYnNlcnZlZCA8LSB3aWxjb3gudGVzdChvYnNlcnZlZF9mZWF0dXJlcyB+IFRyZXBvbmVtYSwgZGF0YSA9IHNhdWRlX2RpZXRhKSRwLnZhbHVlXG5gYGAifQ== -->
+
+```r
+p_value_observed <- wilcox.test(observed_features ~ Treponema, data = saude_dieta)$p.value
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+p_value_observed <- wilcox.test(observed_features ~ Treponema, data = saude_dieta)$p.value
+```"

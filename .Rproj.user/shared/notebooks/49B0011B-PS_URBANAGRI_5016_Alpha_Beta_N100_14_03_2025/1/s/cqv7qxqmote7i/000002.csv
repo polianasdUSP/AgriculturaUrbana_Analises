@@ -1,0 +1,20 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3Bsb3QyKVxubGlicmFyeShkcGx5cilcbmxpYnJhcnkoZ2dwdWJyKVxubGlicmFyeShnZ3NjaSkgICAgICAgICMgYWxndW1hcyBwYWxldGFzIGV4dHJhc1xubGlicmFyeSh2aXJpZGlzKSAgICAgICMgZXNzYSDDqSBhIHByaW5jaXBhbCFcbmBgYCJ9 -->
+
+```r
+library(ggplot2)
+library(dplyr)
+library(ggpubr)
+library(ggsci)        # algumas paletas extras
+library(viridis)      # essa é a principal!
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(ggplot2)
+library(dplyr)
+library(ggpubr)
+library(ggsci)        # algumas paletas extras
+library(viridis)      # essa é a principal!
+```"

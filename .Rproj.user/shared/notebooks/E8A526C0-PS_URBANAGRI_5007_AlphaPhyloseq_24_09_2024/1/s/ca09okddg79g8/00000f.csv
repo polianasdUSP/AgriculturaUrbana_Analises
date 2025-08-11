@@ -1,0 +1,47 @@
+"0","library(picante)
+"
+"2","Aviso: pacote ‘picante’ foi compilado no R versão 4.5.0"
+"2","Carregando pacotes exigidos: ape
+"
+"2","
+Anexando pacote: ‘ape’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:ggpubr’:
+
+    rotate
+
+"
+"2","O seguinte objeto é mascarado por ‘package:dplyr’:
+
+    where
+
+"
+"2","Carregando pacotes exigidos: vegan
+"
+"2","Carregando pacotes exigidos: permute
+"
+"2","Carregando pacotes exigidos: lattice
+"
+"2","This is vegan 2.6-8
+"
+"2","
+Anexando pacote: ‘vegan’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:microbiome’:
+
+    diversity
+
+"
+"2","Carregando pacotes exigidos: nlme
+"
+"2","
+Anexando pacote: ‘nlme’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:dplyr’:
+
+    collapse
+
+"

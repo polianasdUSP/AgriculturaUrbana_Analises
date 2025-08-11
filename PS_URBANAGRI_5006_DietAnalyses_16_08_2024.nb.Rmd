@@ -1,0 +1,1045 @@
+---
+title: "Dieta e Agricultura Urbana"
+output: html_notebook
+---
+
+
+# 2024-05-23
+# dietary data analysis code V01
+
+# using the tbca and recall data. 
+
+# tbca is standardized within the lab and by the TBCA 
+# the recall data must have 4 columns:
+
+# IdVoluntario, R24H, Quantidade, TBCA_code
+# must be sequential for all volunteers (one on top of the other):
+# must have these colnames
+
+# as such:
+# IdVoluntario	R24H	Quantidade	TBCA_code
+# 10011	Day 1	200	C0409A
+# 10011	Day 2	100	C0044H
+# 10011	Day 3	225	C0064T
+# 10012	Day 1	75	C0209A
+# 10012	Day 2	20	C0145B
+# 10012	Day 3	11	C0170F
+
+# these 4 cols have the person id, the day the recall was collected, the food item code and the quantity ingested
+
+
+```{r}
+
+# Instala e carrega os pacotes necessários
+library(dplyr)
+library(readxl)
+library(writexl)
+library(fmsb)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+
+
+```
+
+
+
+analysis
+
+
+import the TBCA
+```{r}
+tbca.raw <- read_excel("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Dados_composição_TBCA_Hoffmann11022022v6.xlsx")
+# convert negative values that indicate traces of not available data etc to zero
+tbca <- tbca.raw %>%
+  mutate(across(where(is.numeric), ~ replace(., . < 0, 0)))
+```
+
+
+# import the recall2 data
+```{r}
+recall.raw2 <- read_excel("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Planilha_UNICA_R24H_Projeto_Agricultura (3).xlsx")
+# convert ID to char
+recall.raw2$IdVoluntario <- as.character(recall.raw2$IdVoluntario)
+
+recall2 <- merge(x = recall.raw2[c("IdVoluntario", "R24H", "Quantidade", "TBCA_code")], y = tbca, by.x = "TBCA_code", by.y = "cod_alimento", all.x =T)
+recall2$convertionFactor <- recall2$Quantidade/100
+
+recall2 <- cbind(recall2[1:5], recall2[12:(ncol(recall2)-1)]*recall2$convertionFactor)
+
+# Salvar o computador
+write.table(recall, file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/recall.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+write_xlsx(recall, path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/recall.xlsx")
+
+# Salvar o computador
+write.table(saude_dieta, file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/saude_dieta.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+write_xlsx(saude_dieta, path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/saude_dieta.xlsx")
+str(recall)
+
+
+
+recall.calc <- recall2[-c(1,4,5)] %>% 
+group_by(IdVoluntario, R24H) %>%
+summarise_all(sum, na.rm=T) %>%
+summarise(across(-R24H, mean))
+
+#colocar S no inicio do ID e .F00 no final
+#recall.calc$IdVoluntario <- paste0("S", recall.calc$IdVoluntario, ".F00")
+
+
+```
+
+
+```{r}
+write.table(x = recall.calc, file = "recall.calc.txt", col.names = T)
+
+write.table(recall.calc, file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/recall.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+# Salva o objeto recall.calc em um arquivo Excel
+write_xlsx(recall.calc, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/recall_calc.xlsx")
+
+
+
+```
+
+
+```{r}
+hist(recall.calc$energia2_kcal, main="Distribuição de Energia (kcal)", xlab="Energia (kcal)", col="blue", border="black")
+```
+
+```{r}
+boxplot(recall.calc$proteina_g ~ recall.calc$IdVoluntario, main="Distribuição de Proteína por Voluntário", xlab="ID do Voluntário", ylab="Proteína (g)", col="orange")
+```
+
+```{r}
+barplot(colMeans(recall.calc[,c("proteina_g", "carboidrato_total_g", "lipidios_g")]), 
+        main="Média de Macronutrientes Consumidos", 
+        ylab="Quantidade (g)", 
+        col=c("red", "green", "blue"), 
+        names.arg=c("Proteína", "Carboidrato", "Lipídios"))
+
+```
+```{r}
+plot(recall.calc$carboidrato_disponivel_g, recall.calc$energia2_kcal, 
+     main="Relação entre Carboidratos Disponíveis e Energia (kcal)", 
+     xlab="Carboidratos Disponíveis (g)", ylab="Energia (kcal)", 
+     col="purple", pch=19)
+```
+
+```{r}
+plot(recall.calc$IdVoluntario, recall.calc$vitamina_C_mg, type="o", col="blue", 
+     main="Tendência de Consumo de Vitamina C", xlab="ID do Voluntário", ylab="Vitamina C (mg)")
+
+
+```
+
+```{r}
+df_radar <- recall.calc[,c("proteina_g", "carboidrato_total_g", "lipidios_g")]
+df_radar <- rbind(rep(max(df_radar, na.rm = TRUE),3), rep(min(df_radar, na.rm = TRUE),3), df_radar)
+radarchart(df_radar, axistype=1, 
+           pcol=rainbow(3), pfcol=rainbow(3, alpha=0.5), plwd=2)
+```
+```{r}
+# Supondo que recall.calc e saude_raw sejam data frames
+
+
+# Verificar as mudanças
+head(recall.calc$IdVoluntario)
+
+
+# Junta os data frames utilizando os IDs dos voluntários
+saude_dieta<- merge(recall.calc, metadados, by.x = "IdVoluntario", by.y = "Sample.id")
+
+# Exibe as primeiras linhas do data frame resultante
+head(saude_dieta)
+
+write_xlsx(saude_dieta, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/saude_dieta130.xlsx")
+
+# Adiciona uma coluna indicando se o consumo de fibra é suficiente
+saude_dieta$Consumo_Fibra <- ifelse(saude_dieta$fibra_alimentar_g > 25, "Suficiente", "Insuficiente")
+```
+
+
+
+
+# Carrega os data frames, se necessário
+# recall.calc <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/recall_calc.csv")
+# saude_raw <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/saude_raw.csv")
+
+# Junta os data frames mantendo todas as linhas de recall.calc
+saude_dieta <- merge(recall.calc, saude_raw, by.x = "IdVoluntario", by.y = "Id", all.x = TRUE)
+
+# Exibe as primeiras linhas do data frame resultante
+head(saude_dieta)
+```{r}
+
+# Cria o gráfico de barras empilhadas
+
+ggplot(saude_dieta, aes(x = Sex, fill = Consumo_Fibra)) +
+  geom_bar(position = "stack") +
+  labs(title = "Consumo de Fibras",
+       x = "Sexo",
+       y = "Número de Voluntários",
+       fill = "Consumo de Fibra") +
+  theme_minimal()
+
+```
+```{r}
+# Calculando a média das colunas desejadas
+medias <- colMeans(saude_dieta[, c("fibra_alimentar_g", "lipidios_g", "proteina_g", "carboidrato_total_g")], na.rm = TRUE)
+
+# Convertendo o resultado em um data frame para facilitar a visualização como tabela
+tabela_medias <- data.frame(Nutriente = names(medias), Media = medias)
+
+# Exibindo a tabela
+print(tabela_medias)
+
+
+```
+
+
+```{r}
+# Calcula as proporções por sexo
+
+fibra_por_sexo <- saude_dieta %>%
+  group_by(Sex, Consumo_Fibra) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Percent = Count / sum(Count) * 100)
+
+# Visualizando o resultado
+print(fibra_por_sexo)
+
+```
+
+
+```{r}
+# Calculando a porcentagem correta para cada grupo de sexo
+fibra_por_sexo_filtrado <- saude_dieta %>%
+  filter(!is.na(Sex) & !is.na(Consumo_Fibra)) %>%
+  group_by(Sex, Consumo_Fibra) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Percent = Count / sum(Count) * 100) %>%
+  group_by(Sex) %>%
+  mutate(Percent = Percent / sum(Percent) * 100)
+
+# Criando o gráfico de pizza com as porcentagens dentro das fatias
+ggplot(fibra_por_sexo_filtrado, aes(x = "", y = Percent, fill = Consumo_Fibra)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  facet_wrap(~Sex) +
+  geom_text(aes(label = paste0(round(Percent, 1), "%")), 
+            position = position_stack(vjust = 0.5), 
+            color = "white") +  # Cor do texto para ficar visível sobre as fatias
+  labs(title = "Consumo Suficiente de Fibra por Sexo",
+       x = "",
+       y = "Percentagem",
+       fill = "Consumo de Fibra") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), 
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank())
+
+
+```
+
+```{r}
+# Verifica a estrutura dos dados
+print(fibra_por_sexo)
+
+# Verificar a estrutura dos dados e amostras
+str(saude_dieta)
+head(saude_dieta)
+```
+```{r}
+# Remove valores NA das colunas Sex e fibra_alimentar_g
+saude_dieta <- saude_dieta %>%
+  filter(!is.na(Sex) & !is.na(fibra_alimentar_g))
+
+```
+
+```{r}
+summary(saude_dieta)
+
+```
+
+```{r}
+# Calculando a média de consumo de magnésio por sexo
+media_magnesio_por_sexo <- saude_dieta %>%
+  group_by(Sex) %>%
+  summarise(media_magnesio = mean(magnesio_mg, na.rm = TRUE))
+
+# Visualizando o resultado
+print(media_magnesio_por_sexo)
+```
+
+
+```{r}
+# Criar o gráfico de barras
+ggplot(media_magnesio_por_sexo, aes(x = Sex, y = media_magnesio, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Média de Consumo de Magnésio por Sexo",
+       x = "Sexo",
+       y = "Média de Magnésio (mg)") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#FF9999", "#9999FF"))  # Cores diferentes para cada sexo
+
+```
+
+
+
+```{r}
+# Calculando a média de consumo de ferro por sexo
+media_ferro_por_sexo <- saude_dieta %>%
+  group_by(Sex) %>%
+  summarise(media_ferro = mean(ferro_mg, na.rm = TRUE))
+
+# Visualizando o resultado
+print(media_ferro_por_sexo)
+```
+
+
+```{r}
+# Criar o gráfico de barras
+ggplot(media_ferro_por_sexo, aes(x = Sex, y = media_ferro, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Média de Consumo de Ferro por Sexo",
+       x = "Sexo",
+       y = "Média de Ferro (mg)") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#FF9999", "#9999FF"))  # Cores diferentes para cada sexo
+
+```
+
+
+
+
+```{r}
+# Inicializa um dataframe vazio para armazenar os residuais
+recall.calc.residuals <- data.frame(matrix(nrow = nrow(recall.calc), ncol = 0))
+
+# Extrai a variável preditora (energia1_kJ)
+predictor <- recall.calc$energia1_kJ
+
+# Loop por todas as colunas em recall.calc
+for (colname in colnames(recall.calc)) {
+  # Ignora a coluna preditora
+  if (colname != "energia1_kJ") {
+    # Verifica se a coluna é numérica
+    if (is.numeric(recall.calc[[colname]])) {
+      # Verifica se a coluna tem variabilidade
+      col_var <- var(recall.calc[[colname]], na.rm = TRUE)
+      if (!is.na(col_var) && col_var > 0) {
+        # Realiza a regressão linear
+        model <- lm(recall.calc[[colname]] ~ predictor, data = recall.calc)
+        
+        # Extrai os residuais
+        residuals <- resid(model)
+        
+        # Adiciona os residuais ao novo dataframe
+        recall.calc.residuals[[paste0("residual_", colname)]] <- residuals
+      } else {
+        # Preenche com zeros ou NA se a coluna for constante
+        recall.calc.residuals[[paste0("residual_", colname)]] <- 0
+        message("A coluna ", colname, " é constante e foi preenchida com 0.")
+      }
+    } else {
+      # Se a coluna não for numérica, preenche com NA
+      recall.calc.residuals[[paste0("residual_", colname)]] <- NA
+      message("A coluna ", colname, " não é numérica e foi ignorada.")
+    }
+  }
+}
+
+# Exibe o dataframe de residuais
+print(recall.calc.residuals)
+```
+```{r}
+# Adiciona a coluna 'IdVoluntarios' ao dataframe de residuais
+recall.calc.residuals$IdVoluntario <- recall.calc$IdVoluntario
+```
+
+```{r}
+saude_dieta <- merge(recall.calc, recall.calc.residuals, by.x = "IdVoluntario", by.y = "IdVoluntario", all.x = TRUE)
+```
+
+```{r}
+saude_dieta <- merge(saude_dieta, alpha.all, by.x = "IdVoluntario", by.y = "Row.names", all.x = TRUE)
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+
+```
+
+```{r}
+
+library(ggplot2)
+library(reshape2)
+
+# Remover as colunas 'residual_IdVoluntario' e 'residual_energia2_kcal'
+residuals_filtered <- recall.calc.residuals[, !colnames(recall.calc.residuals) %in% c("residual_IdVoluntario", "residual_energia2_kcal")]
+
+# Reorganize os dados para um formato longo (long format) adequado para ggplot
+residuals_long <- melt(residuals_filtered, id.vars = "IdVoluntario", variable.name = "Variable", value.name = "Residual")
+
+# Criar o box plot para cada variável residual
+ggplot(residuals_long, aes(x = Variable, y = Residual)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Residuals from Energy-Based Regression", x = "Variables", y = "Residuals")
+
+
+```
+
+```{r}
+# Remover as linhas com NA na coluna residual_carboidrato_total_g
+saude_dieta_clean <- saude_dieta[!is.na(saude_dieta$residual_carboidrato_total_g), ]
+
+```
+
+```{r}
+
+library(ggplot2)
+
+
+
+# Criar o boxplot para a variável residual_carboidrato_total_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_carboidrato_total_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_carboidrato_total_g > quantile(residual_carboidrato_total_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_carboidrato_total_g, na.rm = TRUE) | 
+                               residual_carboidrato_total_g < quantile(residual_carboidrato_total_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_carboidrato_total_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.5, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual Carboidrato Total", x = "", y = "Residual Carboidrato Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+library(ggplot2)
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável residual_proteina_total_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_proteina_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_proteina_g > quantile(residual_proteina_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_proteina_g, na.rm = TRUE) | 
+                               residual_proteina_g < quantile(residual_proteina_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_proteina_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.5, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual Proteina Total", x = "", y = "Residual Proteina Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+```{r}
+
+library(ggplot2)
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável residual_lipidios_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_lipidios_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_lipidios_g > quantile(residual_lipidios_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_lipidios_g, na.rm = TRUE) | 
+                               residual_lipidios_g < quantile(residual_lipidios_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_lipidios_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.5, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual lipidios Total", x = "", y = "Residual lipidios Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável fibra_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_alcool_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_alcool_g > quantile(residual_alcool_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_alcool_g, na.rm = TRUE) | 
+                               residual_alcool_g < quantile(residual_alcool_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_alcool_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual alcool Total", x = "", y = "Residual alcool Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável fibra_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_fibra_alimentar_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_fibra_alimentar_g > quantile(residual_fibra_alimentar_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_fibra_alimentar_g, na.rm = TRUE) | 
+                               residual_fibra_alimentar_g < quantile(residual_fibra_alimentar_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_fibra_alimentar_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual fibra_alimentar Total", x = "", y = "Residual fibra_alimentar Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável residual_proteina_total_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_colesterol_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_colesterol_mg > quantile(residual_colesterol_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_colesterol_mg, na.rm = TRUE) | 
+                               residual_colesterol_mg < quantile(residual_colesterol_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_colesterol_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual Colesterol Total", x = "", y = "Residual Colesterol Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável acidos_graxos_monoinsaturados_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_acidos_graxos_monoinsaturados_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_acidos_graxos_monoinsaturados_g > quantile(residual_acidos_graxos_monoinsaturados_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_acidos_graxos_monoinsaturados_g, na.rm = TRUE) | 
+                               residual_acidos_graxos_monoinsaturados_g < quantile(residual_acidos_graxos_monoinsaturados_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_acidos_graxos_monoinsaturados_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual acidos_graxos_monoinsaturados Total", x = "", y = "Residual acidos_graxos_monoinsaturados Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável acidos_graxos_saturados_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_acidos_graxos_saturados_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_acidos_graxos_saturados_g > quantile(residual_acidos_graxos_saturados_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_acidos_graxos_saturados_g, na.rm = TRUE) | 
+                               residual_acidos_graxos_saturados_g < quantile(residual_acidos_graxos_saturados_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_acidos_graxos_saturados_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.2, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual acidos_graxos_saturados Total", x = "", y = "Residual acidos_graxos_saturados Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável acidos_graxos_transs_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_acidos_graxos_trans_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_acidos_graxos_trans_g > quantile(residual_acidos_graxos_trans_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_acidos_graxos_trans_g, na.rm = TRUE) | 
+                               residual_acidos_graxos_trans_g < quantile(residual_acidos_graxos_trans_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_acidos_graxos_trans_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual acidos_graxos_trans Total", x = "", y = "Residual acidos_graxos_trans Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável acidos_graxos_poliinsaturados_g com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_acidos_graxos_poliinsaturados_g)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_acidos_graxos_poliinsaturados_g > quantile(residual_acidos_graxos_poliinsaturados_g, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_acidos_graxos_poliinsaturados_g, na.rm = TRUE) | 
+                               residual_acidos_graxos_poliinsaturados_g < quantile(residual_acidos_graxos_poliinsaturados_g, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_acidos_graxos_poliinsaturados_g, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual acidos_graxos_poliinsaturados Total", x = "", y = "Residual acidos_graxos_poliinsaturados Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável calcio_mg com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_calcio_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_calcio_mg > quantile(residual_calcio_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_calcio_mg, na.rm = TRUE) | 
+                               residual_calcio_mg < quantile(residual_calcio_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_calcio_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual acidos_graxos_calcio_mg Total", x = "", y = "Residual acidos_graxos_calcio_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável sodio_mg com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_sodio_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_sodio_mg > quantile(residual_sodio_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_sodio_mg, na.rm = TRUE) | 
+                               residual_sodio_mg < quantile(residual_sodio_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_sodio_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual sodio_mg Total", x = "", y = "Residual sodio_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável ferro com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_ferro_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_ferro_mg > quantile(residual_ferro_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_ferro_mg, na.rm = TRUE) | 
+                               residual_ferro_mg < quantile(residual_ferro_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_ferro_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual Ferro_mg Total", x = "", y = "Residual Ferro_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável fosforo com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_fosforo_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_fosforo_mg > quantile(residual_fosforo_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_fosforo_mg, na.rm = TRUE) | 
+                               residual_fosforo_mg < quantile(residual_fosforo_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_fosforo_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual fosforo_mg Total", x = "", y = "Residual fosforo_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável magnesio com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_magnesio_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_magnesio_mg > quantile(residual_magnesio_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_magnesio_mg, na.rm = TRUE) | 
+                               residual_magnesio_mg < quantile(residual_magnesio_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_magnesio_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual magnesio_mg Total", x = "", y = "Residual magnesio_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável potassio com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_potassio_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_potassio_mg > quantile(residual_potassio_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_potassio_mg, na.rm = TRUE) | 
+                               residual_potassio_mg < quantile(residual_potassio_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_potassio_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.1, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual potassio_mg Total", x = "", y = "Residual potassio_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável manganes com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_manganes_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_manganes_mg > quantile(residual_manganes_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_manganes_mg, na.rm = TRUE) | 
+                               residual_manganes_mg < quantile(residual_manganes_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_manganes_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual manganes_mg Total", x = "", y = "Residual manganes_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável zinco com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_zinco_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_zinco_mg > quantile(residual_zinco_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_zinco_mg, na.rm = TRUE) | 
+                               residual_zinco_mg < quantile(residual_zinco_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_zinco_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual zinco_mg Total", x = "", y = "Residual zinco_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável cobre com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_cobre_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_cobre_mg > quantile(residual_cobre_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_cobre_mg, na.rm = TRUE) | 
+                               residual_cobre_mg < quantile(residual_cobre_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_cobre_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual cobre_mg Total", x = "", y = "Residual cobre_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+
+```
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina A com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_vitamina_A_RE_mcg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_vitamina_A_RE_mcg > quantile(residual_vitamina_A_RE_mcg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_vitamina_A_RE_mcg, na.rm = TRUE) | 
+                               residual_vitamina_A_RE_mcg < quantile(residual_vitamina_A_RE_mcg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_vitamina_A_RE_mcg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual vitamina_A_RE_mcg Total", x = "", y = "Residual vitamina_A_RE_mcg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina_D_mcg com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_vitamina_D_mcg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_vitamina_D_mcg > quantile(residual_vitamina_D_mcg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_vitamina_D_mcg, na.rm = TRUE) | 
+                               residual_vitamina_D_mcg < quantile(residual_vitamina_D_mcg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_vitamina_D_mcg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual vitamina_D_mcg Total", x = "", y = "Residual vitamina_D_mcg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável tiamina com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_tiamina_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_tiamina_mg > quantile(residual_tiamina_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_tiamina_mg, na.rm = TRUE) | 
+                               residual_tiamina_mg < quantile(residual_tiamina_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_tiamina_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual tiamina_mg Total", x = "", y = "Residual tiamina_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável riboflavina com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_riboflavina_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_riboflavina_mg > quantile(residual_riboflavina_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_riboflavina_mg, na.rm = TRUE) | 
+                               residual_riboflavina_mg < quantile(residual_riboflavina_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_riboflavina_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual riboflavina_mg Total", x = "", y = "Residual riboflavina_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina_E com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_vitamina_E_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_vitamina_E_mg > quantile(residual_vitamina_E_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_vitamina_E_mg, na.rm = TRUE) | 
+                               residual_vitamina_E_mg < quantile(residual_vitamina_E_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_vitamina_E_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual vitamina_E_mg Total", x = "", y = "Residual vitamina_E_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+```{r}
+
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável niacina com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_niacina_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_niacina_mg > quantile(residual_niacina_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_niacina_mg, na.rm = TRUE) | 
+                               residual_niacina_mg < quantile(residual_niacina_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_niacina_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual niacina_mg Total", x = "", y = "Residual niacina_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+
+```{r}
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina_B6 com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_vitamina_B6_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_vitamina_B6_mg > quantile(residual_vitamina_B6_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_vitamina_B6_mg, na.rm = TRUE) | 
+                               residual_vitamina_B6_mg < quantile(residual_vitamina_B6_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_vitamina_B6_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual vitamina_B6_mg Total", x = "", y = "Residual vitamina_B6_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+
+
+```
+```{r}
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina_B6 com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_vitamina_B12_mcg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_vitamina_B12_mcg > quantile(residual_vitamina_B12_mcg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_vitamina_B12_mcg, na.rm = TRUE) | 
+                               residual_vitamina_B12_mcg < quantile(residual_vitamina_B12_mcg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_vitamina_B12_mcg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.3, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual vitamina_B12_mcg Total", x = "", y = "Residual vitamina_B12_mcg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+
+```
+
+```{r}
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina_B6 com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_vitamina_C_mg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_vitamina_C_mg > quantile(residual_vitamina_C_mg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_vitamina_C_mg, na.rm = TRUE) | 
+                               residual_vitamina_C_mg < quantile(residual_vitamina_C_mg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_vitamina_C_mg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.5, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual vitamina_C_mg Total", x = "", y = "Residual vitamina_C_mg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+```
+```{r}
+colnames(saude_dieta_clean)
+
+
+
+# Criar o boxplot para a variável vitamina_B6 com os IDs dos outliers e ajustes nas etiquetas
+ggplot(saude_dieta_clean, aes(x = 1, y = residual_equivalente_de_folato_mcg)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  geom_text(aes(label = ifelse(residual_equivalente_de_folato_mcg > quantile(residual_equivalente_de_folato_mcg, 0.75, na.rm = TRUE) + 1.5 * IQR(residual_equivalente_de_folato_mcg, na.rm = TRUE) | 
+                               residual_equivalente_de_folato_mcg < quantile(residual_equivalente_de_folato_mcg, 0.25, na.rm = TRUE) - 1.5 * IQR(residual_equivalente_de_folato_mcg, na.rm = TRUE), 
+                               as.character(IdVoluntario), "")), 
+            position = position_jitter(width = 0.1), hjust = 0.5, vjust = 0.6, size = 3, angle = 30, color = "blue") +
+  theme_bw() +
+  labs(title = "Boxplot of Residual equivalente_de_folato_mcg Total", x = "", y = "Residual equivalente_de_folato_mcg Total (g)") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+```
+

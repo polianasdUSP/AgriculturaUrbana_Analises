@@ -1,0 +1,10 @@
+"0","gtsave(
+  data = tabela_gt,
+  filename = ""tabela_info_completa.png"",
+  path = ""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri"",  # ou outro caminho da sua preferência
+  expand = 10,   # aumenta a resolução
+  zoom = 2       # dobra o tamanho dos elementos para melhor nitidez
+)
+"
+"2","file:///C:/Users/polia/AppData/Local/Temp/RtmpSc5mpv/file92bc2b78c61.html screenshot completed
+"

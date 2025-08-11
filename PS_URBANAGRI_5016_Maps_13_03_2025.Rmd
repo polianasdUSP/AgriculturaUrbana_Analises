@@ -1,0 +1,334 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(readxl)
+library(stringr)
+
+#install.packages("basemaps")  # Instale se ainda não tiver
+library(basemaps)  # Carregue o pacote
+
+
+#============= TREAT DATA ==================#
+
+#leitura dos  arquivos
+# Carregar o arquivo CSV com o nome data
+
+
+#data <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/metadados_raw_V01.csv", 
+                  header = TRUE, 
+                  sep = ",", 
+                  stringsAsFactors = FALSE)
+
+
+
+
+#diet_data <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/diet_data_n105.csv", 
+ #                 header = TRUE, 
+  #                sep = ",", 
+   #               stringsAsFactors = FALSE)
+
+#data <-metadados
+
+```
+
+
+```{r}
+#tratamento das coordenadas----
+aux <- stringr::str_split(data$Coordinates,pattern = "(, | |,(?=-))",simplify = T)
+
+aux1 <- stringr::str_replace(aux[,1],pattern = ",", replacement = ".")
+aux2 <- stringr::str_replace(aux[,2],pattern = ",", replacement = ".")
+
+data$latitude <- aux1
+data$longitude <- aux2
+
+data$latitude <- as.numeric(data$latitude)
+data$longitude <- as.numeric(data$longitude)
+
+
+#Remover amostras que terminam com .F01
+data <- data[!grepl("\\.F01$", data$Sample.id), ]
+
+#Apagar amostras depois de S40371.F00
+data <- data[1:which(data$Sample.id == "S40371.F00"), ]
+
+
+
+# Remover controles negativos (assumindo que contenham "NEG", "neg", "Control" ou "POSZymo" no nome)
+data <- data[!grepl("NEG", data$Sample.id), ]
+
+data <- data[data$Sample.id %in% diet_data$Sample.id, ]
+
+
+#escrita dos dados
+write.csv2(data, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv")
+
+# Instale o pacote openxlsx, se ainda não estiver instalado
+install.packages("openxlsx")
+
+# Carregue o pacote openxlsx
+library(openxlsx)
+
+# Salve os dados em um arquivo Excel
+write.xlsx(data, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01.xlsx")
+
+```
+
+
+
+```{r}
+
+#============ 02_extract_map_layers  ===================#
+
+library(dplyr)
+library(sf)
+install.packages("sf")
+
+library(ggplot2)
+#library(basemaps)
+
+#set_defaults(map_service = "esri", map_type = "world_imagery")
+
+#ext = basemaps::draw_ext()
+
+#link para site do IBGE https://www.ibge.gov.br/geociencias/downloads-geociencias.html
+
+#set_defaults(map_service = "esri", map_type = "world_imagery")
+
+sf_use_s2(FALSE)
+
+#data <- read.csv2("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/metadados_raw_V01_local_nascimento.csv", sep=";") #dados que vou usar
+sp_map <- sf::read_sf("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/SP_Municipios_2022.shp")
+
+sector <- sf::read_sf("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/35SEE250GC_SIR.shp",options="ENCODING=WINDOWS-1252")
+
+
+
+
+sp_map %>%
+  filter(NM_MUN %in% c("São Paulo",
+                       "Embu-Guaçu",
+                       "Diadema",
+                       "Mogi das Cruzes", 
+                       "Santo André",
+                       "São Caetano do Sul",
+                       "São Bernardo do Campo",
+                       "Suzano",
+                       "Embu das Artes",
+                       "Itapecerica da Serra","Poá","Ferraz de Vasconcelos","Ribeirão Pires","Mauá","Rio Grande da Serra","São Lourenço da Serra")) -> map_extract
+
+
+
+#read bases
+st_layers("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/bho_2017_v_01_05_50k.gpkg")
+rivers <- sf::st_read("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/bho_2017_v_01_05_50k.gpkg",layer = "pgh_output.geoft_bho_curso_dagua")
+veg <- sf::st_read("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/vege_area.shp")
+bacias <- sf::st_read("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/extrato_bacias.shp")
+
+
+#format bases
+bacias <- st_transform(bacias, st_crs(map_extract))
+
+rivers_ext <- st_crop(rivers,st_bbox(map_extract))
+bacias_ext <- st_crop(bacias,st_bbox(map_extract))
+veg <- st_make_valid(veg)
+
+veg_ext <- st_crop(veg,st_bbox(map_extract))
+
+
+sf::write_sf(rivers_ext,"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/extrato_rios.shp")
+sf::write_sf(bacias_ext,"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel//extrato_bacias.shp")
+sf::write_sf(veg_ext,"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/extrato_vegetacao.shp")
+
+
+```
+
+```{r}
+#======= 03_map_Creation =========#
+
+
+
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(basemaps)
+
+set_defaults(map_service = "esri", map_type = "world_imagery")
+
+#ext = basemaps::draw_ext()
+
+#link para site do IBGE https://www.ibge.gov.br/geociencias/downloads-geociencias.html
+
+
+
+#data <- read.csv2("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/metadados_raw_V01.csv")
+#sp_map <- sf::read_sf("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/SP_Municipios_2022.shp")
+
+
+sp_map %>%
+  filter(NM_MUN %in% c("São Paulo",
+                       "Embu-Guaçu",
+                       "Diadema",
+                       "Mogi das Cruzes", 
+                       "Santo André",
+                       "São Caetano do Sul",
+                       "São Bernardo do Campo",
+                       "Suzano",
+                       "Embu das Artes",
+                       "Itapecerica da Serra","Poá","Ferraz de Vasconcelos","Ribeirão Pires","Mauá","Rio Grande da Serra","São Lourenço da Serra")) -> map_extract
+
+map_extract %>%
+  ggplot() +
+  geom_sf()
+```
+
+
+```{r}
+# Verificar se há valores ausentes nas coordenadas
+sum(is.na(data$longitude))
+sum(is.na(data$latitude))
+
+# Remover linhas com valores ausentes nas coordenadas
+data <- data %>%
+  filter(!is.na(longitude) & !is.na(latitude))
+
+# Verificar as primeiras linhas do dataframe limpo
+colnames(data)
+
+```
+
+
+```{r}
+data_spatial <- sf::st_as_sf(data,coords = c("longitude","latitude"))
+#####the next line is difficult
+sf::st_crs(data_spatial) <- sf::st_crs(map_extract)
+
+data_spatial %>%
+  ggplot() +
+  geom_sf() 
+
+data_spatial$Region <- gsub("Other", "North", data_spatial$Region)
+
+
+#reading extracts
+rivers_ext <- read_sf("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/extrato_rios.shp")
+bacias_ext <- read_sf("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/extrato_bacias.shp")
+veg_ext <- read_sf("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Manuel/SP_Municipios/extrato_vegetacao.shp")
+
+#data_spatial$Type2 <- case_when(data_spatial$Type %in% c("Well_Surface","Well_Deep")~"Ground_Water",
+ #                               data_spatial$Type %in% c("Lake","Spring","River")~"Surface_Water",
+  #                              data_spatial$Type %in% c("Rainwater")~"Rainwater",
+   #                             data_spatial$Type %in% c("Tap")~"Tap")
+
+
+#no chat gpt
+# Aplicar case_when para criar a nova coluna Region
+#data_spatial$Region <- case_when(
+  #data_spatial$Region %in% c("South", "South Adjacent", "East", "East Adjacent", "North") ~ data_spatial$Region  # Caso queira marcar outras regiões que não se encaixam nas mencionadas)
+
+library(dplyr)
+
+veg_ext <- veg_ext %>%
+  mutate(leg_sup = case_when(
+    leg_sup == "Área Antrópica Dominante" ~ "Dominant Anthropized Area",
+    leg_sup == "Área Antrópica Dominante em Tensão Ecológica" ~ "Dominant Anthropized Area under Ecological Stress",
+    leg_sup == "Massa D´água" ~ "Water Body",
+    leg_sup == "Vegetação Natural Dominante" ~ "Dominant Natural Vegetation",
+    leg_sup == "Vegetação Natural Dominante em Tensão Ecológica" ~ "Dominant Natural Vegetation under Ecological Stress",
+    TRUE ~ leg_sup
+  ))
+
+
+ggplot() +
+  geom_sf(data=map_extract) +
+  geom_sf(data=veg_ext, aes(fill=leg_sup), color=NA) +
+  scale_fill_manual(values = c(
+    "Dominant Anthropized Area" =  "lightgray",
+    "Dominant Anthropized Area under Ecological Stress" = "salmon",
+    "Water Body" = "lightblue3",
+    "Dominant Natural Vegetation" = "lightgreen",
+    "Dominant Natural Vegetation under Ecological Stress" = "lightgreen"
+  ), na.value = "white", name = "Vegetation") +  # Traduzindo "Vegetação"
+  geom_sf(data=rivers_ext, color="lightblue3", linewidth=1.2) +
+  geom_sf(data=map_extract, fill=NA, linewidth=1.2) +
+  geom_sf(data=data_spatial, aes(color=Region), size=4, shape=18, fill="white", stroke=1) +
+  scale_shape_manual(values = c(18, 1, 17, 8), name = "AgrUrbana") +
+  scale_color_manual(values = c(
+    "South" = "orange",           # South
+    "East" = "red",        # East
+    "North" = "purple",       # North
+    "Adjacent South" = "blue", # South Adjacent
+    "Adjacent East" = "darkgreen" # East Adjacent
+  ), labels = c(
+    "South",
+    "East",
+    "North",
+    "South Adjacent",
+    "East Adjacent"
+  ), name = "Region")  # Traduzindo a legenda para inglês
+
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/map_highres.pdf", width = 10, height = 7)
+
+```
+
+
+
+
+
+```{r}
+#---- Corrigido pelo Chat GPT para colocar presença e ausencia de Trponema
+
+library(dplyr)
+library(ggplot2)
+library(sf)
+
+
+
+# Aplicar case_when para criar a nova coluna Region
+data_spatial$Region <- case_when(
+  data_spatial$Region == "Sul" ~ "South",
+  data_spatial$Region == "Sul Adjacente" ~ "Adjacent South",
+  data_spatial$Region == "Leste" ~ "East",
+  data_spatial$Region == "Leste Adjacente" ~ "Adjacent East",
+  data_spatial$Region == "Norte" ~ "North",
+  TRUE ~ "North"  # Ou outro valor padrão, se necessário
+)
+
+
+#------
+#Área URBANA E RURAL
+
+ggplot() +
+  geom_sf(data=sector_extract, aes(shape = TIPO, color= TIPO), size=2)+ 
+  scale_fill_manual( values = c("URBANO" = "azure3",
+                                "RURAL" = "darkseagreen"), name = "Tipo de Área") +
+  geom_sf(data=map_extract, fill=NA, linewidth=0.5) +
+  geom_sf(data=rivers_ext, color="lightblue3",linewidth=1.2 ) +
+  # geom_sf(data=bacias_ext, color="lightblue" , fill = "lightblue") +
+  geom_sf(data=map_extract, fill=NA, linewidth=0.5)+
+  geom_sf(data=data_spatial,aes(col=Treponema,
+                                shape = Region),
+          #show.legend = "shape",
+          size=4) +
+  scale_shape_manual(values = c(
+    "Sul" = 18, 
+    "Sul Adjacente" = 18, 
+    "Leste" = 18, 
+    "Leste Adjacente" = 18, 
+    "Norte" = 18,
+    "Other" = 18
+  ), name = "Região") +
+  scale_color_manual(values = c("Presença" = "red", "Ausência" = "blue"),name = "Treponema") +
+  ggtitle("Presença de Treponema") +
+  xlab("longitude") + ylab("latitude") +
+  theme(plot.title = element_text(size=14, face="bold")) + 
+  coord_sf(xlim=c(-46.65, -46.55), ylim=c(-23.75,-23.62))
+
+```
+

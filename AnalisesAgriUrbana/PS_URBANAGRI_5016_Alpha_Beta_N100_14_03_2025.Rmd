@@ -1,0 +1,1877 @@
+---
+title: Novo Cálculo Alpha e Beta"
+output: html_notebook
+---
+
+Por causa de contaminação das amostras, terei que calcular novamente as métricas de alpha e beta diversidade, returando as amostras contaminadas
+
+```{r}
+install.packages(c("phyloseq", "ggplot2", "dplyr", "tidyverse"))
+BiocManager::install(c("microbiomeMarker", "DESeq2", "vegan"))
+
+install.packages("BiocManager")
+
+library(phyloseq)
+library(microbiomeMarker)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(vegan)
+library(DESeq2)
+library(data.table)
+library(qiime2R)
+library(viridis)
+library(ape)
+library(reshape2)
+
+library(ggcorrplot)
+library(pheatmap)
+library(grid)
+library(patchwork)
+library(ggpubr)
+library(ggpmisc)
+
+metadata <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/metadados_completo_N109 - metadados_completo_N109.csv", 
+                       sep = ",", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+metadados.all <- read.csv("metadados_all - metadados_all.csv", 
+                       sep = ",", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+
+
+
+class(metadata)
+
+
+metadata_diet <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/metadata_residual_diet - diet_data.csv", 
+                     sep = ",", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+metadados.all <- merge(metadata, metadata_diet, by.x = "Sample.id", by.y = "Sample.id")
+
+bhei_score_n109 <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores_N109.xlsx - Sheet1.csv", 
+                     sep = ",", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+
+
+metadados.all <- merge(metadados.all, bhei_score_n109, by.x = "Sample.id", by.y = "IdVoluntario")
+
+library(dplyr)
+
+# Juntar colunas selecionadas de metadados.alpha.all a metadados.all
+metadados.all <- metadados.all %>%
+  left_join(metadados.alpha.all %>%
+              select(Sample.id,
+                     ConsumoGrupo_NOVA_group_1, ConsumoGrupo_NOVA_group_2,
+                     ConsumoGrupo_NOVA_group_3, Percentual_NOVA_group_1,
+                     Percentual_NOVA_group_2, Percentual_NOVA_group_3,
+                     ConsumoCategoria, BMI, TyG, VAI,
+                     QUICKI, METS_IR, TyG_BMI, TyG_WC, WHR),
+            by = "Sample.id")
+
+library(dplyr)
+
+# Transformar rownames de alpha.shannon em coluna Sample.id
+alpha.shannon <- alpha.shannon %>%
+  tibble::rownames_to_column(var = "Sample.id")
+
+# Juntar a coluna shannon_entropy a metadados.all
+metadados.all <- metadados.all %>%
+  left_join(alpha.shannon %>% select(Sample.id, shannon_entropy),
+            by = "Sample.id")
+
+# Converter rownames em coluna Sample.id
+alpha.evenness <- alpha.evenness %>%
+  tibble::rownames_to_column(var = "Sample.id")
+
+# Agora pode fazer o merge ou usar left_join (mais seguro e legível)
+metadados.all <- metadados.all %>%
+  left_join(alpha.evenness %>% select(Sample.id, pielou_evenness),
+            by = "Sample.id")
+
+
+# Converter rownames em coluna Sample.id
+alpha.chao1 <- alpha.chao1 %>%
+  tibble::rownames_to_column(var = "Sample.id")
+
+# Converter rownames em coluna Sample.id
+alpha.observed.features <- alpha.observed.features %>%
+  tibble::rownames_to_column(var = "Sample.id")
+
+
+# Converter rownames em coluna Sample.id
+alpha.simpson <- alpha.simpson %>%
+  tibble::rownames_to_column(var = "Sample.id")
+
+# Agora pode fazer o merge ou usar left_join (mais seguro e legível)
+metadados.all <- metadados.all %>%
+  left_join(alpha.evenness %>% select(Sample.id, pielou_evenness),
+            by = "Sample.id")
+
+# Exportar para uma planilha
+write.csv(metadados.all, "metadados_all.csv", row.names = FALSE)
+
+```
+
+```{r}
+
+
+
+# Juntar todas as tabelas de diversidade
+metadados.all <- merge(metadados.all, alpha.shannon[, c("Sample.id", "shannon_entropy")], by.x = "Sample.id", by.y = "Sample.id", all.x = TRUE)
+
+
+metadados.all <- merge(metadados.all, alpha.evenness[, c("Sample.id", "pielou_evenness")], by.x = "Sample.id", by.y = "Sample.id", all.x = TRUE)
+
+
+metadados.all <- merge(metadados.all, alpha.pd[, c("Sample.id", "faith_pd")], by.x = "Sample.id", by.y = "Sample.id", all.x = TRUE)
+
+
+metadados.all <- merge(metadados.all, alpha.observed.features[, c("Sample.id", "observed_features")], by.x = "Sample.id", by.y = "Sample.id", all.x = TRUE)
+
+metadados.all <- merge(metadados.all, alpha.simpson[, c("Sample.id", "simpson")], by.x = "Sample.id", by.y = "Sample.id", all.x = TRUE)
+
+
+metadados.all <- merge(metadados.all, alpha.chao1[, c("Sample.id", "chao1")], by.x = "Sample.id", by.y = "Sample.id", all.x = TRUE)
+
+
+
+
+metadados.all <- metadados.all %>%
+  left_join(ace_df %>% select(SampleID, ACE), 
+            by = c("Sample.id" = "SampleID"))
+
+
+```
+
+```{r}
+# Carregar o objeto!
+
+#asv_table <- fread("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/exported-asv-table/feature-table.tsv",
+                   sep = "\t", header = TRUE)
+
+```
+
+
+```{r}
+#print(colnames(asv_table))
+
+
+
+```
+
+
+```{r}
+library(data.table)
+
+# Certificar que asv_table está no formato data.table
+setDT(asv_table, keep.rownames = TRUE) # Garante que os nomes das linhas sejam preservados como coluna
+
+# Renomear a primeira coluna para garantir que ela não seja removida
+colnames(asv_table)[1] <- "Feature.ID"  # Ajuste o nome conforme necessário
+
+# Substituir "-" por "." nos nomes das colunas (caso haja hífens)
+setnames(asv_table, old = colnames(asv_table), new = gsub("-", ".", colnames(asv_table)))
+
+# Identificar a primeira coluna (a que contém os IDs das ASVs)
+id_column <- "Feature.ID"  # Nome da coluna que contém os IDs
+
+# Selecionar apenas as colunas que terminam com ".F00", mantendo a primeira coluna
+cols_to_keep <- c(id_column, grep("\\.F00$", colnames(asv_table), value = TRUE))
+
+# Criar um novo dataframe com a primeira coluna + colunas selecionadas
+asv_table_filtered <- asv_table[, ..cols_to_keep]
+
+# Verificar se funcionou
+head(asv_table_filtered)
+
+
+```
+
+```{r}
+# Encontra a posição da coluna "S40401.F00"
+pos_limite <- which(colnames(asv_table_filtered) == "S40371.F00")
+
+# Mantém apenas as colunas até essa posição
+asv_table_filtered <- asv_table_filtered[, 1:pos_limite, drop = FALSE]
+
+# Verifica os nomes das colunas restantes
+print(colnames(asv_table_filtered))
+
+asv_table <- asv_table_filtered
+
+rm(asv_table_filtered)
+
+asv_table_LIMPA <-asv_table
+
+```
+
+```{r}
+# Converter para matrix e definir ASV como rownames
+# Remover a coluna Feature.ID antes da conversão para matriz
+asv_matrix <- as.matrix(asv_table_LIMPA[, -1, with = FALSE]) 
+
+# Definir os nomes das linhas com Feature.ID
+rownames(asv_matrix) <- asv_table_LIMPA$Feature.ID 
+
+# Confirmar que os valores dentro da matriz são numéricos
+mode(asv_matrix)  # Deve retornar "numeric"
+
+
+#Agora, confira se os valores são numéricos:
+sapply(asv_matrix, class)  # Deve retornar todas as colunas como "numeric"
+
+#Criar OTU table
+otu_table <- otu_table(asv_matrix, taxa_are_rows = TRUE)
+
+
+
+
+
+
+```
+
+```{r}
+#criar objeto phyloseq
+physeq_obj <- phyloseq(otu_table)
+
+
+```
+
+
+
+
+
+```{r}
+otu_table(physeq_obj)
+```
+
+
+```{r}
+phy_tree(physeq_obj)  # Deve mostrar a árvore
+
+```
+
+```{r}
+sample_names(physeq_obj)  # Deve retornar os nomes das amostras
+```
+
+
+```{r}
+taxa_names(physeq_obj)  # Deve retornar os nomes dos ASVs
+```
+
+
+```{r}
+rank_names(physeq_obj)  # Verifica se há tabela taxonômica associada
+
+```
+
+
+
+```{r}
+
+# IDs das ASVs na OTU Table
+otu_ids <- taxa_names(physeq_obj)
+
+# IDs na tabela de taxonomia
+taxa_ids <- taxonomy$Feature.ID
+
+# IDs das amostras na OTU Table e Metadata
+sample_ids_otu <- sample_names(otu_table)
+sample_ids_meta <- row.names(metadata)
+
+# Verificações
+sum(taxa_ids %in% otu_ids)      # Deve ser igual ao número de linhas da taxonomia
+sum(sample_ids_meta %in% sample_ids_otu)  # Deve ser igual ao número de amostras
+
+
+```
+```{r}
+
+rownames(taxonomy) <- taxonomy$Feature.ID  # Define os nomes das linhas como IDs das ASVs
+taxonomy <- taxonomy[, -1]  # Remove a coluna original "Feature.ID"
+
+
+
+
+# Criar os componentes do phyloseq
+otu_table_ps <- otu_table(otu_table, taxa_are_rows = TRUE)
+tax_table_ps <- tax_table(as.matrix(taxonomy))
+
+sample_data_ps <- sample_data(metadata)
+phy_tree_ps <- phy_tree(tree)
+
+physeq_obj <- phyloseq(otu_table_ps, 
+                        tax_table_ps, 
+                        phy_tree_ps)
+
+```
+
+```{r}
+# Verifique os IDs das OTUs na matriz de abundância
+otu_ids <- taxa_names(otu_table_ps)
+
+# Verifique os IDs na tabela taxonômica
+taxa_ids <- taxa_names(tax_table_ps)
+
+# Verifique os IDs na árvore filogenética
+tree_ids <- phy_tree(phy_tree_ps)$tip.label
+
+# Veja quantas OTUs da tabela estão na taxonomia
+sum(otu_ids %in% taxa_ids)  # Deve ser igual ao número de OTUs
+
+# Veja quantas OTUs da árvore estão na matriz OTU
+sum(otu_ids %in% tree_ids)  # Deve ser igual ao número de OTUs
+
+# Veja quantas OTUs da árvore estão na taxonomia
+sum(tree_ids %in% taxa_ids) # Deve ser igual ao número de OTUs
+
+```
+
+
+```{r}
+# Realizar PCoA na matriz de distância weighted_unifrac
+
+
+# Executa a PCoA
+wei_unifrac.pcoa <- cmdscale(weighted.unifrac, eig = TRUE, k = 3)
+
+# Verifica a saída
+print(wei_unifrac.pcoa)
+
+
+
+```
+
+```{r}
+
+# Realizar PCoA na matriz de distância unweighted_unifrac
+
+unwei_unifrac.pcoa <- cmdscale(unweighted.unifrac, eig = TRUE, k = 3)  # k = número de dimensões
+
+```
+
+```{r}
+
+# Remover NAs de IMC e alinhar IDs com a matriz
+ids <- rownames(metadata[!is.na(metadata$IMC), ])
+ids <- intersect(ids, rownames(unweighted.unifrac))
+
+# Rodar PERMANOVA com os dados alinhados
+permanova_unweighted <- adonis2(unweighted.unifrac[ids, ids] ~ metadata[ids, "Region"], permutations = 999)
+
+# Criar texto do resultado
+res_unweighted <- paste0("PERMANOVA: R² = ", round(permanova_unweighted$R2[1], 3),
+                         ", p = ", permanova_unweighted$`Pr(>F)`[1])
+
+```
+
+
+```{r}
+# Remover NAs de IMC e alinhar IDs com a matriz weighted
+ids <- rownames(metadata[!is.na(metadata$IMC), ])
+ids <- intersect(ids, rownames(weighted.unifrac))
+
+# Rodar PERMANOVA com os dados alinhados
+permanova_weighted <- adonis2(weighted.unifrac[ids, ids] ~ metadata[ids, "Region_type"], permutations = 999)
+
+# Criar texto do resultado
+res_weighted <- paste0("PERMANOVA: R² = ", round(permanova_weighted$R2[1], 3),
+                       ", p = ", permanova_weighted$`Pr(>F)`[1])
+
+
+```
+
+
+```{r}
+# Plot Weighted
+
+metadata$Sample.id <- rownames(metadata)
+
+
+
+ggplot(merge(wei_unifrac.pcoa$points, metadata, by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = Region_type), size = 3) + 
+  scale_color_viridis_d(option = "C", name = "Region Type") +
+  labs(title = paste("Weighted UniFrac —", res_weighted),
+       x = "PCoA1", y = "PCoA2") +
+  theme_minimal()
+
+
+ggplot(merge(wei_unifrac.pcoa$points, metadata, by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = IMC), size = 3) + 
+  scale_color_viridis_c(option = "C", name = "BMI") +
+  labs(title = paste("Weighted UniFrac", res_weighted),
+       x = "PCoA1", y = "PCoA2") +
+  theme_minimal()
+
+
+
+```
+
+```{r}
+ggplot(merge(unwei_unifrac.pcoa$points, metadata, by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = Region), size = 3) + 
+  scale_color_viridis_d(option = "C", name = "Region") +
+  labs(title = paste("Unweighted UniFrac —", res_unweighted),
+       x = "PCoA1", y = "PCoA2") +
+  theme_minimal()
+
+ggplot(merge(unwei_unifrac.pcoa$points, metadata, by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = IMC), size = 3) + 
+  scale_color_viridis_c(option = "C", name = "BMI") +
+  labs(title = paste("Unweighted UniFrac", res_unweighted),
+       x = "PCoA1", y = "PCoA2") +
+  theme_minimal()
+
+
+```
+
+```{r}
+library(vegan)
+
+# Todas as variáveis que você quer testar
+vars <- c("Region_type", "Region", "IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", 
+          "IL2", "Age", "Sex", "Raca", "Fuma", "Alcool", "Medicamentos", "Doenca", 
+          "Antibiotico", "Systolic", "Diastolic", "Weight", "Height", "IMC", "W.H", 
+          "Parasitologico", "ERITROCITOS", "HEMOGLOBINA", "HEMATOCRITO", "VCM", 
+          "HCM", "CHCM", "RDW", "LEUCOCITOS", "NEUTROFILOS", "EOSINOFILOS", 
+          "BASOFILOS", "LINFOCITOS", "MONOCITOS", "PLAQUETAS", "UREIA", "CREATININA", 
+          "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", 
+          "GGT", "GLICOSE", "INSULINA", "HOMA.IR", "PCR")
+
+# Loop por variável
+for (v in vars) {
+  cat("\n### PERMANOVA for:", v, "###\n")
+  
+  # Remover NAs só da variável e manter IDs que estão na matriz
+  ids <- rownames(metadata[!is.na(metadata[[v]]), ])
+  ids <- intersect(ids, rownames(weighted.unifrac))
+  
+  # Rodar PERMANOVA direto
+  result_weighted_permanova <- adonis2(weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+  print(result_weighted_permanova)
+}
+
+
+```
+```{r}
+library(vegan)
+
+# Mesmo vetor de variáveis
+vars <- c("Region_type", "Region", "IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", 
+          "IL2", "Age", "Sex", "Raca", "Fuma", "Alcool", "Medicamentos", "Doenca", 
+          "Antibiotico", "Systolic", "Diastolic", "Weight", "Height", "IMC", "W.H", 
+          "Parasitologico", "ERITROCITOS", "HEMOGLOBINA", "HEMATOCRITO", "VCM", 
+          "HCM", "CHCM", "RDW", "LEUCOCITOS", "NEUTROFILOS", "EOSINOFILOS", 
+          "BASOFILOS", "LINFOCITOS", "MONOCITOS", "PLAQUETAS", "UREIA", "CREATININA", 
+          "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", 
+          "GGT", "GLICOSE", "INSULINA", "HOMA.IR", "PCR")
+
+# Loop por variável
+for (v in vars) {
+  cat("\n### PERMANOVA for:", v, "###\n")
+  
+  # Remover NAs só da variável e manter IDs que estão na matriz
+  ids <- rownames(metadata[!is.na(metadata[[v]]), ])
+  ids <- intersect(ids, rownames(unweighted.unifrac))
+  
+  # Rodar PERMANOVA direto
+  result <- adonis2(unweighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+  print(result)
+}
+
+```
+```{r}
+library(ape)
+
+pcoa_jaccard <- pcoa(jaccard)
+
+# Coordenadas das amostras nos dois primeiros eixos
+pcoa_points_jaccard <- as.data.frame(pcoa_jaccard$vectors[, 1:3])
+
+expl_var_jaccard <- round(100 * pcoa_jaccard$values$Relative_eig[1:3], 1)
+# Ex: PCoA1 = expl_var_jaccard[1]%, PCoA2 = expl_var_jaccard[2]%
+
+
+
+```
+
+```{r}
+pcoa_bray <- pcoa(bray.curtis)
+
+# Coordenadas das amostras nos dois primeiros eixos
+pcoa_points_bray <- as.data.frame(pcoa_bray$vectors[, 1:3])
+# Pronto: sem coluna SampleID, só rownames com IDs
+
+expl_var_bray <- round(100 * pcoa_bray$values$Relative_eig[1:3], 1)
+expl_var_bray
+
+
+```
+
+```{r}
+ggplot(pcoa_points_jaccard, aes(x = Axis.1, y = Axis.2)) +
+  geom_point(size = 2) +
+  labs(title = "PCoA — Jaccard",
+       x = paste0("PCoA1 (", expl_var_jaccard[1], "%)"),
+       y = paste0("PCoA2 (", expl_var_jaccard[2], "%)")) +
+  theme_minimal()
+
+```
+```{r}
+library(viridis)
+
+# Obter a cor mais escura da paleta viridis "C"
+cor_escura <- viridis(1, option = "C")
+
+# Gráfico com cor fixa
+ggplot(pcoa_points_jaccard, aes(x = Axis.1, y = Axis.2)) +
+  geom_point(color = cor_escura, size = 3) +
+  labs(title = "PCoA — Jaccard",
+       x = paste0("PCoA1 (", expl_var_jaccard[1], "%)"),
+       y = paste0("PCoA2 (", expl_var_jaccard[2], "%)")) +
+  theme_minimal()
+
+```
+```{r}
+library(viridis)
+
+# Obter a cor mais escura da paleta viridis "C"
+cor_escura <- viridis(1, option = "C")
+
+# Gráfico Bray-Curtis
+ggplot(pcoa_points_bray, aes(x = Axis.1, y = Axis.2)) +
+  geom_point(color = cor_escura, size = 3) +
+  labs(title = "PCoA — Bray-Curtis",
+       x = paste0("PCoA1 (", expl_var_bray[1], "%)"),
+       y = paste0("PCoA2 (", expl_var_bray[2], "%)")) +
+  theme_minimal()
+
+```
+```{r}
+pcoa_points_jaccard$ID <- rownames(pcoa_points_jaccard)
+metadata$ID <- rownames(metadata)
+
+merged_jaccard <- merge(pcoa_points_jaccard, metadata, by = "ID")
+
+ggplot(merged_jaccard, aes(x = Axis.1, y = Axis.2, color = Region)) +
+  geom_point(size = 3) +
+  scale_color_viridis_d(option = "C", name = "Region") +
+  labs(title = "PCoA — Jaccard",
+       x = paste0("PCoA1 (", expl_var_jaccard[1], "%)"),
+       y = paste0("PCoA2 (", expl_var_jaccard[2], "%)")) +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+pcoa_points_bray$ID <- rownames(pcoa_points_bray)
+
+merged_bray <- merge(pcoa_points_bray, metadata, by = "ID")
+
+ggplot(merged_bray, aes(x = Axis.1, y = Axis.2, color = Region)) +
+  geom_point(size = 3) +
+  scale_color_viridis_d(option = "C", name = "Region") +
+  labs(title = "PCoA — Bray-Curtis",
+       x = paste0("PCoA1 (", expl_var_bray[1], "%)"),
+       y = paste0("PCoA2 (", expl_var_bray[2], "%)")) +
+  theme_minimal()
+
+
+```
+
+
+#====================#
+  Alpha Diversidade
+#===================#
+
+```{r}
+
+library(vegan)
+
+#Calcular ACE
+
+# Lê a primeira linha para ver os nomes reais das amostras:
+first_line <- readLines("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/feature-table - feature-table.tsv", n = 2)[2]
+cat(first_line)
+
+
+abund_table <- read.delim("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/feature-table - feature-table.tsv", 
+                          skip = 1, row.names = 1, check.names = FALSE)
+
+# Conferir os nomes das colunas:
+head(colnames(abund_table), 10)
+
+
+
+
+# Conferir se importou certo:
+dim(abund_table)
+head(abund_table[, 1:5])  # primeiras colunas
+
+
+abund_table_t <- t(abund_table)
+
+# Calcular ACE com estimateR()
+ace_matrix <- estimateR(abund_table_t)
+
+# Extrair a linha ACE
+ace_values <- ace_matrix["S.ACE", ]
+
+
+# Criar dataframe
+ace_df <- data.frame(SampleID = names(ace_values), ACE = as.numeric(ace_values))
+head(ace_df)
+
+
+```
+
+```{r}
+# 1. Extrair ACE
+ace_values <- ace_matrix["S.ACE", ]
+
+# 2. Criar dataframe com os valores e os nomes corretos
+ace_df <- data.frame(SampleID = names(ace_values),
+                     ACE = as.numeric(ace_values),
+                     row.names = NULL)
+
+# 3. Transformar rownames da metadata em coluna para o merge
+metadata$SampleID <- rownames(metadata)
+
+# 4. Fazer o merge
+metadata_ace <- merge(metadata, ace_df, by = "SampleID", all.x = TRUE)
+
+# 5. Colocar SampleID de volta como rownames (opcional)
+rownames(metadata_ace) <- metadata_ace$SampleID
+metadata_ace$SampleID <- NULL
+
+# 6. Conferir resultado
+head(metadata_ace)
+
+```
+
+#==========================#
+    ALPHA DIVERSITY
+#=========================#
+
+
+```{r}
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- metadados.all %>%
+select("Sample.id", "shannon_entropy", "simpson", "pielou_evenness", "observed_features", "ACE", "chao1", "faith_pd","Sex", "Age", "BMI", "WHR", "TyG", "VAI", "QUICKI", "METS_IR", "TyG_BMI",  "TyG_WC",   "IL17A", "IFNGamma" , "HbA1c",  "GLICOSE", "INSULINA",  "HOMA.IR", "Systolic",  "Diastolic", "COLESTEROL",  "LDL", "HDL",  "VLDL" , "TRIGLICERIDES" , "TGO", "TGP", "GGT", "PCR",  "TNF", "IFNGamma" , "IL2", "IL4", "IL6", "IL10", "IL17A" )
+
+
+metadados.dieta.residual.alpha <- metadados.all %>%
+select("shannon_entropy", "simpson", "pielou_evenness", "observed_features", "ACE", "chao1", "faith_pd",  "carboidrato_total_g", "proteina_g", "lipidios_g", "fibra_alimentar_g", "colesterol_mg", "acidos_graxos_saturados_g", "acidos_graxos_monoinsaturados_g", "acidos_graxos_poliinsaturados_g", "acidos_graxos_trans_g", "calcio_mg", "ferro_mg", "sodio_mg", "magnesio_mg", "fosforo_mg", "potassio_mg", "manganes_mg", "zinco_mg", "cobre_mg", "selenio_mcg", "vitamina_A_RAE_mcg", "vitamina_D_mcg", "vitamina_E_mg", "tiamina_mg", "riboflavina_mg", "niacina_mg", "vitamina_B6_mg", "vitamina_B12_mcg", "vitamina_C_mg", "equivalente_de_folato_mcg", "sal_de_adicao_g", "acucar_de_adicao_g")
+
+metadados.dieta.alpha <- metadados.all %>%
+select("shannon_entropy", "simpson", "pielou_evenness", "observed_features", "ACE", "chao1", "faith_pd",  "carboidrato_total_g", "proteina_g", "lipidios_g", "fibra_alimentar_g", "colesterol_mg", "acidos_graxos_saturados_g", "acidos_graxos_monoinsaturados_g", "acidos_graxos_poliinsaturados_g", "acidos_graxos_trans_g", "calcio_mg", "ferro_mg", "sodio_mg", "magnesio_mg", "fosforo_mg", "potassio_mg", "manganes_mg", "zinco_mg", "cobre_mg", "selenio_mcg", "vitamina_A_RAE_mcg", "vitamina_D_mcg", "vitamina_E_mg", "tiamina_mg", "riboflavina_mg", "niacina_mg", "vitamina_B6_mg", "vitamina_B12_mcg", "vitamina_C_mg", "equivalente_de_folato_mcg", "sal_de_adicao_g", "acucar_de_adicao_g", "SoFAAS_Score","Sat_Fat_Score","Sodium_Score",  "meats_eggs_legumes_score",           "grain_roots_tubers_score", "milk_dairy_score",  "total_fruit_score", "total_vegetable_score", "vegetable_oils_nuts_fishoil_score", "dark_green_orange_veg_legume_score", "whole_fruit_score", "whole_grain_score", "BHEI_R_Score_Total", "ConsumoGrupo_NOVA_group_1", "ConsumoGrupo_NOVA_group_2",         
+"ConsumoGrupo_NOVA_group_3", "Percentual_NOVA_group_1", 
+ "Percentual_NOVA_group_2", "Percentual_NOVA_group_3" )
+
+
+
+metadados.diet.index.alpha <- metadados.all %>%
+select("shannon_entropy", "simpson", "pielou_evenness", "observed_features", "ACE", "chao1", "faith_pd", "SoFAAS_Score","Sat_Fat_Score","Sodium_Score",  "meats_eggs_legumes_score",        "grain_roots_tubers_score", "milk_dairy_score",  "total_fruit_score", "total_vegetable_score", "vegetable_oils_nuts_fishoil_score", "dark_green_orange_veg_legume_score", "whole_fruit_score", "whole_grain_score", "BHEI_R_Score_Total", "ConsumoGrupo_NOVA_group_1", "ConsumoGrupo_NOVA_group_2",         
+"ConsumoGrupo_NOVA_group_3", "Percentual_NOVA_group_1", 
+ "Percentual_NOVA_group_2", "Percentual_NOVA_group_3" )
+
+# Renomeando as colunas para remover a palavra "residual"
+#colnames(metadados.dieta.alpha2) <- gsub("residual_", "", #colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_g"
+#colnames(metadados.dieta.alpha2) <- gsub("_g$", "", #colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_mg"
+#colnames(metadados.dieta.alpha2) <- gsub("_mg$", "", #colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_mcg"
+#colnames(metadados.dieta.alpha2) <- gsub("_mcg$", "", #colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_mcg"
+#colnames(metadados.dieta.alpha2) <- gsub("_", " ", #colnames(metadados.dieta.alpha2))
+
+# Usando gsub com uma função anônima para alterar a primeira letra de cada palavra para maiúscula
+#colnames(metadados.saude.alpha) <- gsub("(^|[[:space:]])([a-z])", "\\1\\U\\2", colnames(metadados.saude.alpha), perl = TRUE)
+
+
+
+```
+
+
+
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+# Calcula correlações e p-valores (Spearman) diretamente
+cor_test_results_saude <- do.call(rbind, lapply(colnames(metadados.saude.alpha), function(x) {
+  sapply(colnames(metadados.saude.alpha), function(y) {
+    test <- cor.test(metadados.saude.alpha[[x]], metadados.saude.alpha[[y]], method = "spearman")
+    c(cor = test$estimate, p = test$p.value)
+  })
+}))
+
+# Cria matrizes de correlação e p-valor
+n_saude <- length(colnames(metadados.saude.alpha))
+cor_matrix_saude <- matrix(cor_test_results_saude[seq(1, n_saude^2 * 2, by = 2)], ncol = n_saude)
+p_matrix_saude <- matrix(cor_test_results_saude[seq(2, n_saude^2 * 2, by = 2)], ncol = n_saude)
+colnames(cor_matrix_saude) <- rownames(cor_matrix_saude) <- colnames(metadados.saude.alpha)
+colnames(p_matrix_saude) <- rownames(p_matrix_saude) <- colnames(metadados.saude.alpha)
+
+# Ajuste FDR
+p_adjusted_saude <- matrix(p.adjust(as.vector(p_matrix_saude), method = "fdr"), ncol = n_saude)
+colnames(p_adjusted_saude) <- colnames(p_matrix_saude)
+rownames(p_adjusted_saude) <- rownames(p_matrix_saude)
+
+# Asteriscos de significância com FDR
+asterisks_saude <- ifelse(p_adjusted_saude < 0.001, "***",
+                          ifelse(p_adjusted_saude < 0.01, "**",
+                                 ifelse(p_adjusted_saude < 0.05, "*", "")))
+
+# Derretendo os dados para ggplot
+df_plot_saude <- melt(cor_matrix_saude)
+colnames(df_plot_saude) <- c("Var1", "Var2", "cor")
+df_plot_saude$p <- melt(p_adjusted_saude)[, 3]
+df_plot_saude$asterisks <- melt(asterisks_saude)[, 3]
+
+# Plot com ggplot2
+ggplot(df_plot_saude, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1, 1), name = "Spearman") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = "Alpha Diversity and Health (FDR ajustado)", x = "", y = "")
+
+```
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+# Calcula correlações de Spearman e p-valores entre todas as variáveis do dataframe de dieta
+cor_test_results_dieta <- do.call(rbind, lapply(colnames(metadados.dieta.residual.alpha), function(x) {
+  sapply(colnames(metadados.dieta.residual.alpha), function(y) {
+    test <- cor.test(metadados.dieta.residual.alpha[[x]], metadados.dieta.residual.alpha[[y]], method = "spearman")
+    c(cor = test$estimate, p = test$p.value)
+  })
+}))
+
+# Cria matrizes de correlação e p-valor
+n_dieta <- length(colnames(metadados.dieta.residual.alpha))
+cor_matrix_dieta <- matrix(cor_test_results_dieta[seq(1, n_dieta^2 * 2, by = 2)], ncol = n_dieta)
+p_matrix_dieta <- matrix(cor_test_results_dieta[seq(2, n_dieta^2 * 2, by = 2)], ncol = n_dieta)
+colnames(cor_matrix_dieta) <- rownames(cor_matrix_dieta) <- colnames(metadados.dieta.residual.alpha)
+colnames(p_matrix_dieta) <- rownames(p_matrix_dieta) <- colnames(metadados.dieta.residual.alpha)
+
+# Ajuste de p-valores com FDR
+p_adjusted_dieta <- matrix(p.adjust(as.vector(p_matrix_dieta), method = "fdr"), ncol = n_dieta)
+colnames(p_adjusted_dieta) <- colnames(p_matrix_dieta)
+rownames(p_adjusted_dieta) <- rownames(p_matrix_dieta)
+
+# Cria matriz de asteriscos de significância FDR
+asterisks_dieta <- ifelse(p_adjusted_dieta < 0.001, "***",
+                          ifelse(p_adjusted_dieta < 0.01, "**",
+                                 ifelse(p_adjusted_dieta < 0.05, "*", "")))
+
+# Prepara dados para o ggplot
+df_plot_dieta <- melt(cor_matrix_dieta)
+colnames(df_plot_dieta) <- c("Var1", "Var2", "cor")
+df_plot_dieta$p <- melt(p_adjusted_dieta)[, 3]
+df_plot_dieta$asterisks <- melt(asterisks_dieta)[, 3]
+
+# Gera o heatmap com ggplot2
+ggplot(df_plot_dieta, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1, 1), name = "Spearman") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = "Alpha Diversity and Diet (FDR ajustado)", x = "", y = "")
+
+```
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+# Calcula correlação de Spearman e p-valores entre todas as variáveis do índice de dieta
+cor_test_results_diet_index <- suppressWarnings({
+  do.call(rbind, lapply(colnames(metadados.diet.index.alpha), function(x) {
+    sapply(colnames(metadados.diet.index.alpha), function(y) {
+      test <- cor.test(metadados.diet.index.alpha[[x]], metadados.diet.index.alpha[[y]], method = "spearman")
+      c(cor = test$estimate, p = test$p.value)
+    })
+  }))
+})
+
+# Cria matrizes de correlação e p-valores
+n_diet_index <- length(colnames(metadados.diet.index.alpha))
+cor_matrix_diet_index <- matrix(cor_test_results_diet_index[seq(1, n_diet_index^2 * 2, by = 2)], ncol = n_diet_index)
+p_matrix_diet_index <- matrix(cor_test_results_diet_index[seq(2, n_diet_index^2 * 2, by = 2)], ncol = n_diet_index)
+colnames(cor_matrix_diet_index) <- rownames(cor_matrix_diet_index) <- colnames(metadados.diet.index.alpha)
+colnames(p_matrix_diet_index) <- rownames(p_matrix_diet_index) <- colnames(metadados.diet.index.alpha)
+
+# Aplica FDR (Benjamini-Hochberg)
+p_adjusted_diet_index <- matrix(p.adjust(as.vector(p_matrix_diet_index), method = "fdr"), ncol = n_diet_index)
+colnames(p_adjusted_diet_index) <- colnames(p_matrix_diet_index)
+rownames(p_adjusted_diet_index) <- rownames(p_matrix_diet_index)
+
+# Gera matriz de asteriscos de significância
+asterisks_diet_index <- ifelse(p_adjusted_diet_index < 0.001, "***",
+                               ifelse(p_adjusted_diet_index < 0.01, "**",
+                                      ifelse(p_adjusted_diet_index < 0.05, "*", "")))
+
+# Prepara dados para o ggplot
+df_plot_diet_index <- melt(cor_matrix_diet_index)
+colnames(df_plot_diet_index) <- c("Var1", "Var2", "cor")
+df_plot_diet_index$p <- melt(p_adjusted_diet_index)[, 3]
+df_plot_diet_index$asterisks <- melt(asterisks_diet_index)[, 3]
+
+# Gera o heatmap
+ggplot(df_plot_diet_index, aes(Var1, Var2, fill = cor)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1, 1), name = "Spearman") +
+  geom_text(aes(label = asterisks), size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        panel.grid = element_blank()) +
+  coord_fixed() +
+  labs(title = "Alpha Diversity and Diet Index (FDR ajustado)", x = "", y = "")
+
+```
+#=================================#
+   Alpha com BHEI-R
+#=================================#
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(ggpubr)
+library(ggsci)        # algumas paletas extras
+library(viridis)      # essa é a principal!
+```
+
+
+```{r}
+
+#nao tem ninguem com valor maior que 80
+
+table(metadados.diet.index.alpha$BHEI_category, useNA = "always")
+
+```
+```{r}
+
+# Gera os tercis com base nos valores reais
+tercis <- quantile(metadados.diet.index.alpha$BHEI_R_Score_Total, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE)
+tercis
+
+```
+
+```{r}
+
+# Kruskal-Wallis geral para cada índice
+kw_shannon <- kruskal.test(shannon_entropy ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_pielou  <- kruskal.test(pielou_evenness ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_chao1   <- kruskal.test(chao1 ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+kw_faith   <- kruskal.test(faith_pd ~ BHEI_category, data = metadados.diet.index.alpha)$p.value
+
+```
+
+
+
+```{r}
+# Comparações com ajuste de FDR
+comparacoes_bhei_shannon <- compare_means(shannon_entropy ~ BHEI_category, data = metadados.diet.index.alpha, method = "wilcox.test", p.adjust.method = "fdr")
+comparacoes_bhei_shannon$y.position <- c(7.2, 7.4, 7.6)
+comparacoes_bhei_shannon <- filter(comparacoes_bhei_shannon, p.adj <= 0.05)
+
+comparacoes_bhei_pielou <- compare_means(pielou_evenness ~ BHEI_category, data = metadados.diet.index.alpha, method = "wilcox.test", p.adjust.method = "fdr")
+comparacoes_bhei_pielou$y.position <- c(0.88, 0.91, 0.94)
+comparacoes_bhei_pielou <- filter(comparacoes_bhei_pielou, p.adj <= 0.05)
+
+comparacoes_bhei_chao1 <- compare_means(chao1 ~ BHEI_category, data = metadados.diet.index.alpha, method = "wilcox.test", p.adjust.method = "fdr")
+comparacoes_bhei_chao1$y.position <- c(420, 440, 460)
+comparacoes_bhei_chao1 <- filter(comparacoes_bhei_chao1, p.adj <= 0.05)
+
+comparacoes_bhei_faith <- compare_means(faith_pd ~ BHEI_category, data = metadados.diet.index.alpha, method = "wilcox.test", p.adjust.method = "fdr")
+comparacoes_bhei_faith$y.position <- c(24, 26, 28)
+comparacoes_bhei_faith <- filter(comparacoes_bhei_faith, p.adj <= 0.05)
+
+```
+
+
+```{r}
+library(ggpubr)
+
+
+
+# Shannon
+p1 <- ggboxplot(metadados.diet.index.alpha, x = "BHEI_category", y = "shannon_entropy",
+                fill = "BHEI_category", palette = "viridis") +
+  labs(title = paste0("A. Shannon Entropy (Kruskal-Wallis p = ", signif(kw_shannon, 3), ")"),
+       x = "Diet Quality", y = "Shannon Entropy") +
+  stat_pvalue_manual(comparacoes_bhei_shannon, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+# Pielou
+p2 <- ggboxplot(metadados.diet.index.alpha, x = "BHEI_category", y = "pielou_evenness",
+                fill = "BHEI_category", palette = "viridis") +
+  labs(title = paste0("B. Pielou Evenness (Kruskal-Wallis p = ", signif(kw_pielou, 3), ")"),
+       x = "Diet Quality", y = "Pielou Index") +
+  stat_pvalue_manual(comparacoes_bhei_pielou, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+# Chao1
+p3 <- ggboxplot(metadados.diet.index.alpha, x = "BHEI_category", y = "chao1",
+                fill = "BHEI_category", palette = "viridis") +
+  labs(title = paste0("C. Chao1 Richness (Kruskal-Wallis p = ", signif(kw_chao1, 3), ")"),
+       x = "Diet Quality", y = "Chao1 Richness") +
+  stat_pvalue_manual(comparacoes_bhei_chao1, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+# Faith's PD
+p4 <- ggboxplot(metadados.diet.index.alpha, x = "BHEI_category", y = "faith_pd",
+                fill = "BHEI_category", palette = "viridis") +
+  labs(title = paste0("D. Faith's PD (Kruskal-Wallis p = ", signif(kw_faith, 3), ")"),
+       x = "Diet Quality", y = "Faith's Phylogenetic Diversity") +
+  stat_pvalue_manual(comparacoes_bhei_faith, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+# Juntar os gráficos
+painel_bhei_final <- ggarrange(p1, p2, p3, p4, 
+                               ncol = 2, nrow = 2, 
+                               common.legend = TRUE, legend = "bottom")
+
+# Salvar como imagem
+ggsave("painel_bhei_significativo.png", painel_bhei_final, width = 12, height = 8, dpi = 300)
+
+
+
+```
+#===============================================#
+    alpha x vegetable_oils_nuts_fishoil_score
+#===============================================#
+
+```{r}
+
+
+library(dplyr)
+
+# Criar categorias com base no ponto de corte 5
+metadados.diet.index.alpha <- metadados.diet.index.alpha %>%
+  mutate(gordura_boa_categoria = ifelse(vegetable_oils_nuts_fishoil_score <= 5, 
+                                        "Low", 
+                                        "High")) %>%
+  mutate(gordura_boa_categoria = factor(gordura_boa_categoria, 
+                                        levels = c("Low", "High")))
+
+
+kruskal.test(chao1 ~ gordura_boa_categoria, data = metadados.diet.index.alpha)
+
+```
+
+```{r}
+library(ggpubr)
+
+
+# Shannon
+p_shannon <- ggboxplot(metadados.diet.index.alpha, 
+                       x = "gordura_boa_categoria", y = "shannon_entropy",
+                       fill = "gordura_boa_categoria", palette = "viridis") +
+  stat_compare_means(method = "wilcox.test") +
+  labs(title = "A. Shannon Entropy by Healthy Fat Intake",
+       x = "Healthy Fat Intake", y = "Shannon Entropy") +
+  theme_minimal()
+
+# Pielou
+p_pielou <- ggboxplot(metadados.diet.index.alpha, 
+                      x = "gordura_boa_categoria", y = "pielou_evenness",
+                      fill = "gordura_boa_categoria", palette = "viridis") +
+  stat_compare_means(method = "wilcox.test") +
+  labs(title = "B. Pielou Evenness by Healthy Fat Intake",
+       x = "Healthy Fat Intake", y = "Pielou Evenness") +
+  theme_minimal()
+
+# Chao1
+p_chao <- ggboxplot(metadados.diet.index.alpha, 
+                    x = "gordura_boa_categoria", y = "chao1",
+                    fill = "gordura_boa_categoria", palette = "viridis") +
+  stat_compare_means(method = "wilcox.test") +
+  labs(title = "C. Chao1 Richness by Healthy Fat Intake",
+       x = "Healthy Fat Intake", y = "Chao1 Richness") +
+  theme_minimal()
+
+# Faith
+p_faith <- ggboxplot(metadados.diet.index.alpha, 
+                     x = "gordura_boa_categoria", y = "faith_pd",
+                     fill = "gordura_boa_categoria", palette = "viridis") +
+  stat_compare_means(method = "wilcox.test") +
+  labs(title = "D. Faith's PD by Healthy Fat Intake",
+       x = "Healthy Fat Intake", y = "Faith's PD") +
+  theme_minimal()
+
+
+#juntar tudo
+painel_gordura_binario <- ggarrange(p_shannon, p_pielou, p_chao, p_faith,
+                                     ncol = 2, nrow = 2,
+                                     common.legend = TRUE, legend = "bottom")
+
+# Salvar como imagem (se quiser)
+ggsave("painel_gordura_binario.png", painel_gordura_binario, width = 12, height = 8, dpi = 300)
+
+
+```
+
+
+```{r}
+
+library(dplyr)
+
+metadados.dieta.residual.alpha <- metadados.dieta.residual.alpha %>%
+  mutate(
+    tercil_saturados = ntile(acidos_graxos_saturados_g, 3),
+    tercil_trans = ntile(acidos_graxos_trans_g, 3),
+    tercil_colesterol = ntile(colesterol_mg, 3)
+  ) %>%
+  mutate(
+    tercil_saturados = factor(tercil_saturados, labels = c("Low", "Medium", "High")),
+    tercil_trans = factor(tercil_trans, labels = c("Low", "Medium", "High")),
+    tercil_colesterol = factor(tercil_colesterol, labels = c("Low", "Medium", "High"))
+  )
+
+
+```
+
+#===================================================#
+               Alpha e Saturated Fat
+#===================================================#
+
+```{r}
+
+library(ggpubr)
+library(dplyr)
+
+# Função para gerar gráfico para uma variável e índice
+make_plot <- function(df, xvar, yvar, ylab, title_prefix, palette = "viridis", ypos_start = 0.9) {
+  # Kruskal-Wallis global
+  p_kw <- kruskal.test(reformulate(xvar, yvar), data = df)$p.value
+
+  # Comparações entre pares com FDR
+  pares <- compare_means(as.formula(paste(yvar, "~", xvar)),
+                         data = df, method = "wilcox.test", p.adjust.method = "fdr") %>%
+    filter(p.adj <= 0.05)
+  
+  # Adicionar posições Y para os p-valor dos pares
+  if (nrow(pares) > 0) {
+    max_y <- max(df[[yvar]], na.rm = TRUE)
+    pares$y.position <- seq(from = max_y + 0.2, by = 0.2, length.out = nrow(pares))
+  }
+  # Plot
+  p <- ggboxplot(df, x = xvar, y = yvar, fill = xvar, palette = palette) +
+    labs(
+      title = paste0(title_prefix, " (Kruskal-Wallis p = ", signif(p_kw, 3), ")"),
+      x = "Saturated Fat Intake (terciles)", y = ylab
+    ) +
+    theme_minimal()
+
+  if (nrow(pares) > 0) {
+    p <- p + stat_pvalue_manual(pares, label = "p.signif", tip.length = 0.01)
+  }
+
+  return(p)
+}
+
+# Criar os 4 gráficos
+p1_saturado <- make_plot(metadados.dieta.residual.alpha, "tercil_saturados", "shannon_entropy", "Shannon Entropy", "A. Shannon", ypos_start = 7.0)
+p2_saturado <- make_plot(metadados.dieta.residual.alpha, "tercil_saturados", "pielou_evenness", "Pielou Evenness", "B. Pielou", ypos_start = 0.9)
+p3_saturado <- make_plot(metadados.dieta.residual.alpha, "tercil_saturados", "chao1", "Chao1 Richness", "C. Chao1", ypos_start = 420)
+p4_saturado <- make_plot(metadados.dieta.residual.alpha, "tercil_saturados", "faith_pd", "Faith's PD", "D. Faith", ypos_start = 25)
+
+# Juntar os plots
+painel_saturado <- ggarrange(p1_saturado, p2_saturado, p3_saturado, p4_saturado,
+                             ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom")
+
+# Salvar
+ggsave("painel_saturated_fat.png", painel_saturado, width = 12, height = 8, dpi = 300)
+
+
+```
+#============#
+Gordura Trans
+#============#
+
+```{r}
+# Kruskal-Wallis geral
+kw_shannon <- kruskal.test(shannon_entropy ~ tercil_trans, data = metadados.dieta.residual.alpha)$p.value
+kw_pielou  <- kruskal.test(pielou_evenness ~ tercil_trans, data = metadados.dieta.residual.alpha)$p.value
+kw_chao1   <- kruskal.test(chao1 ~ tercil_trans, data = metadados.dieta.residual.alpha)$p.value
+kw_faith   <- kruskal.test(faith_pd ~ tercil_trans, data = metadados.dieta.residual.alpha)$p.value
+
+comparacoes_trans_shannon <- compare_means(shannon_entropy ~ tercil_trans, data = metadados.dieta.residual.alpha, method = "wilcox.test", p.adjust.method = "fdr") %>%
+  filter(p.adj <= 0.05)
+
+# Se ainda houver pelo menos uma comparação significativa:
+if (nrow(comparacoes_trans_shannon) > 0) {
+  comparacoes_trans_shannon$y.position <- seq(7.1, 7.1 + 0.2 * (nrow(comparacoes_trans_shannon) - 1), by = 0.2)
+}
+
+
+
+# Comparações par a par com FDR
+
+
+comparacoes_trans_pielou <- compare_means(pielou_evenness ~ tercil_trans, 
+                                          data = metadados.dieta.residual.alpha, 
+                                          method = "wilcox.test", 
+                                          p.adjust.method = "fdr") %>%
+  filter(p.adj <= 0.05)
+
+if (nrow(comparacoes_trans_pielou) > 0) {
+  comparacoes_trans_pielou$y.position <- seq(0.88, 0.88 + 0.03 * (nrow(comparacoes_trans_pielou) - 1), by = 0.03)
+}
+
+
+comparacoes_trans_chao1 <- compare_means(chao1 ~ tercil_trans, 
+                                         data = metadados.dieta.residual.alpha, 
+                                         method = "wilcox.test", 
+                                         p.adjust.method = "fdr") %>%
+  filter(p.adj <= 0.05)
+
+if (nrow(comparacoes_trans_chao1) > 0) {
+  comparacoes_trans_chao1$y.position <- seq(420, 420 + 20 * (nrow(comparacoes_trans_chao1) - 1), by = 20)
+}
+
+comparacoes_trans_faith <- compare_means(faith_pd ~ tercil_trans, 
+                                         data = metadados.dieta.residual.alpha, 
+                                         method = "wilcox.test", 
+                                         p.adjust.method = "fdr") %>%
+  filter(p.adj <= 0.05)
+
+if (nrow(comparacoes_trans_faith) > 0) {
+  comparacoes_trans_faith$y.position <- seq(24, 24 + 2 * (nrow(comparacoes_trans_faith) - 1), by = 2)
+}
+
+
+# Plots
+p1 <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_trans", y = "shannon_entropy",
+                fill = "tercil_trans", palette = "viridis") +
+  labs(title = paste0("A. Shannon Entropy (Kruskal-Wallis p = ", signif(kw_shannon, 3), ")"),
+       x = "Trans Fat Intake", y = "Shannon Entropy") +
+  stat_pvalue_manual(comparacoes_trans_shannon, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+p2 <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_trans", y = "pielou_evenness",
+                fill = "tercil_trans", palette = "viridis") +
+  labs(title = paste0("B. Pielou Index (Kruskal-Wallis p = ", signif(kw_pielou, 3), ")"),
+       x = "Trans Fat Intake", y = "Pielou Evenness") +
+  stat_pvalue_manual(comparacoes_trans_pielou, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+p3 <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_trans", y = "chao1",
+                fill = "tercil_trans", palette = "viridis") +
+  labs(title = paste0("C. Chao1 Richness (Kruskal-Wallis p = ", signif(kw_chao1, 3), ")"),
+       x = "Trans Fat Intake", y = "Chao1 Richness") +
+  stat_pvalue_manual(comparacoes_trans_chao1, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+p4 <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_trans", y = "faith_pd",
+                fill = "tercil_trans", palette = "viridis") +
+  labs(title = paste0("D. Faith's PD (Kruskal-Wallis p = ", signif(kw_faith, 3), ")"),
+       x = "Trans Fat Intake", y = "Faith’s Phylogenetic Diversity") +
+  stat_pvalue_manual(comparacoes_trans_faith, label = "p.signif", tip.length = 0.01) +
+  theme_minimal()
+
+# Juntar
+painel_trans <- ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom")
+ggsave("painel_trans_significativo.png", painel_trans, width = 12, height = 8, dpi = 300)
+
+```
+
+#=====================================#
+Colesterol
+#====================================#
+
+```{r}
+# Função para comparar com FDR e retornar apenas significativos com posição y
+get_comparacoes <- function(var, y_pos) {
+  comp <- compare_means(as.formula(paste0(var, " ~ tercil_colesterol")),
+                        data = metadados.dieta.residual.alpha,
+                        method = "wilcox.test", p.adjust.method = "fdr")
+  comp_sig <- comp %>% filter(p.adj <= 0.05)
+  if (nrow(comp_sig) > 0) {
+    comp_sig$y.position <- y_pos[1:nrow(comp_sig)]
+    return(comp_sig)
+  } else {
+    return(NULL)
+  }
+}
+
+# Kruskal-Wallis geral
+kw_colesterol_shannon <- kruskal.test(shannon_entropy ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_pielou  <- kruskal.test(pielou_evenness ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_chao1   <- kruskal.test(chao1 ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_faith   <- kruskal.test(faith_pd ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+
+# Comparações com Wilcoxon
+comparacoes_col_shannon <- get_comparacoes("shannon_entropy", c(7.2, 7.4, 7.6))
+comparacoes_col_pielou  <- get_comparacoes("pielou_evenness", c(0.88, 0.91, 0.94))
+comparacoes_col_chao1   <- get_comparacoes("chao1", c(420, 440, 460))
+comparacoes_col_faith   <- get_comparacoes("faith_pd", c(24, 26, 28))
+
+# Gráfico Shannon
+p1_col <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_colesterol", y = "shannon_entropy",
+                    fill = "tercil_colesterol", palette = "viridis") +
+  labs(title = paste0("A. Shannon Entropy (Kruskal-Wallis p = ", signif(kw_colesterol_shannon, 3), ")"),
+       x = "Cholesterol Intake (tercile)", y = "Shannon Entropy") +
+  theme_minimal()
+if (!is.null(comparacoes_col_shannon)) {
+  p1_col <- p1_col + stat_pvalue_manual(comparacoes_col_shannon, label = "p.signif", tip.length = 0.01)
+}
+
+# Gráfico Pielou
+p2_col <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_colesterol", y = "pielou_evenness",
+                    fill = "tercil_colesterol", palette = "viridis") +
+  labs(title = paste0("B. Pielou Evenness (Kruskal-Wallis p = ", signif(kw_colesterol_pielou, 3), ")"),
+       x = "Cholesterol Intake (tercile)", y = "Pielou Index") +
+  theme_minimal()
+if (!is.null(comparacoes_col_pielou)) {
+  p2_col <- p2_col + stat_pvalue_manual(comparacoes_col_pielou, label = "p.signif", tip.length = 0.01)
+}
+
+# Gráfico Chao1
+p3_col <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_colesterol", y = "chao1",
+                    fill = "tercil_colesterol", palette = "viridis") +
+  labs(title = paste0("C. Chao1 Richness (Kruskal-Wallis p = ", signif(kw_colesterol_chao1, 3), ")"),
+       x = "Cholesterol Intake (tercile)", y = "Chao1 Richness") +
+  theme_minimal()
+if (!is.null(comparacoes_col_chao1)) {
+  p3_col <- p3_col + stat_pvalue_manual(comparacoes_col_chao1, label = "p.signif", tip.length = 0.01)
+}
+
+# Gráfico Faith's PD
+p4_col <- ggboxplot(metadados.dieta.residual.alpha, x = "tercil_colesterol", y = "faith_pd",
+                    fill = "tercil_colesterol", palette = "viridis") +
+  labs(title = paste0("D. Faith's PD (Kruskal-Wallis p = ", signif(kw_colesterol_faith, 3), ")"),
+       x = "Cholesterol Intake (tercile)", y = "Faith's Phylogenetic Diversity") +
+  theme_minimal()
+if (!is.null(comparacoes_col_faith)) {
+  p4_col <- p4_col + stat_pvalue_manual(comparacoes_col_faith, label = "p.signif", tip.length = 0.01)
+}
+
+# Juntar os gráficos
+painel_colesterol_final <- ggarrange(p1_col, p2_col, p3_col, p4_col, 
+                                     ncol = 2, nrow = 2, 
+                                     common.legend = TRUE, legend = "bottom")
+
+# Salvar
+ggsave("painel_colesterol_significativo.png", painel_colesterol_final, width = 12, height = 8, dpi = 300)
+
+
+```
+
+```{r}
+# Shannon vs BHEI
+ggplot(metadados.diet.index.alpha, aes(x = BHEI_R_Score_Total, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon Entropy vs BHEI Total", x = "BHEI Total", y = "Shannon Entropy") +
+  theme_minimal()
+```
+
+
+```{r}
+# Chao1 vs BHEI
+ggplot(metadados.diet.index.alpha, aes(x = BHEI_R_Score_Total, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs BHEI Total", x = "BHEI Total", y = "Chao1 Richness") +
+  theme_minimal()
+
+
+```
+```{r}
+# Filtrar para remover valores extremos de TGP
+dados_filtrados <- metadados.saude.alpha %>%
+  filter(TGP <= 100)
+
+# Plot atualizado
+ggplot(dados_filtrados, aes(x = TGP, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon Entropy vs TGP (outlier removed)",
+       x = "TGP (U/L)", y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+```{r}
+# Plot atualizado
+ggplot(dados_filtrados, aes(x = TGP, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 vs TGP (outlier removed)",
+       x = "TGP (U/L)", y = "Shannon Entropy") +
+  theme_minimal()
+```
+
+
+
+```{r}
+# Remover outliers de trans fat (> 5g)
+dados_trans_filtrado <- metadados.dieta.residual.alpha %>%
+  filter(acidos_graxos_trans_g <= 5)
+
+# Novo gráfico Chao1 vs Trans Fat
+p_chao1_trans_filtrado <- ggplot(dados_trans_filtrado, aes(x = acidos_graxos_trans_g, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs Trans Fat",
+       x = "Trans Fat (g)", y = "Chao1 Richness") +
+  theme_minimal()
+
+
+p_shannon_trans <- ggplot(dados_trans_filtrado, aes(x = acidos_graxos_trans_g, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon Entropy vs Trans Fat", x = "Trans Fat (g)", y = "Shannon Entropy") +
+  theme_minimal()
+```
+
+
+```{r}
+p_chao1_trans <- ggplot(metadados.dieta.residual.alpha, aes(x = acidos_graxos_trans_g, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs Trans Fat", x = "Trans Fat (g)", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+```{r}
+p_shannon_saturados <- ggplot(metadados.dieta.residual.alpha, aes(x = acidos_graxos_saturados_g, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon Entropy vs Saturated Fat", x = "Saturated Fat (g)", y = "Shannon Entropy") +
+  theme_minimal()
+```
+
+
+```{r}
+p_chao1_saturados <- ggplot(metadados.dieta.residual.alpha, aes(x = acidos_graxos_saturados_g, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs Saturated Fat", x = "Saturated Fat (g)", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+```{r}
+p_shannon_colesterol <- ggplot(metadados.dieta.residual.alpha, aes(x = colesterol_mg, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon Entropy vs Cholesterol", x = "Cholesterol (mg)", y = "Shannon Entropy") +
+  theme_minimal()
+```
+
+
+```{r}
+p_chao1_colesterol <- ggplot(metadados.dieta.residual.alpha, aes(x = colesterol_mg, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs Cholesterol", x = "Cholesterol (mg)", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+
+```{r}
+
+p_pielou_colesterol <- ggplot(metadados.dieta.residual.alpha, aes(x = colesterol_mg, y = pielou_evenness)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Pielou Evenness vs Cholesterol", x = "Cholesterol (mg)", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+
+p_chao1_TyG <- ggplot(metadados.saude.alpha, aes(x = TyG, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs TyG", x = "TyG", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+
+
+
+
+```{r}
+
+
+# Filtrar dados sem NA
+metadados_filtrado <- metadados.saude.alpha %>%
+  filter(!is.na(TyG) & !is.na(chao1))
+
+# Plot
+ggplot(metadados_filtrado, aes(x = TyG, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs TyG", 
+       x = "TyG Index", 
+       y = "Chao1 Richness") +
+  theme_minimal()
+
+
+```
+
+```{r}
+ggplot(metadados_filtrado, aes(x = TyG, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon vs TyG", x = "TyG", y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+```{r}
+
+
+# Filtrar dados sem NA
+metadados_filtrado <- metadados.saude.alpha %>%
+  filter(!is.na(TyG_WC) & !is.na(chao1))
+
+# Plot
+ggplot(metadados_filtrado, aes(x = TyG_WC, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs TyG_WC", 
+       x = "TyG_WC Index", 
+       y = "Chao1 Richness") +
+  theme_minimal()
+
+
+```
+
+```{r}
+ggplot(metadados_filtrado, aes(x = TyG_WC, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon vs TyG_WC", x = "TyG_WC", y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+
+# Filtrar dados sem NA
+metadados_filtrado <- metadados.saude.alpha %>%
+  filter(!is.na(VAI) & !is.na(chao1))
+
+# Plot
+ggplot(metadados_filtrado, aes(x = VAI, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs VAI", 
+       x = "VAI Index", 
+       y = "Chao1 Richness") +
+  theme_minimal()
+
+
+```
+
+```{r}
+ggplot(metadados_filtrado, aes(x = VAI, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon vs VAI", x = "VAI", y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Filtrar dados sem NA e com VAI <= 30
+metadados_filtrado <- metadados.saude.alpha %>%
+  filter(!is.na(VAI) & !is.na(chao1) & VAI <= 30)
+
+# Plot
+ggplot(metadados_filtrado, aes(x = VAI, y = chao1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Chao1 Richness vs VAI (VAI ≤ 30)", 
+       x = "VAI Index", 
+       y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+
+```{r}
+# Plot
+ggplot(metadados_filtrado, aes(x = VAI, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  stat_cor(method = "spearman") +
+  labs(title = "Shannon vs VAI (VAI ≤ 30)", 
+       x = "VAI Index", 
+       y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+```{r}
+library(dplyr)
+
+# VAI - tercis
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(VAI_tercile = cut(VAI,
+                           breaks = quantile(VAI, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+                           labels = c("Low", "Medium", "High"),
+                           include.lowest = TRUE))
+
+# VAI - quartis
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(VAI_quartile = cut(VAI,
+                            breaks = quantile(VAI, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm = TRUE),
+                            labels = c("Q1", "Q2", "Q3", "Q4"),
+                            include.lowest = TRUE))
+
+# VAI - grupo baseado em pontos de corte por sexo (valores sugeridos na literatura)
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(VAI_group = case_when(
+    Sex == "Masculino" & VAI > 2.00 ~ "High",
+    Sex == "Feminino"  & VAI > 1.59 ~ "High",
+    TRUE ~ "Normal"
+  ))
+
+# TyG - tercis
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(TyG_tercile = cut(TyG,
+                           breaks = quantile(TyG, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+                           labels = c("Low", "Medium", "High"),
+                           include.lowest = TRUE))
+
+# TyG - ponto de corte da literatura (ex: ≥ 8.7)
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(TyG_group = case_when(
+    TyG >= 8.7 ~ "High",
+    TyG < 8.7  ~ "Normal",
+    TRUE ~ NA_character_
+  ))
+
+# TyG_WC - tercis
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(TyG_WC_tercile = cut(TyG_WC,
+                              breaks = quantile(TyG_WC, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+                              labels = c("Low", "Medium", "High"),
+                              include.lowest = TRUE))
+
+
+```
+
+```{r}
+# Instalar pacotes, se necessário
+if (!require("FSA")) install.packages("FSA")
+if (!require("ggpubr")) install.packages("ggpubr")
+if (!require("dplyr")) install.packages("dplyr")
+
+# Carregar bibliotecas
+
+library(ggpubr)
+library(dplyr)
+library(FSA)  # para dunnTest
+
+
+# Remover NAs
+dados_vai <- metadados.saude.alpha %>%
+  filter(!is.na(VAI_tercile) & !is.na(shannon_entropy))
+
+# Kruskal-Wallis
+kw_vai <- kruskal.test(shannon_entropy ~ VAI_tercile, data = dados_vai)$p.value
+
+# Teste de Dunn
+dunn_raw <- dunnTest(shannon_entropy ~ VAI_tercile, data = dados_vai, method = "bh")$res
+
+# Corrigir nomes dos grupos e preparar para o plot
+pares_signif <- dunn_raw %>%
+  filter(P.adj <= 0.05) %>%
+  tidyr::separate(Comparison, into = c("group1", "group2"), sep = " - ") %>%
+  mutate(p.signif = case_when(
+    P.adj <= 0.001 ~ "***",
+    P.adj <= 0.01  ~ "**",
+    P.adj <= 0.05  ~ "*"
+  ),
+  y.position = seq(7.0, 7.4, length.out = n()))  # Ajustar altura das linhas
+
+# Boxplot com p-valor de Dunn
+ggboxplot(dados_vai, x = "VAI_tercile", y = "shannon_entropy",
+          fill = "VAI_tercile", palette = "Set2") +
+  stat_pvalue_manual(pares_signif, label = "p.signif", tip.length = 0.01) +
+  labs(title = paste0("Shannon Entropy by VAI Terciles (Kruskal-Wallis p = ", signif(kw_vai, 3), ")"),
+       x = "VAI (Tercile)", y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+```{r}
+# Pacotes necessários
+library(dplyr)
+library(FSA)
+library(ggpubr)
+library(ggplot2)
+
+# Remover NAs da variável categórica
+dados_vai <- metadados.saude.alpha %>% filter(!is.na(VAI_tercile))
+
+# Kruskal-Wallis
+kw_vai_chao <- kruskal.test(chao1 ~ VAI_tercile, data = dados_vai)$p.value
+
+# Teste de Dunn com correção FDR
+dunn_vai_chao <- dunnTest(chao1 ~ VAI_tercile, data = dados_vai, method = "bh")$res
+
+# Selecionar pares significativos
+pares_signif_chao <- dunn_vai_chao %>%
+  filter(P.adj <= 0.05) %>%
+  mutate(group1 = gsub(" - .*", "", Comparison),
+         group2 = gsub(".*- ", "", Comparison),
+         p.signif = case_when(
+           P.adj <= 0.001 ~ "***",
+           P.adj <= 0.01 ~ "**",
+           P.adj <= 0.05 ~ "*"
+         ),
+         y.position = c(420, 440, 460)[1:n()]) %>%
+  select(group1, group2, p.signif, y.position)
+
+# Plot
+ggboxplot(dados_vai, x = "VAI_tercile", y = "chao1",
+          fill = "VAI_tercile", palette = "Set2") +
+  stat_pvalue_manual(pares_signif_chao, label = "p.signif", tip.length = 0.01) +
+  labs(title = paste0("Chao1 Richness by VAI Terciles (Kruskal-Wallis p = ", signif(kw_vai_chao, 3), ")"),
+       x = "VAI (Tercile)", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+```{r}
+
+# Remover os NAs da coluna TyG_tercile
+dados_tyg <- metadados.saude.alpha %>%
+  filter(!is.na(TyG_tercile))
+
+
+# 1. Kruskal-Wallis
+kw_shannon_tyg <- kruskal.test(shannon_entropy ~ TyG_tercile, data = dados_tyg)$p.value
+kw_chao1_tyg   <- kruskal.test(chao1 ~ TyG_tercile, data = dados_tyg)$p.value
+
+# 2. Dunn test com FDR
+dunn_shannon <- dunnTest(shannon_entropy ~ TyG_tercile, data = dados_tyg, method = "bh")$res
+dunn_chao1   <- dunnTest(chao1 ~ TyG_tercile, data = dados_tyg, method = "bh")$res
+
+# 3. Comparações significativas - Shannon
+pares_shannon <- dunn_shannon %>%
+  filter(P.adj <= 0.05) %>%
+  mutate(group1 = gsub(" - .*", "", Comparison),
+         group2 = gsub(".*- ", "", Comparison),
+         p.signif = case_when(
+           P.adj <= 0.001 ~ "***",
+           P.adj <= 0.01  ~ "**",
+           P.adj <= 0.05  ~ "*"
+         ),
+         y.position = max(dados_tyg$shannon_entropy, na.rm = TRUE) + 0.3 * row_number()) %>%
+  select(group1, group2, p.signif, y.position)
+
+# 4. Comparações significativas - Chao1
+pares_chao1 <- dunn_chao1 %>%
+  filter(P.adj <= 0.05) %>%
+  mutate(group1 = gsub(" - .*", "", Comparison),
+         group2 = gsub(".*- ", "", Comparison),
+         p.signif = case_when(
+           P.adj <= 0.001 ~ "***",
+           P.adj <= 0.01  ~ "**",
+           P.adj <= 0.05  ~ "*"
+         ),
+         y.position = max(dados_tyg$chao1, na.rm = TRUE) + 20 * row_number()) %>%
+  select(group1, group2, p.signif, y.position)
+
+# 5. Gráfico Shannon
+p_shannon_tyg <- ggboxplot(dados_tyg, x = "TyG_tercile", y = "shannon_entropy",
+                           fill = "TyG_tercile", palette = "Set2") +
+  stat_pvalue_manual(pares_shannon, label = "p.signif", tip.length = 0.01) +
+  labs(title = paste0("Shannon Entropy by TyG Terciles (Kruskal-Wallis p = ", signif(kw_shannon_tyg, 3), ")"),
+       x = "TyG (Tercile)", y = "Shannon Entropy") +
+  theme_minimal()
+
+# 6. Gráfico Chao1
+p_chao1_tyg <- ggboxplot(dados_tyg, x = "TyG_tercile", y = "chao1",
+                         fill = "TyG_tercile", palette = "Set2") +
+  stat_pvalue_manual(pares_chao1, label = "p.signif", tip.length = 0.01) +
+  labs(title = paste0("Chao1 Richness by TyG Terciles (Kruskal-Wallis p = ", signif(kw_chao1_tyg, 3), ")"),
+       x = "TyG (Tercile)", y = "Chao1 Richness") +
+  theme_minimal()
+
+
+```
+
+```{r}
+
+
+# TyG
+mediana_tyg <- median(metadados.saude.alpha$TyG, na.rm = TRUE)
+
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(TyG_group = ifelse(TyG <= mediana_tyg, "Low", "High"))
+
+# VAI
+mediana_vai <- median(metadados.saude.alpha$VAI, na.rm = TRUE)
+
+metadados.saude.alpha <- metadados.saude.alpha %>%
+  mutate(VAI_group = ifelse(VAI <= mediana_vai, "Low", "High"))
+
+table(metadados.saude.alpha$TyG_group, useNA = "ifany")
+table(metadados.saude.alpha$VAI_group, useNA = "ifany")
+
+
+
+```
+
+```{r}
+# Garantir que ambos os grupos têm dados
+dados_tyg_group_clean <-metadados.saude.alpha %>%
+  filter(!is.na(shannon_entropy), !is.na(TyG_group))
+
+# Teste de Wilcoxon para dois grupos
+wilcox_tyg_shannon <- wilcox.test(shannon_entropy ~ TyG_group, data = dados_tyg_group_clean)
+
+# Ver p-valor
+wilcox_tyg_shannon$p.value
+
+
+```
+
+```{r}
+dados_tyg_group_clean <- metadados.saude.alpha %>%
+  filter(!is.na(TyG_group), !is.na(chao1)) %>%
+  mutate(TyG_group = factor(TyG_group, levels = c("Low", "High")))
+
+wilcox_tyg_chao <- wilcox.test(chao1 ~ TyG_group, data = dados_tyg_group_clean)
+wilcox_tyg_chao$p.value
+
+
+```
+
+```{r}
+# Converter p para asteriscos
+p_label <- ifelse(wilcox_tyg_chao$p.value <= 0.001, "***",
+                  ifelse(wilcox_tyg_chao$p.value <= 0.01, "**",
+                         ifelse(wilcox_tyg_chao$p.value <= 0.05, "*", "ns")))
+
+# Boxplot com anotação
+ggboxplot(dados_tyg_group_clean, x = "TyG_group", y = "chao1",
+          fill = "TyG_group", palette = "Set2") +
+  annotate("text", x = 1.5, y = max(dados_tyg_group_clean$chao1, na.rm = TRUE) + 20,
+           label = p_label, size = 6) +
+  labs(title = paste0("Chao1 vs TyG Group (Wilcoxon p = ", signif(wilcox_tyg_chao$p.value, 3), ")"),
+       x = "TyG Group", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+
+
+
+```{r}
+dados_vai_group_clean <- metadados.saude.alpha %>%
+  filter(!is.na(VAI_group), !is.na(shannon_entropy)) %>%
+  mutate(VAI_group = factor(VAI_group, levels = c("Low", "High")))
+
+```
+
+```{r}
+wilcox_vai_shannon <- wilcox.test(shannon_entropy ~ VAI_group, data = dados_vai_group_clean)
+wilcox_vai_shannon$p.value
+
+```
+
+```{r}
+dados_vai_group_clean <- metadados.saude.alpha %>%
+  filter(!is.na(VAI_group), !is.na(chao1)) %>%
+  mutate(VAI_group = factor(VAI_group, levels = c("Low", "High")))
+
+```
+
+```{r}
+wilcox_vai_chao <- wilcox.test(chao1 ~ VAI_group, data = dados_vai_group_clean)
+wilcox_vai_chao$p.value
+
+```
+
+```{r}
+# Converter p para asteriscos
+p_label <- ifelse(wilcox_vai_chao$p.value <= 0.001, "***",
+                  ifelse(wilcox_vai_chao$p.value <= 0.01, "**",
+                         ifelse(wilcox_vai_chao$p.value <= 0.05, "*", "ns")))
+
+# Boxplot com anotação
+ggboxplot(dados_vai_group_clean, x = "VAI_group", y = "chao1",
+          fill = "VAI_group", palette = "Set2") +
+  annotate("text", x = 1.5, y = max(dados_vai_group_clean$chao1, na.rm = TRUE) + 20,
+           label = p_label, size = 6) +
+  labs(title = paste0("Chao1 vs VAI Group (Wilcoxon p = ", signif(wilcox_vai_chao$p.value, 3), ")"),
+       x = "VAI Group", y = "Chao1 Richness") +
+  theme_minimal()
+
+```
+

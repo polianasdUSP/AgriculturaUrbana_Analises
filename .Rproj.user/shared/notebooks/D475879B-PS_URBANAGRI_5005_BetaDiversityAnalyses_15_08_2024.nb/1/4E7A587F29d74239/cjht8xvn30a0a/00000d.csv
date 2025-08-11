@@ -1,0 +1,13 @@
+"0","ggplot((merge(wunifrac.pcoa$points, subset(metadados.metabolicos, !is.na(IL4)), by.x = ""row.names"", by.y = ""Sample""))) + 
+  geom_point(aes(x = V1, y = V2, color = IL4), size = 2) + 
+  scale_color_gradient(name = ""IL4"", low = ""green"", high = ""red"") +
+  labs(title = ""Weighted Unifrac"", x = ""V1"", y = ""V2"") +
+  theme_minimal()
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/D475879B-PS_URBANAGRI_5005_BetaDiversityAnalyses_15_08_2024.nb/1/4E7A587F29d74239/cjht8xvn30a0a_t/464dd3b0cd3448508e3efbc40aeb4fa0.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

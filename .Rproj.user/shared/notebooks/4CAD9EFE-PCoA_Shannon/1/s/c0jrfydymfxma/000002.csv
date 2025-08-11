@@ -1,0 +1,9 @@
+"0","```r
+
+# Box plot de Shannon Entropy por Region_type
+ggplot(metadados_raw, aes(x = Region_type, y = shannon_entropy, fill = Region_type)) +
+  geom_boxplot() +
+  labs(title = \"Shannon Entropy por Tipo de Região\", x = \"Tipo de Região\", y = \"Shannon Entropy\") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotacionar labels do eixo x para melhor visualização
+```"

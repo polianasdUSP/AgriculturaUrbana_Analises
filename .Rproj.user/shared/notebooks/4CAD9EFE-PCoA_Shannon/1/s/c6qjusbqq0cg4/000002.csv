@@ -1,0 +1,8 @@
+"0","```r
+
+
+colunas_relevantes <- c(\"Sample.id\", \"Systolic\", \"Diastolic\", \"IMC\", \"HOMA\", \"COLESTEROL\", \"HDL\", \"TGO\", \"TGP\", \"GGT\", \"PCR\", \"TNF\", \"IL4\", \"IL17A\", \"IL10\", \"IL2\", \"LDL\", \"TRIGLICERIDES\", \"shannon_entropy\")
+colunas_existentes <- colunas_relevantes[colunas_relevantes %in% colnames(metadados_raw)]
+
+
+```"

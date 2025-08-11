@@ -1,0 +1,64 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5zdHIodW53ZWlnaHRlZF91bmlmcmFjLnJhdylcbmNsYXNzKHVud2VpZ2h0ZWRfdW5pZnJhYy5yYXcpXG5cblxuIyBDb252ZXJ0ZSB1bmlmcmFjdCBvYmplY3RzICdkaXN0JyBlbSB1bSBkYXRhLmZyYW1lIFxuIyByZW1vdmUgY29udHJvbHNcbiMgZmlsdGVyIG91dCBnbHljZXJvbCBzYW1wbGVzXG5cbiN1bndlaWdodGVkXG51bndlaWdodGVkX3VuaWZyYWMgPC0gdW53ZWlnaHRlZF91bmlmcmFjLnJhd1xuXG51bndlaWdodGVkX3VuaWZyYWMgPC0gdW53ZWlnaHRlZF91bmlmcmFjWyBncmVwbCh4ID0gcm93bmFtZXModW53ZWlnaHRlZF91bmlmcmFjKSwgcGF0dGVybiA9ICBcIlxcXFxGMDAkXCIgKSwgZ3JlcGwoeCA9IGNvbG5hbWVzKHVud2VpZ2h0ZWRfdW5pZnJhYyksIHBhdHRlcm4gPSAgXCJcXFxcRjAwJFwiICldXG5cbnJvd25hbWVzKHVud2VpZ2h0ZWRfdW5pZnJhYykgPC0gZ3N1Yih4ID0gcm93bmFtZXModW53ZWlnaHRlZF91bmlmcmFjKSwgcGF0dGVybiA9ICBcIi1cIiwgcmVwbGFjZW1lbnQgPSBcIi5cIiApXG5jb2xuYW1lcyh1bndlaWdodGVkX3VuaWZyYWMpIDwtIGdzdWIoeCA9IGNvbG5hbWVzKHVud2VpZ2h0ZWRfdW5pZnJhYyksIHBhdHRlcm4gPSAgXCItXCIsIHJlcGxhY2VtZW50ID0gXCIuXCIgKVxuXG5cbiN3ZWlnaHRlZFxud2VpZ2h0ZWRfdW5pZnJhYyA8LSB3ZWlnaHRlZF91bmlmcmFjLnJhd1xuXG53ZWlnaHRlZF91bmlmcmFjIDwtIHdlaWdodGVkX3VuaWZyYWNbIGdyZXBsKHggPSByb3duYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSwgcGF0dGVybiA9ICBcIlxcXFxGMDAkXCIgKSwgZ3JlcGwoeCA9IGNvbG5hbWVzKHdlaWdodGVkX3VuaWZyYWMpLCBwYXR0ZXJuID0gIFwiXFxcXEYwMCRcIiApXVxuXG5yb3duYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSA8LSBnc3ViKHggPSByb3duYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSwgcGF0dGVybiA9ICBcIi1cIiwgcmVwbGFjZW1lbnQgPSBcIi5cIiApXG5jb2xuYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSA8LSBnc3ViKHggPSBjb2xuYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSwgcGF0dGVybiA9ICBcIi1cIiwgcmVwbGFjZW1lbnQgPSBcIi5cIiApXG5cblxuYGBgIn0= -->
+
+```r
+
+str(unweighted_unifrac.raw)
+class(unweighted_unifrac.raw)
+
+
+# Converte unifract objects 'dist' em um data.frame 
+# remove controls
+# filter out glycerol samples
+
+#unweighted
+unweighted_unifrac <- unweighted_unifrac.raw
+
+unweighted_unifrac <- unweighted_unifrac[ grepl(x = rownames(unweighted_unifrac), pattern =  \"\\F00$\" ), grepl(x = colnames(unweighted_unifrac), pattern =  \"\\F00$\" )]
+
+rownames(unweighted_unifrac) <- gsub(x = rownames(unweighted_unifrac), pattern =  \"-\", replacement = \".\" )
+colnames(unweighted_unifrac) <- gsub(x = colnames(unweighted_unifrac), pattern =  \"-\", replacement = \".\" )
+
+
+#weighted
+weighted_unifrac <- weighted_unifrac.raw
+
+weighted_unifrac <- weighted_unifrac[ grepl(x = rownames(weighted_unifrac), pattern =  \"\\F00$\" ), grepl(x = colnames(weighted_unifrac), pattern =  \"\\F00$\" )]
+
+rownames(weighted_unifrac) <- gsub(x = rownames(weighted_unifrac), pattern =  \"-\", replacement = \".\" )
+colnames(weighted_unifrac) <- gsub(x = colnames(weighted_unifrac), pattern =  \"-\", replacement = \".\" )
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+str(unweighted_unifrac.raw)
+class(unweighted_unifrac.raw)
+
+
+# Converte unifract objects 'dist' em um data.frame 
+# remove controls
+# filter out glycerol samples
+
+#unweighted
+unweighted_unifrac <- unweighted_unifrac.raw
+
+unweighted_unifrac <- unweighted_unifrac[ grepl(x = rownames(unweighted_unifrac), pattern =  \"\\F00$\" ), grepl(x = colnames(unweighted_unifrac), pattern =  \"\\F00$\" )]
+
+rownames(unweighted_unifrac) <- gsub(x = rownames(unweighted_unifrac), pattern =  \"-\", replacement = \".\" )
+colnames(unweighted_unifrac) <- gsub(x = colnames(unweighted_unifrac), pattern =  \"-\", replacement = \".\" )
+
+
+#weighted
+weighted_unifrac <- weighted_unifrac.raw
+
+weighted_unifrac <- weighted_unifrac[ grepl(x = rownames(weighted_unifrac), pattern =  \"\\F00$\" ), grepl(x = colnames(weighted_unifrac), pattern =  \"\\F00$\" )]
+
+rownames(weighted_unifrac) <- gsub(x = rownames(weighted_unifrac), pattern =  \"-\", replacement = \".\" )
+colnames(weighted_unifrac) <- gsub(x = colnames(weighted_unifrac), pattern =  \"-\", replacement = \".\" )
+
+
+```"

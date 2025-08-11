@@ -1,0 +1,7 @@
+"0","```r
+# Carregar pacotes necessários
+library(cluster)
+library(factoextra)
+library(ggplot2)
+library(dplyr)                                                                                                                                                                                                                                                                                           
+```"

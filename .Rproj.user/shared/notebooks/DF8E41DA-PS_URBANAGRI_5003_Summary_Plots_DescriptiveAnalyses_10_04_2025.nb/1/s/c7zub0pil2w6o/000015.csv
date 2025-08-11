@@ -1,0 +1,13 @@
+"0","# Salvar como PNG em alta resolução
+gtsave(
+  data = grafico_regiao,  # substitua pelo nome do seu objeto gt
+  filename = ""grafico_regiao.png"",
+  path = ""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/"",
+  expand = 10          # aumenta a resolução (quanto maior, mais nítido)
+)
+"
+"1","[1m[33mError[39m in `gtsave()`:[22m
+[38;5;232m[33m![38;5;232m `data` must either be a `gt_tbl` or a `gt_group`, not a [34m<gg>[38;5;232m object.[39m
+Backtrace:
+[90m 1. [39m[1m[94mgt::gtsave([39m[22m...[1m[94m)[39m[22m
+"

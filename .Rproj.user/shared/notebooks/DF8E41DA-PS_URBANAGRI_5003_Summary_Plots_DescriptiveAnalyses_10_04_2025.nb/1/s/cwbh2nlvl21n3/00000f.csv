@@ -1,0 +1,11 @@
+"0","#salvar em alta
+# Salvar como PNG em alta resolução
+gtsave(
+  data = tabela,  # substitua pelo nome do seu objeto gt
+  filename = ""tabela_general_anthropometric.png"",
+  path = ""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/"",
+  expand = 10          # aumenta a resolução (quanto maior, mais nítido)
+)
+"
+"2","file:///C:/Users/polia/AppData/Local/Temp/RtmpSc5mpv/file92bc7c656a.html screenshot completed
+"

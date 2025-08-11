@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoKHRheGFfbmFtZXMocGh5X3RyZWVfcHMpKSAgICMgTsO6bWVybyBkZSBBU1ZzIG5hIMOhcnZvcmUgZmlsb2dlbsOpdGljYSAoc2UgaG91dmVyKVxuXG5gYGAifQ== -->
+
+```r
+length(taxa_names(phy_tree_ps))   # Número de ASVs na árvore filogenética (se houver)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+length(taxa_names(phy_tree_ps))   # Número de ASVs na árvore filogenética (se houver)
+
+```"
+"1","[1] 3972
+"

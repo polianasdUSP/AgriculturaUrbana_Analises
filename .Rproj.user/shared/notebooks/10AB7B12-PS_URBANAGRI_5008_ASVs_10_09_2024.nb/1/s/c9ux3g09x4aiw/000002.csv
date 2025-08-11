@@ -1,0 +1,6 @@
+"0","```r
+plot(summary(my.cor))
+
+```"
+"1","Error in tabulate(Ind[, dimd]) : 'bin' deve ser numérico ou um fator
+"

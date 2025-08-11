@@ -1,0 +1,19 @@
+"0","# Criar tabela estilizada
+df_sex_age %>%
+  gt() %>%
+  tab_header(
+    title = md(""**General Information (n=105)**"")
+  ) %>%
+  cols_label(
+    Sex = ""Sex"",
+    Count = ""Count"",
+    `Mean Age` = ""Mean Age"",
+    `Standard Deviation` = ""St Dev"",
+    `Minimum Age` = ""Min Age"",
+    `Maximum Age` = ""Max Age""
+  )
+"
+"2","Aviso: não foi possível abrir o arquivo 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/DF8E41DA-PS_URBANAGRI_5003_Summary_Plots_DescriptiveAnalyses_10_04_2025.nb/1/4E7A587F5127b895/cnbupeccg66lk_t\_rs_html_92bc6088f9b.html': No such file or directory"
+"2","Error in file(file, ifelse(append, ""a"", ""w"")) : 
+  não é possível abrir a conexão
+"

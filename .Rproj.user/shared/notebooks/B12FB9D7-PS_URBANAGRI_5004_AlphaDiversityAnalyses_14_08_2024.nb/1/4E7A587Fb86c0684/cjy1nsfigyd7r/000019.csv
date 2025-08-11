@@ -1,0 +1,11 @@
+"0","# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.dietasaude.alpha <- saude_dieta %>%
+  select(IdVoluntario, shannon_entropy, pielou_evenness, faith_pd, observed_features, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age, Systolic, Diastolic, Weight, Height, Waist, Hip, HbA1c, COLESTEROL, LDL, HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT, GLICOSE, INSULINA, HOMA, PCR, residual_energia2_kcal, residual_carboidrato_total_g, residual_proteina_g,residual_lipidios_g, residual_fibra_alimentar_g, residual_colesterol_mg, residual_acidos_graxos_saturados_g, residual_acidos_graxos_monoinsaturados_g, residual_acidos_graxos_poliinsaturados_g, residual_acidos_graxos_trans_g, residual_calcio_mg, residual_ferro_mg, residual_sodio_mg, residual_magnesio_mg, residual_fosforo_mg, residual_potassio_mg, residual_manganes_mg, residual_zinco_mg, residual_cobre_mg, residual_selenio_mcg, residual_vitamina_A_RE_mcg, residual_vitamina_A_RAE_mcg, residual_vitamina_D_mcg, residual_vitamina_E_mg, residual_tiamina_mg, residual_riboflavina_mg, residual_niacina_mg, residual_vitamina_B6_mg, residual_vitamina_B12_mcg, residual_vitamina_C_mg, residual_equivalente_de_folato_mcg, residual_sal_de_adicao_g, residual_acucar_de_adicao_g)
+"
+"1","[1m[33mError[39m in `select()`:[22m
+[33m![39m Can't select columns that don't exist.
+[31m✖[39m Column `shannon_entropy` doesn't exist.
+Backtrace:
+[90m 1. [39msaude_dieta %>% ...
+[90m 3. [39m[1m[94mdplyr:::select.data.frame([39m[22m...[1m[94m)[39m[22m
+"

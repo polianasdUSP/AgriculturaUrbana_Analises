@@ -1,0 +1,5 @@
+"0","ASV.table.raw$Col.names <- gsub(""-"", ""."", alpha.all$Col.names)
+"
+"2","Error in h(simpleError(msg, call)) : 
+  erro na avaliação do argumento 'x' na seleção do método para a função 'gsub': 'objeto 'alpha.all' não encontrado'
+"

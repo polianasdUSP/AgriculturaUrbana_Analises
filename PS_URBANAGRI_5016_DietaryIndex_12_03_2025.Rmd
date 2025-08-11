@@ -1,0 +1,1054 @@
+---
+title: "BHEI-REVISED"
+output: html_notebook
+---
+
+
+# 2025-02-25
+# BHEI-R analysis code V01
+
+# BHEI-R (Brazilian Healthy Eating Index – Revised) is a diet quality index adapted from the Healthy Eating Index (HEI) to assess adherence to Brazilian dietary guidelines.
+
+# using the tbca and recall data with BHEI-R categories. 
+
+# tbca is standardized within the lab and by the TBCA 
+# the recall data must have 4 columns:
+#IdVoluntario, R24H, Quantidade, TBCA_code, Categoria_BHEI_1, Subcategoria_1, Categoria_BHEI_2, Subcategoria_2, Categoria_BHEI_3, Subcategoria_3.
+
+
+# must be sequential for all volunteers (one on top of the other):
+# must have these colnames
+
+# as such:
+# IdVoluntario	R24H	Quantidade	TBCA_code
+# S10011.F00	Day 1	200	C0409A
+# S10011.F00	Day 2	100	C0044H
+# S10011.F00	Day 3	225	C0064T
+# S10012.F00	Day 1	75	C0209A
+# S10012.F00	Day 2	20	C0145B
+# S10012.F00	Day 3	11	C0170F
+
+# these cols have the person id, the day the recall was collected, the food item code and the quantity ingested and the categories analysed by the 
+
+
+#It measures how well an individual's diet aligns with healthy eating patterns, considering food groups, nutrient intake, and dietary balance.
+
+✅ Maximum Score: 100 points
+✅ Higher scores indicate a healthier diet
+✅ Used in research and public health assessments
+
+https://drive.google.com/drive/folders/1-nhlWBGMUPGDkup-R67v16hTQNg2aDnu
+_039 Previdelli et al., 2011
+
+
+Código Grupo de Alimentos que serão utilizados no cálculo do IQD_R 
+1 Frutas totais (qualquer forma de consumo de fruta natural) 
+11 Frutas inteiras a 
+2 Vegetais totais (todos os tipos de verduras, legumes e hortaliças) 
+22 Vegetais verdes-escuros e alaranjados 
+3 Cereais, raízes e tubérculos 
+33 Cereais integrais 
+4 Leite e derivados b 
+5 Carnes e ovos 
+55 Leguminosas 
+56 Peixe c 
+66 Oleaginosas e polpa de coco 
+6 Óleo vegetais e molhos para salada.  
+
+Código Grupo de Alimentos que não serão utilizados no cálculo do IQD_Rd 
+9 Fórmulas lácteas 9 Bebidas alcoólicas e de alta caloria 
+9 Bebidas de baixa caloria, inclusive diet e light 
+9 Temperos tipo condimentos 
+9 Doces em geral 
+9 Alimentos com gordura tipo "shortining", butter... 
+
+a Exclui-se as frutas consumidas na forma de sucos.  
+b Não inclui alimentos à base de gordura (ex. creme de leite). 
+c Será utilizado nos componentes: “Carnes, Ovos e Leguminosas” e “Óleos, Oleaginosos e Gordura de peixe”. 
+d Esta descrição serve apenas para que todos os alimentos tenham uma classificação. Também pode ser útil caso, no futuro, seja necessário reavaliar ou resgatar algum alimento que, primeiramente, não constava no IQD_R 
+
+
+```{r}
+
+# Instala e carrega os pacotes necessários
+library(dplyr)
+library(readxl)
+library(writexl)
+library(fmsb)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+
+
+```
+
+
+
+
+
+
+import the TBCA
+```{r}
+tbca.raw <- read_excel("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Dados_composição_TBCA_Hoffmann11022022v6.xlsx")
+
+# convert negative values that indicate traces of not available data etc to zero
+tbca <- tbca.raw %>%
+  mutate(across(where(is.numeric), ~ replace(., . < 0, 0)))
+```
+
+
+# import the recall data
+```{r}
+recall.raw <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Planilha_UNICA_R24H_BHEI-R.xlsx - PlanilhaUnica.csv")
+
+
+
+
+recall <- merge(x = recall.raw[c("IdVoluntario", "R24H", "Quantidade", "TBCA_code", "Categoria_BHEI_1", "Subcategoria_1",  
+"Categoria_BHEI_2", "Subcategoria_2", "Categoria_BHEI_3", "Subcategoria_3" )], y = tbca, by.x = "TBCA_code", by.y = "cod_alimento", all.x =T)
+recall$convertionFactor <- recall$Quantidade/100
+
+
+recall <- cbind(recall[1:4], recall[19:(ncol(recall)-1)]*recall$convertionFactor)
+
+# Salvar o computador
+write.table(recall, file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/recall_BHEI.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+write_xlsx(recall, path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/recall_BHEI.xlsx")
+
+
+
+recall.calc <- recall[-c(1,4)] %>% 
+group_by(IdVoluntario, R24H) %>%
+summarise_all(sum, na.rm=T) %>%
+summarise(across(-R24H, mean))
+
+
+
+
+```
+
+```{r}
+library(dplyr)
+
+
+# Criar os componentes normalizados para 1000 kcal
+recall.calc <- recall.calc %>%
+  mutate(
+    sodio_kcal = (sodio_mg * 1000) / energia2_kcal,  # Sódio em mg por 1000 kcal
+    gordaa_per_kcal = ((acidos_graxos_saturados_g * 9) +  # Gordura saturada em kcal
+                        (acidos_graxos_trans_g * 9) +     # Gordura trans em kcal
+                        (alcool_g * 7) +                 # Álcool em kcal
+                        (acucar_de_adicao_g * 4)) * 100 / energia2_kcal, # % kcal de SoFAAS
+
+    gord_sat_perc_kcal = ((acidos_graxos_saturados_g * 9) * 100) / energia2_kcal, # % kcal de gordura saturada
+
+    # SoFAAS: escala de 0 a 20 (quanto menos consumo, maior a pontuação)
+    SoFAAS_Score = case_when(
+      gordaa_per_kcal <= 10 ~ 20,  # Se menor que 10% do VET, pontuação máxima
+      gordaa_per_kcal >= 35 ~ 0,   # Se maior que 35%, pontuação mínima
+      TRUE ~ 20 - ((gordaa_per_kcal - 10) * 20 / (35 - 10)) # Cálculo proporcional
+    ),
+
+    # Gordura Saturada: escala de 0 a 10
+    Sat_Fat_Score = case_when(
+      gord_sat_perc_kcal <= 7 ~ 10, # Se menor que 7%, pontuação máxima
+      gord_sat_perc_kcal >= 15 ~ 0, # Se maior que 15%, pontuação mínima
+      TRUE ~ 10 - ((gord_sat_perc_kcal - 7) * 10 / (15 - 7)) # Cálculo proporcional
+    ),
+
+    # Sódio: escala de 0 a 10
+    Sodium_Score = case_when(
+      sodio_kcal <= 700 ~ 10, # Se menor que 700 mg por 1000 kcal, pontuação máxima
+      sodio_kcal >= 2000 ~ 0, # Se maior que 2000 mg por 1000 kcal, pontuação mínima
+      TRUE ~ 10 - ((sodio_kcal - 700) * 10 / (2000 - 700)) # Cálculo proporcional
+    )
+  )
+
+
+# Exibir os primeiros resultados
+recall.calc %>% select(IdVoluntario, energia2_kcal, sodio_kcal, gordaa_per_kcal, gord_sat_perc_kcal, SoFAAS_Score, Sat_Fat_Score, Sodium_Score)
+
+
+colnames(recall.calc)
+```
+
+
+```{r}
+BHEI_R <- recall.calc %>%
+ select(IdVoluntario,
+       energia2_kcal,
+       SoFAAS_Score, 
+       Sat_Fat_Score,
+       Sodium_Score)
+
+
+```
+
+
+
+
+Categorias BHEI-R
+
+```{r}
+#recall.raw <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Planilha_UNICA_R24H_BHEI-R.xlsx - PlanilhaUnica.csv")
+
+
+# convert ID to char
+#recall.raw$IdVoluntario <- as.character(recall.raw$IdVoluntario)
+
+recall_cat <- merge(x = recall.raw[c("IdVoluntario", "R24H", "Quantidade", "TBCA_code", "Categoria_BHEI_1", "Subcategoria_1",  
+"Categoria_BHEI_2", "Subcategoria_2", "Categoria_BHEI_3", "Subcategoria_3" )], y = tbca, by.x = "TBCA_code", by.y = "cod_alimento", all.x =T)
+recall_cat$convertionFactor <- recall_cat$Quantidade/100
+
+
+```
+
+1️⃣ Criar um resumo de consumo por categoria para cada voluntário
+Podemos calcular o total de energia (kcal) e nutrientes por categoria para cada voluntário.
+
+```{r}
+
+library(tidyr)  # Certifique-se de carregar o tidyr
+library(dplyr)  # Já deve estar carregado
+
+
+recall_categorias <- recall_cat %>%
+  group_by(IdVoluntario, Categoria_BHEI_1, Subcategoria_1, 
+           Categoria_BHEI_2, Subcategoria_2, 
+           Categoria_BHEI_3, Subcategoria_3) %>%
+  summarise(
+    Total_Quantidade = sum(Quantidade, na.rm = TRUE),
+    Total_Kcal = sum(energia2_kcal, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+
+
+
+
+```
+
+
+```{r}
+
+#Antes de normalizar os valores, precisamos acrescentar coluna com VET, ou seja, total de calorias consumidas por cada voluntário.No caso, peguei a coluna de recall.calc
+
+recall_categorias <- recall_categorias %>%
+  left_join(recall.calc %>% select(IdVoluntario, VET = energia2_kcal), by = "IdVoluntario")
+
+
+
+```
+
+
+
+
+
+```{r}
+
+#Normalizar as porções para 1000 kcal, para que fiquem comparáveis com as recomendações do BHEI-R.**
+
+options(scipen = 999)
+
+
+recall_categorias <- recall_categorias %>%
+  mutate(Normalized_Quantidade = (Total_Quantidade / VET) * 1000)
+
+recall_categorias$Categoria_BHEI_1
+
+
+```
+
+```{r}
+
+# Criando uma tabela de conversão de porções
+conversion_factors <- tibble::tribble(
+  ~Categoria_BHEI_1, ~Porcao_Referencia,
+  "total_fruit", 100,
+  "whole_fruit", 100,
+  "total_vegetable", 100,
+  "dark_green_orange_vegetable", 100,
+  "grain_roots_tubers", 30,
+  "whole_grain", 30,
+  "milk_dairy", 240,
+  "meat_egg_legume", 100,
+  "vegetable_oils_nuts_fishoil", 5
+)
+
+```
+
+
+
+```{r}
+# Juntar recall_categorias com os fatores de conversão
+recall_categorias <- recall_categorias %>%
+left_join(conversion_factors, by = "Categoria_BHEI_1") %>%
+mutate(
+Portion = ifelse(!is.na(Porcao_Referencia), Normalized_Quantidade / Porcao_Referencia, NA)
+ )
+
+```
+
+
+```{r}
+recall_categorias <- recall_categorias %>%
+  mutate(
+    divisor = case_when(
+      !is.na(Categoria_BHEI_3) ~ 3,  # Se houver 3 categorias, divide por 3
+      !is.na(Categoria_BHEI_2) ~ 2,  # Se houver 2 categorias, divide por 2
+      TRUE ~ 1  # Se houver apenas 1 categoria, mantém o valor original
+    ),
+    Normalized_Quantidade = Normalized_Quantidade / divisor,
+    Portion = Portion / divisor
+  )
+
+```
+
+
+```{r}
+
+#Dividir consumo total pra alimentos mistos
+
+recall_categorias <- recall_categorias %>%
+  mutate(
+    divisor = case_when(
+      !is.na(Categoria_BHEI_3) ~ 3,  # Se houver 3 categorias, divide por 3
+      !is.na(Categoria_BHEI_2) ~ 2,  # Se houver 2 categorias, divide por 2
+      TRUE ~ 1  # Se houver apenas 1 categoria, mantém o valor original
+    ),
+    Quantidade_1 = ifelse(!is.na(Categoria_BHEI_1), Normalized_Quantidade / divisor, NA),
+    Quantidade_2 = ifelse(!is.na(Categoria_BHEI_2), Normalized_Quantidade / divisor, NA),
+    Quantidade_3 = ifelse(!is.na(Categoria_BHEI_3), Normalized_Quantidade / divisor, NA),
+    Porcao_1 = ifelse(!is.na(Categoria_BHEI_1), Portion / divisor, NA),
+    Porcao_2 = ifelse(!is.na(Categoria_BHEI_2), Portion / divisor, NA),
+    Porcao_3 = ifelse(!is.na(Categoria_BHEI_3), Portion / divisor, NA)
+  )
+
+```
+
+
+
+
+```{r}
+
+#criar a coluna unindo Categoria e Subcategoria e remover as colunas originais
+
+recall_categorias <- recall_categorias %>%
+  mutate(
+    Cat_Sub_1 = ifelse(is.na(Categoria_BHEI_1), NA, 
+                       paste0(Categoria_BHEI_1, " | ", 
+                              ifelse(is.na(Subcategoria_1), "NA", Subcategoria_1), " | Quantidade: ", 
+                              ifelse(is.na(Quantidade_1), "NA", Quantidade_1), " | Porcao: ", 
+                              ifelse(is.na(Porcao_1), "NA", Porcao_1))),
+    
+    Cat_Sub_2 = ifelse(is.na(Categoria_BHEI_2), NA, 
+                       paste0(Categoria_BHEI_2, " | ", 
+                              ifelse(is.na(Subcategoria_2), "NA", Subcategoria_2), " | Quantidade: ", 
+                              ifelse(is.na(Quantidade_2), "NA", Quantidade_2), " | Porcao: ", 
+                              ifelse(is.na(Porcao_2), "NA", Porcao_2))),
+    
+    Cat_Sub_3 = ifelse(is.na(Categoria_BHEI_3), NA, 
+                       paste0(Categoria_BHEI_3, " | ", 
+                              ifelse(is.na(Subcategoria_3), "NA", Subcategoria_3), " | Quantidade: ", 
+                              ifelse(is.na(Quantidade_3), "NA", Quantidade_3), " | Porcao: ", 
+                              ifelse(is.na(Porcao_3), "NA", Porcao_3)))
+  ) %>%
+  select(-Categoria_BHEI_1, -Categoria_BHEI_2, -Categoria_BHEI_3,
+         -Subcategoria_1, -Subcategoria_2, -Subcategoria_3, 
+         -Quantidade_1, -Quantidade_2, -Quantidade_3, 
+         -Porcao_1, -Porcao_2, -Porcao_3)
+
+#Agora, transformamos para long corretamente
+#Para garantir que cada categoria tenha sua quantidade correspondente corretamente associada, podemos usar pivot_longer() corretamente, separando os valores corretamente:
+recall_categorias_long <- recall_categorias %>%
+  pivot_longer(cols = starts_with("Cat_Sub"), 
+               names_to = "Origem", 
+               values_to = "Categoria_Subcategoria")
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+
+# Garantindo que os separadores internos são distintos para evitar erros
+recall_categorias_long <- recall_categorias %>%
+  pivot_longer(cols = starts_with("Cat_Sub"), 
+               names_to = "Origem", 
+               values_to = "Categoria_Subcategoria") %>%
+  separate(Categoria_Subcategoria, 
+           into = c("Categoria_BHEI", "Subcategoria", "Quantidade", "Porcao"), 
+           sep = " \\| ", extra = "merge", fill = "right") %>%
+  mutate(
+    Quantidade = str_extract(Quantidade, "[0-9\\.]+") %>% as.numeric(),  # Extrair número
+    Porcao = str_extract(Porcao, "[0-9\\.]+") %>% as.numeric()  # Extrair número
+  ) %>%
+  select(IdVoluntario, Categoria_BHEI, Subcategoria, Quantidade, Porcao, Normalized_Quantidade, Total_Kcal, VET)
+
+# Verificando os resultados
+head(recall_categorias_long)
+
+
+```
+
+```{r}
+# Ver quantas categorias únicas existem
+unique_categorias <- unique(recall_categorias_long$Categoria_BHEI)
+length(unique_categorias) # Número total de categorias únicas
+print(unique_categorias) # Lista de categorias únicas
+```
+
+
+
+
+
+
+```{r}
+# Ver quantas subcategorias únicas existem
+unique_subcategorias <- unique(recall_categorias_long$Subcategoria)
+length(unique_subcategorias) # Número total de subcategorias únicas
+print(unique_subcategorias) # Lista de subcategorias únicas
+```
+
+
+```{r}
+# Criar uma tabela cruzada para ver quais subcategorias estão em quais categorias
+table(recall_categorias_long$Categoria_BHEI, recall_categorias_long$Subcategoria)
+
+# Unificar diferentes formas de NA na coluna de Subcategoria
+recall_categorias_long <- recall_categorias_long %>%
+  mutate(
+    Subcategoria = ifelse(is.na(Subcategoria) | Subcategoria == "NA", NA, Subcategoria)
+  )
+
+# Verificar se a correção foi aplicada corretamente
+print(unique(recall_categorias_long$Subcategoria))
+
+```
+
+
+
+
+
+```{r}
+# Definir o valor energético de uma porção de carnes e ovos
+porcao_meats_eggs_legumes_kcal <- 190
+pontos_maximos <- 10
+
+# Calcular o consumo de carnes e ovos por voluntário
+meats_eggs_legumes_score <- recall_categorias_long %>%
+  filter(Categoria_BHEI == "meat_egg_legume", !is.na(Normalized_Quantidade)) %>%
+  group_by(IdVoluntario) %>%
+  summarise(
+    Total_Kcal_Meats_Eggs = sum(Normalized_Quantidade, na.rm = TRUE),
+    Score_Meats_Eggs = pmin((Total_Kcal_Meats_Eggs / porcao_meats_eggs_legumes_kcal) * pontos_maximos, pontos_maximos)
+  ) %>%
+  ungroup()
+
+# Identificar voluntários que não atingiram os 10 pontos com carnes e ovos
+voluntarios_insuficientes <- meats_eggs_legumes_score %>%
+  filter(Score_Meats_Eggs < pontos_maximos) %>%
+  select(IdVoluntario, Total_Kcal_Meats_Eggs, Score_Meats_Eggs)
+
+# Calcular a necessidade adicional de kcal para atingir os 10 pontos
+voluntarios_insuficientes <- voluntarios_insuficientes %>%
+  mutate(Kcal_Necessaria = (pontos_maximos - Score_Meats_Eggs) * porcao_meats_eggs_legumes_kcal / pontos_maximos)
+
+#26 voluntarios com consumo insuficiente de carne. 
+
+voluntarios_insuficientes$IdVoluntario
+
+
+```
+
+
+```{r}
+# Exibir a lista de voluntários que não atingiram os 10 pontos
+print(voluntarios_insuficientes)
+```
+
+
+```{r}
+# Adicionar legumes para atingir os 10 pontos apenas para quem precisa(no caso, ninguem precisou!!)
+
+legumes_para_complementar <- recall_categorias_long %>%
+filter(Categoria_BHEI == "total_vegetable", Subcategoria == "legume") %>%
+group_by(IdVoluntario) %>%
+summarise(Total_Kcal_Legumes = sum(Normalized_Quantidade, na.rm = TRUE)) %>%
+right_join(voluntarios_insuficientes, by = "IdVoluntario") %>%
+mutate(
+Kcal_Usada_Legumes = pmin(Total_Kcal_Legumes, Kcal_Necessaria, na.rm = TRUE),
+Score_Adicional_Legumes = (Kcal_Usada_Legumes / porcao_meats_eggs_legumes_kcal) * pontos_maximos
+ ) %>%
+replace_na(list(Score_Adicional_Legumes = 0)) %>%
+select(IdVoluntario, Kcal_Usada_Legumes, Score_Adicional_Legumes)
+
+#Atualizar o score final incluindo legumes quando necessário
+meats_eggs_legumes_score_final <- meats_eggs_legumes_score %>%
+left_join(legumes_para_complementar, by = "IdVoluntario") %>%
+mutate(
+    Score_Final = Score_Meats_Eggs + replace_na(Score_Adicional_Legumes, 0)
+  ) %>%
+  select(IdVoluntario, Score_Final)
+
+# Exibir a pontuação final
+print(meats_eggs_legumes_score)
+
+
+```
+
+```{r}
+# Juntar os dados dos voluntários insuficientes e das calorias usadas de legumes
+meats_eggs_legumes_score_final_ <- meats_eggs_legumes_score %>%
+  left_join(voluntarios_insuficientes %>% select(IdVoluntario, Kcal_Necessaria), by = "IdVoluntario") %>%
+  left_join(legumes_para_complementar %>% select(IdVoluntario, Kcal_Usada_Legumes, Score_Adicional_Legumes), by = "IdVoluntario") %>%
+  mutate(
+    Kcal_Necessaria = replace_na(Kcal_Necessaria, 0),  # Substituir NA por 0 para voluntários que não precisam de ajuste
+    Kcal_Usada_Legumes = replace_na(Kcal_Usada_Legumes, 0),
+    Score_Adicional_Legumes = replace_na(Score_Adicional_Legumes, 0),
+    meats_eggs_legumes_score = Score_Meats_Eggs + Score_Adicional_Legumes  # Criar a coluna final
+  ) %>%
+  select(IdVoluntario, Score_Meats_Eggs, Kcal_Necessaria, Kcal_Usada_Legumes, Score_Adicional_Legumes, meats_eggs_legumes_score)
+
+# Visualizar o resultado
+print(meats_eggs_legumes_score_final_)
+
+```
+```{r}
+# Filtrar voluntários que não chegaram a 10 pontos
+voluntarios_nao_atingiram_10 <- meats_eggs_legumes_score_final_ %>%
+  filter(meats_eggs_legumes_score < 10)
+
+# Visualizar a lista de voluntários
+print(voluntarios_nao_atingiram_10)
+
+# Contar quantos voluntários não atingiram 10
+cat("Número de voluntários que não atingiram 10 pontos:", nrow(voluntarios_nao_atingiram_10), "\n")
+```
+
+
+```{r}
+# 1. Juntar meats_eggs_score com BHEI_R
+BHEI_R <- BHEI_R %>%
+  left_join(meats_eggs_legumes_score_final_ %>% select(IdVoluntario, meats_eggs_legumes_score ), by = "IdVoluntario")
+
+# 2. Verificar se a junção foi feita corretamente
+colnames(BHEI_R)
+head(BHEI_R)
+
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Criar um novo dataframe sem as linhas com NA em Categoria_BHEI
+recall_categorias_long_filtered <- recall_categorias_long %>%
+  filter(!is.na(Categoria_BHEI))
+
+# Criar um novo dataframe removendo as categorias indesejadas
+recall_categorias_long_filtered <- recall_categorias_long %>%
+  filter(!is.na(Categoria_BHEI) & 
+         !Categoria_BHEI %in% c("Sodium", "meat_egg_legume", "artificial_sweetener", "Na"))
+
+# Verificar se a remoção foi aplicada corretamente
+print(unique(recall_categorias_long_filtered$Categoria_BHEI))
+```
+
+
+```{r}
+# 3️⃣ Calcular os scores das CATEGORIAS PRINCIPAIS (sem necessidade de subtrair subcategorias)
+scores_BHEI <- recall_categorias_long_filtered %>%
+  group_by(IdVoluntario, Categoria_BHEI) %>%
+  summarise(
+    Total_Kcal = sum(Total_Kcal, na.rm = TRUE),
+    Total_VET = first(VET), # Se VET é único por IdVoluntario, esta abordagem resolve
+    .groups = "drop"  # Remove agrupamento para evitar mensagens de aviso
+  ) %>%
+  mutate(
+    Score = case_when(
+      Categoria_BHEI == "milk_dairy" ~ pmin(10, pmax(0, (Total_Kcal / (1.5 * Total_VET)) * 10)), 
+      Categoria_BHEI == "total_vegetable" ~ pmin(5, pmax(0, (Total_Kcal / (1.0 * Total_VET)) * 5)),
+      Categoria_BHEI == "grain_roots_tubers" ~ pmin(5, pmax(0, (Total_Kcal / (2.0 * Total_VET)) * 5)),
+      Categoria_BHEI == "total_fruit" ~ pmin(5, pmax(0, (Total_Kcal / (1.0 * Total_VET)) * 5)),
+      Categoria_BHEI == "vegetable_oils_nuts_fishoil" ~ pmin(10, pmax(0, (Total_Kcal / (0.5 * Total_VET)) * 10)),
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  select(IdVoluntario, Categoria_BHEI, Score)
+
+# Exibir resultado corrigido
+print(scores_BHEI)
+
+
+
+```
+
+
+
+
+
+
+
+
+```{r}
+# 1️⃣ Transformar os scores das categorias principais em formato wide
+scores_BHEI_wide <- scores_BHEI %>%
+  pivot_wider(names_from = Categoria_BHEI, values_from = Score, values_fill = 0) %>%
+  rename_with(~ paste0(., "_score"), -IdVoluntario)  # Adicionar "_score" ao nome das colunas
+
+# 2️⃣ Verificar se a transformação foi feita corretamente
+head(scores_BHEI_wide)
+
+```
+
+```{r}
+
+
+# 3️⃣ Juntar com BHEI_R apenas as colunas específicas
+BHEI_R <- BHEI_R %>%
+  left_join(scores_BHEI_wide %>%
+              select(IdVoluntario, grain_roots_tubers_score, 
+                     milk_dairy_score,
+                     total_fruit_score, total_vegetable_score, 
+                     vegetable_oils_nuts_fishoil_score), 
+            by = "IdVoluntario")
+
+colnames(BHEI_R)
+
+```
+
+
+
+
+```{r}
+# 4️⃣ Calcular os scores das SUBCATEGORIAS RELEVANTES (unindo `dark_green_orange_vegetable` e `legume`)
+subcategoria_scores <- recall_categorias_long %>%
+  filter(Subcategoria %in% c("dark_green_orange_vegetable", "legume", "whole_grain", "whole_fruit")) %>%
+  mutate(
+    Subcategoria = case_when(
+      Subcategoria %in% c("dark_green_orange_vegetable", "legume") ~ "vegetables_combined",
+      TRUE ~ Subcategoria
+    )
+  ) %>%
+  group_by(IdVoluntario, Subcategoria) %>%
+  summarise(
+    Total_Kcal = sum(Total_Kcal, na.rm = TRUE),
+    Total_VET = unique(VET)
+  ) %>%
+  mutate(
+    Score = case_when(
+      Subcategoria == "vegetables_combined" ~ pmin(5, pmax(0, (Total_Kcal / (0.5 * Total_VET)) * 5)), 
+      Subcategoria == "whole_grain" ~ pmin(5, pmax(0, (Total_Kcal / (1.0 * Total_VET)) * 5)), 
+      Subcategoria == "whole_fruit" ~ pmin(5, pmax(0, (Total_Kcal / (0.5 * Total_VET)) * 5)), 
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  pivot_wider(names_from = Subcategoria, values_from = Score, values_fill = 0)
+
+colnames(subcategoria_scores)
+
+
+```
+```{r}
+# Renomear as colunas em subcategoria_scores antes da junção
+subcategoria_scores <- subcategoria_scores %>%
+  rename(
+    dark_green_orange_veg_legume_score = vegetables_combined,
+    whole_fruit_score = whole_fruit,
+    whole_grain_score = whole_grain
+  )
+
+# Juntar com BHEI_R usando a coluna IdVoluntario
+BHEI_R <- BHEI_R %>%
+  left_join(subcategoria_scores %>% select(IdVoluntario, dark_green_orange_veg_legume_score, whole_fruit_score, whole_grain_score),
+            by = "IdVoluntario")
+
+# Exibir as colunas atualizadas para conferência
+colnames(BHEI_R)
+
+colSums(is.na(BHEI_R))
+
+summary(BHEI_R)
+
+# Renomear a coluna SoFAAS_Score para SoFAAS_Score_2
+sofaas_score <- sofaas_score %>%
+  rename(SoFAAS_Score_2 = SoFAAS_Score)
+
+#colocar a coluna SoFAAS2
+# Juntar ao BHEI_R
+BHEI_R <- BHEI_R %>%
+  left_join(sofaas_score, by = "IdVoluntario")
+
+# Verificar se a coluna foi adicionada corretamente
+colnames(BHEI_R)
+
+
+```
+
+
+```{r}
+# 5️⃣ Transformar os scores das categorias principais em formato wide
+scores_BHEI_wide <- scores_BHEI %>%
+  pivot_wider(names_from = Categoria_BHEI, values_from = Score, values_fill = 0) %>%
+  rename_with(~ paste0(., "_score"), -IdVoluntario) 
+
+colnames(scores_BHEI_wide)
+```
+
+
+```{r}
+# 6️⃣ Juntar tudo no objeto final BHEI_R
+BHEI_R <- BHEI_R %>%
+  left_join(scores_BHEI_wide, by = "IdVoluntario") %>%
+  left_join(subcategoria_scores, by = "IdVoluntario") %>%
+  rename_with(~ paste0(., "_score"), c("vegetables_combined", "whole_grain", "whole_fruit")) 
+
+# 🔎 Verificar se tudo foi adicionado corretamente
+colnames(BHEI_R)
+
+
+```
+
+
+```{r}
+#ver se tem nomes repetidos
+
+print(unique(scores_BHEI$Categoria_BHEI))
+ 
+
+#padronizar os nomes:
+scores_BHEI <- scores_BHEI %>%
+  mutate(
+    Categoria_BHEI = str_trim(Categoria_BHEI),  # Remove espaços extras
+    Categoria_BHEI = str_to_lower(Categoria_BHEI),  # Converte para minúsculas
+    Categoria_BHEI = recode(Categoria_BHEI,
+      "milk _dairy" = "milk_dairy",
+      "na" = NA_character_  # Substituir "NA" string por valor NA real
+    )
+  )
+
+# Verificar se ainda há problemas
+print(unique(scores_BHEI$Categoria_BHEI))
+
+print(unique(scores_BHEI$Score))
+print(class(scores_BHEI$Score))
+
+#remover espaços, se existirem:
+
+scores_BHEI <- scores_BHEI %>%
+  mutate(Categoria_BHEI = str_trim(Categoria_BHEI),  # Remove espaços extras
+         Categoria_BHEI = str_to_lower(Categoria_BHEI))  # Converte para minúsculas
+```
+
+
+```{r}
+table(is.na(scores_BHEI$Categoria_BHEI))
+
+```
+
+
+```{r}
+# Remover NAs e ajustar antes de pivot_wider()
+scores_BHEI_wide <- scores_BHEI %>%
+  filter(!is.na(Categoria_BHEI)) %>%  # Remove categorias NA
+  filter(Categoria_BHEI != "meat_egg_legume") %>%  # Remove meat_egg_legume, pois já foi calculado
+  group_by(IdVoluntario, Categoria_BHEI) %>%
+  summarise(Score = sum(Score, na.rm = TRUE), .groups = "drop") %>%  # Soma os valores duplicados
+  pivot_wider(names_from = Categoria_BHEI, values_from = Score, values_fill = 0) %>%  # Transforma em formato wide
+  rename_with(~ paste0(., "_score"), -IdVoluntario)  # Adiciona _score aos nomes das colunas
+
+# Verificar a estrutura final
+colnames(scores_BHEI_wide)
+
+```
+```{r}
+# Selecionar apenas as colunas necessárias de scores_BHEI_wide
+scores_BHEI_selected <- scores_BHEI_wide %>%
+  select(IdVoluntario, 
+         grain_roots_tubers_score, 
+         `milk _dairy_score`, 
+         sodium_score, 
+         sofaas_score, 
+         total_fruit_score, 
+         total_vegetable_score, 
+         vegetable_oils_nuts_fishoil_score)
+
+# Juntar com BHEI_R pela coluna IdVoluntario
+BHEI_R <- BHEI_R %>%
+  left_join(scores_BHEI_selected, by = "IdVoluntario")
+
+# Verificar as colunas de BHEI_R após a junção
+colnames(BHEI_R)
+
+```
+
+BHEI_R TOTAL
+
+```{r}
+BHEI_R <- BHEI_R %>%
+  mutate(BHEI_R_Score_Total = SoFAAS_Score + Sat_Fat_Score + Sodium_Score + meats_eggs_legumes_score + 
+                               grain_roots_tubers_score + milk_dairy_score + total_fruit_score + 
+                               total_vegetable_score + vegetable_oils_nuts_fishoil_score + 
+                               dark_green_orange_veg_legume_score + whole_fruit_score + whole_grain_score)
+
+
+
+
+```
+
+
+```{r}
+
+colnames(BHEI_R)
+summary(BHEI_R$BHEI_R_Score_Total)
+
+summary(BHEI_R$meats_eggs_legumes_score)
+
+```
+
+
+```{r}
+# Carregar a biblioteca necessária
+library(writexl)
+
+
+# Salvar o dataframe em um arquivo Excel
+write_xlsx(BHEI_R, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores.xlsx")
+
+# Mensagem de confirmação
+print(paste("Arquivo salvo com sucesso em:", "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores.xlsx"))
+
+```
+
+```{r}
+#Uma voluntaria com NA em meat
+
+# Filtrar apenas a voluntária "S30241.F00" e a subcategoria "legume"
+legumes_30241 <- recall_categorias_long %>%
+  filter(IdVoluntario == "S30241.F00", Subcategoria == "legume") %>%
+  select(IdVoluntario, Categoria_BHEI, Subcategoria, Quantidade, Total_Kcal)
+
+# Exibir o resultado
+print(legumes_30241)
+
+
+
+# Filtrar apenas a voluntária "S30241.F00" e a subcategoria "legume"
+meat_30241 <- recall_categorias_long %>%
+  filter(IdVoluntario == "S30241.F00", Categoria_BHEI == "meat_egg_legume") %>%
+  select(IdVoluntario, Categoria_BHEI, Subcategoria, Quantidade, Total_Kcal)
+
+# Exibir o resultado
+print(meat_30241)
+
+
+```
+```{r}
+# Calcular o score apenas com leguminosas para a voluntária S30241.F00
+legumes_score_30241 <- recall_categorias_long %>%
+  filter(IdVoluntario == "S30241.F00", Subcategoria == "legume") %>%
+  group_by(IdVoluntario) %>%
+  summarise(
+    Total_Kcal_Legumes = sum(Total_Kcal, na.rm = TRUE),  # Soma kcal das leguminosas
+    Total_VET = first(VET)  # Assume que o VET é único por voluntário
+  ) %>%
+  mutate(
+    meats_eggs_legumes_score = pmin(10, pmax(0, (Total_Kcal_Legumes / (1.0 * Total_VET)) * 10)) # Ajuste proporcional para legumes
+  )
+
+# Exibir o score calculado
+print(legumes_score_30241)
+
+```
+
+
+```{r}
+# Juntar o score de legumes no BHEI_R
+BHEI_R <- BHEI_R %>%
+  left_join(legumes_score_30241 %>% select(IdVoluntario, meats_eggs_legumes_score), by = "IdVoluntario")
+
+
+
+```
+
+```{r}
+# Recalcular o BHEI_R_Score_Total para a voluntária S30241.F00
+BHEI_R <- BHEI_R %>%
+  mutate(BHEI_R_Score_Total = ifelse(IdVoluntario == "S30241.F00",
+                                     SoFAAS_Score + Sat_Fat_Score + Sodium_Score + meats_eggs_legumes_score +
+                                     grain_roots_tubers_score + milk_dairy_score + total_fruit_score +
+                                     total_vegetable_score + vegetable_oils_nuts_fishoil_score +
+                                     dark_green_orange_veg_legume_score + whole_fruit_score + whole_grain_score,
+                                     BHEI_R_Score_Total))  # Mantém os valores para os demais voluntários
+
+# Verificar se a atualização foi feita corretamente
+BHEI_R %>% filter(IdVoluntario == "S30241.F00") %>% select(IdVoluntario, BHEI_R_Score_Total)
+
+```
+```{r}
+# Instalar o pacote necessário (se ainda não estiver instalado)
+if (!require(readxl)) install.packages("readxl", dependencies = TRUE)
+
+# Carregar o pacote
+library(readxl)
+
+# Definir o caminho do arquivo
+caminho_arquivo <- 
+
+# Ler o arquivo Excel para um dataframe no R
+BHEI_R <- read_excel("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores_2.xlsx")
+
+# Verificar as primeiras linhas do arquivo carregado
+head(BHEI_R)
+
+```
+
+```{r}
+# Definir o caminho do arquivo
+caminho_arquivo <- "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores2.csv"
+
+# Ler o arquivo CSV para um dataframe no R
+BHEI_R <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores.xlsx - Sheet1.csv", sep = ",", header = TRUE, stringsAsFactors = FALSE)
+
+# Verificar as primeiras linhas do arquivo carregado
+head(BHEI_R)
+
+```
+```{r}
+# Carregar pacotes necessários
+library(ggplot2)
+library(dplyr)
+
+# Criar a coluna de classificação da qualidade da dieta
+BHEI_R <- BHEI_R %>%
+  mutate(Qualidade_Dieta = case_when(
+    BHEI_R_Score_Total <= 51 ~ "Baixa qualidade",
+    BHEI_R_Score_Total > 51 & BHEI_R_Score_Total <= 66 ~ "Qualidade intermediária",
+    BHEI_R_Score_Total > 66 ~ "Boa qualidade"
+  ))
+
+# Contar a quantidade de voluntários em cada categoria
+dados_pizza <- BHEI_R %>%
+  group_by(Qualidade_Dieta) %>%
+  summarise(Quantidade = n())
+
+# Contar a quantidade de voluntários em cada categoria
+dados_pizza <- BHEI_R %>%
+  group_by(Qualidade_Dieta) %>%
+  summarise(Quantidade = n()) %>%
+  mutate(Percentual = Quantidade / sum(Quantidade) * 100)  # Calcular a porcentagem
+
+# Criar o gráfico de pizza com porcentagens
+ggplot(dados_pizza, aes(x = "", y = Quantidade, fill = Qualidade_Dieta)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar(theta = "y") +
+  labs(title = "Distribuição da Qualidade da Dieta (BHEI-R)") +
+  theme_void() + 
+  theme(legend.title = element_blank()) +
+  scale_fill_manual(values = c("Baixa qualidade" = "red",
+                               "Qualidade intermediária" = "orange",
+                               "Boa qualidade" = "green")) +
+  geom_text(aes(label = paste0(round(Percentual, 1), "%")),
+            position = position_stack(vjust = 0.5), size = 5, color = "white")  # Adiciona os percentuais no gráfico
+
+```
+
+```{r}
+BHEI_R <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/BHEI_R_scores.xlsx - Sheet1.csv")
+
+```
+```{r}
+hist(BHEI_R$BHEI_R_Score_Total, main="Distribuição do BHEI-R", xlab="BHEI-R Score", col="skyblue")
+
+```
+
+```{r}
+# Criar categorias
+BHEI_R$class <- cut(BHEI_R$BHEI_R_Score_Total,
+                    breaks=c(-Inf, 51, 66, Inf),
+                    labels=c("Baixa", "Intermediária", "Boa"))
+
+barplot(table(BHEI_R$class), col="lightgreen", main="Classificação da Dieta")
+
+```
+```{r}
+component_means <- colMeans(BHEI_R[,3:13])  # ajusta para suas colunas
+barplot(component_means, las=2, col="orange", main="Média dos Componentes do BHEI-R")
+
+# Aumentar a margem inferior (mar[1] = margem inferior)
+par(mar=c(20, 4, 4, 2))  # c(inferior, esquerda, superior, direita)
+
+# Recriar o gráfico
+barplot(component_means, las=2, col="orange", main="Média dos Componentes do BHEI-R")
+
+
+```
+```{r}
+boxplot(metadados.dieta.alpha$BHEI_R_Score_Total ~ metadata$Sex, main="BHEI-R por Sexo", col=c("pink", "lightblue"))
+
+```
+
+```{r}
+summary(BHEI_R)
+
+```
+```{r}
+# Selecionar colunas de score
+component_means <- colMeans(BHEI_R[, grepl("_score$", names(BHEI_R))], na.rm=TRUE)
+
+# Ordenar do maior para menor
+component_means <- sort(component_means, decreasing = TRUE)
+
+# Aumentar a margem inferior (mar[1] = margem inferior)
+par(mar=c(20, 4, 4, 2))  # c(inferior, esquerda, superior, direita)
+
+# Gráfico
+barplot(component_means, las=2, col="orange", main="Média dos Componentes do BHEI-R")
+
+```
+```{r}
+barplot(table(BHEI_R$class), col=c("red", "yellow", "green"),
+        main="Classificação da Qualidade da Dieta", ylab="Nº de Participantes")
+
+```
+
+```{r}
+boxplot(metadados.dieta.alpha$BHEI_R_Score_Total ~ metadata$Sex, main="BHEI-R por Sexo", col=c("pink", "lightblue"),
+        main="BHEI-R por Sexo", ylab="Score Total")
+
+
+```
+
+```{r}
+# Ajustar o modelo
+modelo <- lm(metadata$IMC ~ metadados.dieta.alpha$BHEI_R_Score_Total)
+
+# Resumo do modelo
+summary(modelo)
+
+```
+```{r}
+# Plot
+plot(metadados.dieta.alpha$BHEI_R_Score_Total, metadata$IMC,
+     xlab = "BHEI-R Total", ylab = "IMC", main = "BHEI-R vs IMC")
+abline(modelo, col = "blue")
+
+# Adicionar R² e p ao gráfico
+r2 <- summary(modelo)$r.squared
+pval <- summary(modelo)$coefficients[2,4]
+
+legend("topright", legend = paste("R² =", round(r2, 3), "\np =", round(pval, 3)),
+       bty = "n")
+
+```
+
+```{r}
+plot(metadados.dieta.alpha$BHEI_R_Score_Total, metadata$HbA1c,
+     xlab = "BHEI-R Total", ylab = "HbA1c (%)", main = "BHEI-R vs HbA1c")
+abline(lm(metadata$HbA1c ~ metadados.dieta.alpha$BHEI_R_Score_Total), col = "blue")
+lines(lowess(metadados.dieta.alpha$BHEI_R_Score_Total, metadata$HbA1c), col = "red", lwd = 2)
+
+```
+

@@ -1,0 +1,997 @@
+# Supondo que sua planilha foi importada para um dataframe chamado metadados_Completo
+
+# Converter "Dorme" e "Acorda" para o formato POSIXct
+
+metadados_Completo$Dorme <- as.POSIXct(metadados_Completo$Dorme, format = "%Y-%m-%d %H:%M:%S")
+metadados_Completo$Acorda <- as.POSIXct(metadados_Completo$Acorda, format = "%Y-%m-%d %H:%M:%S")
+
+# Extrair apenas o horário
+metadados_Completo$Dorme <- format(metadados_Completo$Dorme, "%H:%M:%S")
+metadados_Completo$Acorda <- format(metadados_Completo$Acorda, "%H:%M:%S")
+
+# Verificando as mudanças
+head(metadados_Completo[c("Dorme", "Acorda")])
+
+# Supondo que sua planilha foi importada para um dataframe chamado metadados_Completo
+
+# Converter "Dorme" e "Acorda" para o formato POSIXct
+metadados_Completo$Dorme <- as.POSIXct(metadados_Completo$Dorme, format = "%H:%M:%S", tz = "UTC")
+metadados_Completo$Acorda <- as.POSIXct(metadados_Completo$Acorda, format = "%H:%M:%S", tz = "UTC")
+
+# Adicionar 24 horas aos horários de acordar que são menores que os de dormir
+metadados_Completo$Acorda <- as.POSIXct(ifelse(metadados_Completo$Acorda < metadados_Completo$Dorme, 
+                                               as.POSIXlt(metadados_Completo$Acorda) + 24*60*60, 
+                                               metadados_Completo$Acorda), 
+                                        origin = "1970-01-01", tz = "UTC")
+
+# Calcular a diferença em horas
+metadados_Completo$Horas_Dormidas <- difftime(metadados_Completo$Acorda, metadados_Completo$Dorme, units = "hours")
+
+# Convertendo para numérico
+metadados_Completo$Horas_Dormidas <- as.numeric(metadados_Completo$Horas_Dormidas)
+
+# Verificando as mudanças
+head(metadados_Completo[c("Dorme", "Acorda", "Horas_Dormidas")])
+
+# Visualizar a coluna inteira "Horas_Dormidas"
+print(metadados_corrigidos_completo$Horas_Dormidas)
+
+install.packages("writexl")
+library(writexl)
+
+# Salvar a planilha em formato Excel
+write_xlsx(metadados_Completo, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/metadados_comp_Corrigido.xlsx")
+
+
+#-------------------------------
+
+
+#-----limpar planilha
+
+# Supondo que o dataframe já está carregado e chama metadados_Completo
+
+# Remover as linhas em que o Sample.id termine com .F01
+metadados <- metadados_completo[!grepl("\\.F01$", metadados_Completo$Sample.id), ]
+
+# Verificar a limpeza
+head(metadados)
+
+#Limpeza parte 2
+
+# Remover as linhas em que o Sample.id não termine com .F00
+metadados <- metadados[grepl("\\.F00$", metadados$Sample.id), ]
+
+# Verificar a limpeza
+head(metadados)
+
+nrow(metadados)
+
+#----
+
+# Salvar a planilha metadados em formato Excel
+write_xlsx(metadados, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Analises/metadados.xlsx")
+
+#Gráficos
+
+install.packages("ggplot2")
+
+library(ggplot2)
+
+library(dplyr)
+
+# Criando variáveis de presença de condições no dataframe metadados
+metadados_SM <- metadados_SM %>%
+  mutate(
+    sindrome_metabolica = ifelse(Weight / (Height / 100)^2 > 30 & (Systolic > 130 | Diastolic > 85), 1, 0),
+    pressao_alta = ifelse(Systolic > 130 | Diastolic > 85, 1, 0),
+    diabetes = ifelse(GLICOSE > 126 | HbA1c > 6.5, 1, 0)
+  )
+
+# Remover NAs
+metadados_SM <- metadados_SM %>%
+  filter(!is.na(Region), !is.na(Region_type), !is.na(sindrome_metabolica), !is.na(pressao_alta), !is.na(diabetes))
+
+# Função para calcular e adicionar porcentagens
+add_percentages <- function(data, condition, x_var) {
+  data %>%
+    group_by(!!sym(x_var), !!sym(condition)) %>%
+    summarise(n = n()) %>%
+    mutate(total = sum(n), percentage = n / total * 100) %>%
+    ungroup()
+}
+
+# Dados com porcentagens
+sindrome_metabolica_regiao <- add_percentages(metadados_SM, "sindrome_metabolica", "Region")
+pressao_alta_regiao <- add_percentages(metadados_SM, "pressao_alta", "Region")
+diabetes_regiao <- add_percentages(metadados_SM, "diabetes", "Region")
+
+sindrome_metabolica_region_type <- add_percentages(metadados_SM, "sindrome_metabolica", "Region_type")
+pressao_alta_region_type <- add_percentages(metadados_SM, "pressao_alta", "Region_type")
+diabetes_region_type <- add_percentages(metadados_SM, "diabetes", "Region_type")
+
+# Gráficos por Região
+grafico_sindrome_metabolica_regiao <- ggplot(sindrome_metabolica_regiao, aes(x = Region, y = percentage, fill = factor(sindrome_metabolica, levels = c(0, 1), labels = c("Ausência", "Presença")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Síndrome Metabólica por Região", x = "Região", y = "Porcentagem", fill = "Síndrome Metabólica") +
+  scale_fill_manual(values = c("Ausência" = "blue", "Presença" = "red"))
+
+grafico_pressao_alta_regiao <- ggplot(pressao_alta_regiao, aes(x = Region, y = percentage, fill = factor(pressao_alta, levels = c(0, 1), labels = c("Ausência", "Presença")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Pressão Alta por Região", x = "Região", y = "Porcentagem", fill = "Pressão Alta") +
+  scale_fill_manual(values = c("Ausência" = "blue", "Presença" = "red"))
+
+grafico_diabetes_regiao <- ggplot(diabetes_regiao, aes(x = Region, y = percentage, fill = factor(diabetes, levels = c(0, 1), labels = c("Ausência", "Presença")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Diabetes por Região", x = "Região", y = "Porcentagem", fill = "Diabetes") +
+  scale_fill_manual(values = c("Ausência" = "blue", "Presença" = "red"))
+
+# Gráficos por Region_type
+grafico_sindrome_metabolica_region_type <- ggplot(sindrome_metabolica_region_type, aes(x = Region_type, y = percentage, fill = factor(sindrome_metabolica, levels = c(0, 1), labels = c("Ausência", "Presença")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Síndrome Metabólica por Tipo de Região", x = "Tipo de Região", y = "Porcentagem", fill = "Síndrome Metabólica") +
+  scale_fill_manual(values = c("Ausência" = "blue", "Presença" = "red"))
+
+grafico_pressao_alta_region_type <- ggplot(pressao_alta_region_type, aes(x = Region_type, y = percentage, fill = factor(pressao_alta, levels = c(0, 1), labels = c("Ausência", "Presença")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Pressão Alta por Tipo de Região", x = "Tipo de Região", y = "Porcentagem", fill = "Pressão Alta") +
+  scale_fill_manual(values = c("Ausência" = "blue", "Presença" = "red"))
+
+grafico_diabetes_region_type <- ggplot(diabetes_region_type, aes(x = Region_type, y = percentage, fill = factor(diabetes, levels = c(0, 1), labels = c("Ausência", "Presença")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Diabetes por Tipo de Região", x = "Tipo de Região", y = "Porcentagem", fill = "Diabetes") +
+  scale_fill_manual(values = c("Ausência" = "blue", "Presença" = "red"))
+
+# Exibir os gráficos
+print(grafico_sindrome_metabolica_regiao)
+print(grafico_pressao_alta_regiao)
+print(grafico_diabetes_regiao)
+
+print(grafico_sindrome_metabolica_region_type)
+print(grafico_pressao_alta_region_type)
+print(grafico_diabetes_region_type)
+
+#______________
+
+#Começando de novo
+
+# Calcular o índice HOMA-IR
+metadados_SM$HOMA_IR <- (metadados$INSULINA * metadados$GLICOSE) / 22.5
+
+metadados_SM %>% select(Risco_diabetes)
+
+# Verificar a distribuição da coluna Risco_diabetes
+table(metadados_SM$Risco_diabetes)
+
+#Usar a coluna Risco_diabetes ao invés da coluna diabetes
+
+library(ggplot2)
+library(dplyr)
+
+
+# Remover NAs em Risco_diabetes e outras colunas necessárias
+metadados_SM <- metadados_SM %>%
+  filter(!is.na(Region), !is.na(Region_type), !is.na(Risco_diabetes))
+
+# Filtrar para incluir apenas as categorias válidas
+metadados_SM <- metadados_SM %>%
+  filter(Risco_diabetes %in% c("Normal", "Risco aumentado para Diabetes Mellitus", "Diabetes Mellitus"))
+
+
+
+# Função para calcular e adicionar porcentagens
+add_percentages <- function(data, condition, x_var) {
+  data %>%
+    group_by(!!sym(x_var), !!sym(condition)) %>%
+    summarise(n = n()) %>%
+    mutate(total = sum(n), percentage = n / total * 100) %>%
+    ungroup()
+}
+
+# Dados com porcentagens
+risco_diabetes_regiao <- add_percentages(metadados_SM, "Risco_diabetes", "Region")
+risco_diabetes_region_type <- add_percentages(metadados_SM, "Risco_diabetes", "Region_type")
+
+# Gráficos por Região
+grafico_risco_diabetes_regiao <- ggplot(risco_diabetes_regiao, aes(x = Region, y = percentage, fill = Risco_diabetes)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Risco de Diabetes por Região", x = "Região", y = "Porcentagem", fill = "Risco de Diabetes") +
+  scale_fill_manual(values = c("Normal" = "blue", "Risco aumentado para Diabetes Mellitus" = "orange", "Diabetes Mellitus" = "red"))
+
+# Gráficos por Region_type
+grafico_risco_diabetes_region_type <- ggplot(risco_diabetes_region_type, aes(x = Region_type, y = percentage, fill = Risco_diabetes)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = paste0(n, " (", round(percentage, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Risco de Diabetes por Tipo de Região", x = "Tipo de Região", y = "Porcentagem", fill = "Risco de Diabetes") +
+  scale_fill_manual(values = c("Normal" = "blue", "Risco aumentado para Diabetes Mellitus" = "orange", "Diabetes Mellitus" = "red"))
+
+# Exibir os gráficos
+print(grafico_risco_diabetes_regiao)
+print(grafico_risco_diabetes_region_type)
+
+#
+# Pacotes necessários
+library(ggplot2)
+
+# Boxplots por Região
+ggplot(metadados, aes(x = Region, y = IL6)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de IL6 por Região", x = "Região", y = "IL6 (pg/mL)")
+
+# Boxplots por Sexo
+ggplot(metadados, aes(x = Sex, y = IL6)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de IL6 por Sexo", x = "Sexo", y = "IL6 (pg/mL)")
+
+# Correlacionando citocinas e variáveis bioquímicas
+correlacoes <- cor(metadados[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "GLICOSE", "INSULINA", "PCR")], use = "complete.obs")
+
+# Heatmap das correlações
+library(pheatmap)
+pheatmap(correlacoes, cluster_rows = TRUE, cluster_cols = TRUE)
+
+# Pacotes necessários
+library(cluster)
+library(factoextra)
+
+# Dados para clustering
+dados_cluster <- na.omit(metadados[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR")])
+
+# Clustering com K-means
+set.seed(123)
+km <- kmeans(dados_cluster, centers = 3, nstart = 25)
+
+# Visualização dos clusters
+fviz_cluster(km, data = dados_cluster)
+
+#refazendo
+
+library(ggplot2)
+library(cluster)
+library(factoextra)
+
+# Selecionar as variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados[, c("Sample.id", "IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR")])
+
+# Padronizar os dados (exceto a coluna Sample.id)
+dados_cluster_scaled <- scale(dados_cluster[, -1])
+
+# Realizar a análise de clusters (k-means, por exemplo)
+set.seed(123)  # Definir uma semente para reprodutibilidade
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 3, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original
+dados_cluster$cluster <- factor(kmeans_result$cluster)
+
+# Realizar PCA para visualização
+pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+
+# Criar um dataframe para visualização com ggplot2
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = dados_cluster$Sample.id)
+
+# Função para calcular os convex hulls
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+
+# Calcular os convex hulls para cada cluster
+hulls <- df_pca %>%
+  group_by(cluster) %>%
+  do(find_hull(.))
+
+# Plotar o gráfico de clusters
+ggplot(df_pca, aes(x = PC1, y = PC2, color = cluster, shape = cluster, label = Sample.id)) +
+  geom_point(size = 3) +
+  geom_text(vjust = 1, hjust = 1) +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, fill = cluster, color = cluster), alpha = 0.2) +
+  labs(title = "Cluster plot: IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, PCR", x = paste0("Dim1 (", round(summary(pca_result)$importance[2, 1] * 100, 1), "%)"), 
+       y = paste0("Dim2 (", round(summary(pca_result)$importance[2, 2] * 100, 1), "%)")) +
+  theme_minimal()
+
+#Sem PCR
+# Selecionar as variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados[, c("Sample.id", "IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2")])
+
+# Padronizar os dados (exceto a coluna Sample.id)
+dados_cluster_scaled <- scale(dados_cluster[, -1])
+
+# Realizar a análise de clusters (k-means, por exemplo)
+set.seed(123)  # Definir uma semente para reprodutibilidade
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 3, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original
+dados_cluster$cluster <- factor(kmeans_result$cluster)
+
+# Realizar PCA para visualização
+pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+
+# Criar um dataframe para visualização com ggplot2
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = dados_cluster$Sample.id)
+
+# Função para calcular os convex hulls
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+
+# Calcular os convex hulls para cada cluster
+hulls <- df_pca %>%
+  group_by(cluster) %>%
+  do(find_hull(.))
+
+# Plotar o gráfico de clusters
+ggplot(df_pca, aes(x = PC1, y = PC2, color = cluster, shape = cluster, label = Sample.id)) +
+  geom_point(size = 3) +
+  geom_text(vjust = 1, hjust = 1) +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, fill = cluster, color = cluster), alpha = 0.2) +
+  labs(title = "Cluster plot: IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2", x = paste0("Dim1 (", round(summary(pca_result)$importance[2, 1] * 100, 1), "%)"), 
+       y = paste0("Dim2 (", round(summary(pca_result)$importance[2, 2] * 100, 1), "%)")) +
+  theme_minimal()
+
+#mais analises
+
+library(ggplot2)
+library(dplyr)
+library(cluster)
+library(factoextra)
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados_corrigidos_completo[, c("Sample.id","IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR", "Age", "Systolic", "Diastolic", "Weight", "Height", "Waist", "Hip", "GLICOSE", "INSULINA", "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT")])
+
+# Padronizar os dados (exceto a coluna Sample.id)
+dados_cluster_scaled <- scale(dados_cluster[, -1])
+
+# Realizar a análise de clusters (k-means)
+set.seed(123)
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 3, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original
+dados_cluster$cluster <- factor(kmeans_result$cluster)
+
+# PCA para visualização
+pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = rownames(dados_cluster))
+
+# Criar um dataframe para visualização com ggplot2
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = dados_cluster$Sample.id)
+
+# Função para calcular convex hulls
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+
+# Calcular convex hulls para cada cluster
+hulls <- df_pca %>%
+  group_by(cluster) %>%
+  do(find_hull(.))
+
+# Plotar o gráfico de clusters
+ggplot(df_pca, aes(x = PC1, y = PC2, color = cluster, shape = cluster, label = Sample.id)) +
+  geom_point(size = 3) +
+  geom_text(vjust = 1, hjust = 1) +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, fill = cluster, color = cluster), alpha = 0.2) +
+  labs(title = "Cluster plot: IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, PCR, Age, Systolic, Diastolic, Weight, Height, Waist, Hip, GLICOSE, INSULINA, HbA1c, COLESTEROL, LDL, HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT", x = paste0("Dim1 (", round(summary(pca_result)$importance[2, 1] * 100, 1), "%)"), 
+       y = paste0("Dim2 (", round(summary(pca_result)$importance[2, 2] * 100, 1), "%)")) +
+  theme_minimal()
+
+#corrigida com Sample.id
+library(ggplot2)
+library(dplyr)
+library(cluster)
+library(factoextra)
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados_corrigidos_completo[, c("Sample.id", "TNF","IL4", "IL2", "Age", "Weight", "Waist", "INSULINA", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGP")])
+
+# Padronizar os dados (exceto a coluna Sample.id)
+dados_cluster_scaled <- scale(dados_cluster[, -1])
+
+# Realizar a análise de clusters (k-means, por exemplo)
+set.seed(123)  # Definir uma semente para reprodutibilidade
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 3, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original
+dados_cluster$cluster <- factor(kmeans_result$cluster)
+
+# Realizar PCA para visualização
+pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+
+# Criar um dataframe para visualização com ggplot2
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = dados_cluster$Sample.id)
+
+# Função para calcular convex hulls
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+
+# Calcular convex hulls para cada cluster
+hulls <- df_pca %>%
+  group_by(cluster) %>%
+  do(find_hull(.))
+
+# Plotar o gráfico de clusters
+ggplot(df_pca, aes(x = PC1, y = PC2, color = cluster, shape = cluster, label = Sample.id)) +
+  geom_point(size = 3) +
+  geom_text(vjust = 1, hjust = 1) +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, fill = cluster, color = cluster), alpha = 0.2) +
+  labs(title = "Cluster plot: TNF, IL4, IL2, Age, Weight, Waist, INSULINA, COLESTEROL, LDL, HDL, VLDL, TRIGLICERIDES, TGP",
+       x = paste0("Dim1 (", round(summary(pca_result)$importance[2, 1] * 100, 1), "%)"), 
+       y = paste0("Dim2 (", round(summary(pca_result)$importance[2, 2] * 100, 1), "%)")) +
+  theme_minimal()
+
+#---- Analise de correlções
+library(corrplot)
+
+# Selecionar variáveis de interesse
+dados_correlacao <- metadados_corrigidos_completo[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR", "Age", "Systolic", "Diastolic", "Weight", "Height", "Waist", "Hip", "GLICOSE", "INSULINA", "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT")]
+
+# Calcular a matriz de correlação
+cor_matrix <- cor(dados_correlacao, use = "complete.obs")
+
+# Plotar a matriz de correlação
+corrplot(cor_matrix, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45)
+
+# Realizar ANOVA para comparar médias entre clusters
+anova_results <- aov(GGT ~ cluster, data = dados_cluster)
+summary(anova_results)
+
+#com cluster começando PCR
+
+# Realizar o teste post-hoc Tukey HSD
+tukey_results <- TukeyHSD(anova_results)
+print(tukey_results)
+
+
+library(ggplot2)
+
+# Criar boxplot para visualizar a distribuição de PCR por cluster
+ggplot(dados_cluster, aes(x = cluster, y = COLESTEROL)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de COLESTEROL por Cluster", x = "Cluster", y = "COLESTEROL") +
+  theme_minimal()
+
+# Realizar o teste post-hoc Tukey HSD
+tukey_results_weight <- TukeyHSD(anova_results)
+print(tukey_results_TNF)
+
+library(ggplot2)
+
+# Criar boxplot para visualizar a distribuição de Weight por cluster
+ggplot(dados_cluster, aes(x = cluster, y = TNF)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de TNF por Cluster", x = "Cluster", y = "TNF") +
+  theme_minimal()
+
+
+#colocando só variáveis significantes
+
+#---- Analise de correlações
+library(corrplot)
+
+# Selecionar variáveis de interesse
+dados_correlacao <- metadados_corrigidos_completo[, c("TNF","IL4", "IL2", "Age", "Weight", "Waist", "INSULINA", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGP")]
+
+# Calcular a matriz de correlação
+cor_matrix <- cor(dados_correlacao, use = "complete.obs")
+
+# Plotar a matriz de correlação
+corrplot(cor_matrix, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45)
+
+# Realizar ANOVA para comparar médias entre clusters
+anova_results <- aov(LDL ~ cluster, data = dados_cluster)
+summary(anova_results)
+
+#com cluster começando PCR
+
+# Realizar o teste post-hoc Tukey HSD
+tukey_results <- TukeyHSD(anova_results)
+print(tukey_results)
+
+
+library(ggplot2)
+
+# Criar boxplot para visualizar a distribuição de PCR por cluster
+ggplot(dados_cluster, aes(x = cluster, y = COLESTEROL)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de COLESTEROL por Cluster", x = "Cluster", y = "COLESTEROL") +
+  theme_minimal()
+
+# Realizar o teste post-hoc Tukey HSD
+tukey_results_weight <- TukeyHSD(anova_results)
+print(tukey_results_TNF)
+
+library(ggplot2)
+
+# Criar boxplot para visualizar a distribuição de Weight por cluster
+ggplot(dados_cluster, aes(x = cluster, y = TNF)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de TNF por Cluster", x = "Cluster", y = "TNF") +
+  theme_minimal()
+
+
+# ver quais variaveis tem mais peso
+
+library(ggplot2)
+library(dplyr)
+library(factoextra)
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados[, c("TNF", "IL4", "IL2", "Age", "Weight", "Waist", "INSULINA", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGP")])
+
+# Padronizar os dados
+dados_cluster_scaled <- scale(dados_cluster)
+
+# Realizar PCA
+pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+
+# Visualizar a variância explicada por cada componente
+fviz_eig(pca_result)
+
+# Visualizar as cargas das variáveis nas duas primeiras componentes principais
+fviz_pca_var(pca_result, col.var = "contrib") +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = 50) +
+  theme_minimal() +
+  labs(title = "PCA - Cargas das Variáveis", x = "Dim1", y = "Dim2")
+
+#Random Forest
+# Instalar o pacote randomForest
+install.packages("randomForest")
+library(randomForest)
+
+# Carregar pacotes necessários
+library(dplyr)
+
+# Carregar pacotes necessários
+library(dplyr)
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- metadados[, c("Sample.id", "TNF", "IL4", "IL2", "Age", "Weight", "Waist", "INSULINA", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGP")]
+dados_cluster_clean <- na.omit(dados_cluster)
+
+# Padronizar os dados
+dados_cluster_scaled <- scale(dados_cluster_clean[, -1])
+
+# Realizar a análise de clusters (k-means)
+set.seed(123)  # Definir uma semente para reprodutibilidade
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 3, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original (apenas para as linhas usadas na análise)
+dados_cluster_clean$cluster <- factor(kmeans_result$cluster)
+
+# Instalar o pacote randomForest se ainda não estiver instalado
+if(!require(randomForest)) {
+  install.packages("randomForest")
+  library(randomForest)
+}
+
+# Selecionar o dataframe com a coluna de cluster
+dados_cluster <- dados_cluster_clean
+
+# Convertendo os clusters para fator (já foi feito)
+dados_cluster$cluster <- factor(dados_cluster$cluster)
+
+# Treinar o modelo Random Forest
+set.seed(123)
+rf_model <- randomForest(cluster ~ ., data = dados_cluster[, -1], importance = TRUE)
+
+# Visualizar a importância das variáveis
+print(importance(rf_model))
+varImpPlot(rf_model)
+
+
+###########################################
+
+#PCA  
+
+# Listar todas as colunas exceto 'ID'
+colunas_para_converter <- setdiff(names(metadata), "ID")
+
+# Função para limpar e converter strings para numérico
+converter_para_numerico <- function(x) {
+  if (is.character(x)) {
+    # Remove espaços, substitui vírgulas por pontos, e tenta converter para numérico
+    as.numeric(gsub(",", ".", gsub("\\s", "", x)))
+  } else if (is.factor(x)) {
+    # Converte fatores para caracteres antes de tentar converter para numérico
+    as.numeric(as.character(x))
+  } else {
+    # Converte diretamente para numérico
+    as.numeric(x)
+  }
+}
+
+# Aplicar a função nas colunas específicas
+metadata[colunas_para_converter] <- lapply(metadata[colunas_para_converter], converter_para_numerico)
+
+# Verificar as alterações
+str(metadata)
+# Mostrar os nomes das colunas do dataframe 'metadata'
+colnames(metadata)
+
+# Selecionar colunas específicas para criar a nova planilha 'dados_selecionados'
+dados_selecionados <- metadata[, c("ID", "IL17A", "IFNGamma", "TNF", "IL10", 
+                                   "IL6", "IL4", "IL2", "Age", "Systolic", "Diastolic", "Weight", 
+                                   "Height", "HbA1c", "COLESTEROL", "GLICOSE", "INSULINA", "PCR")]
+
+names(dados_selecionados)
+
+# Verificar a nova planilha
+str(dados_selecionados)
+
+# Criar a coluna 'IMC' usando a fórmula IMC = Weight / (Height * Height)
+# Considerando que Height está em metros. Se estiver em centímetros, ajuste conforme necessário.
+dados_selecionados$IMC <- dados_selecionados$Weight / (dados_selecionados$Height * dados_selecionados$Height)
+
+# Verificar a estrutura do dataframe para confirmar a nova coluna
+str(dados_selecionados)
+
+
+# Remover as colunas 'Weight' e 'Height' diretamente
+dados_selecionados <- dados_selecionados[, !names(dados_selecionados) %in% c("Weight", "Height")]
+
+# Remover a coluna 'ID' temporariamente para o PCA
+dados_para_pca <- dados_selecionados[, -which(names(dados_selecionados) == "ID")]
+
+# Verificar se há valores NA e remover ou imputar
+sum(is.na(dados_para_pca))  # Verifica a quantidade de NAs
+
+# Opção: remover linhas com NA
+dados_para_pca <- na.omit(dados_para_pca)
+
+# Converter todas as colunas para numérico, se necessário
+dados_para_pca[] <- lapply(dados_para_pca, function(x) as.numeric(as.character(x)))
+
+# Executar PCA
+pca_resultado <- prcomp(dados_para_pca, scale. = TRUE)  # 'scale.' é usado para normalizar os dados
+
+# Sumário dos resultados do PCA
+summary(pca_resultado)
+
+# Visualizar as contribuições das variáveis para os principais componentes
+biplot(pca_resultado)
+
+
+# Calcular o PCA
+pca_resultado <- prcomp(dados_para_pca, scale. = TRUE)
+
+# Extrair a variância explicada
+variancia_explicada <- pca_resultado$sdev^2 / sum(pca_resultado$sdev^2)
+
+# Calcular a variância cumulativa
+variancia_cumulativa <- cumsum(variancia_explicada)
+
+# Plotar o scree plot
+plot(variancia_explicada, type = "b", xlab = "Componentes Principais", ylab = "Proporção da Variância Explicada", main = "Scree Plot")
+
+# Plotar a variância cumulativa
+plot(variancia_cumulativa, type = "b", xlab = "Componentes Principais", ylab = "Proporção Cumulativa da Variância Explicada", main = "Variância Cumulativa Explicada")
+abline(h = 0.8, col = "red", lty = 2)  # Linha de referência para 80% da variância explicada
+
+
+#----------
+
+
+# Extrair os loadings
+loadings <- pca_resultado$rotation
+
+# Visualizar os loadings
+print(loadings)
+
+
+# Instalar pacotes se ainda não estiverem instalados
+install.packages("corrplot")
+install.packages("pheatmap")
+
+# Carregar pacotes
+library(corrplot)
+library(pheatmap)
+
+# Definir o caminho para o arquivo ASV
+file_path <- "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/feature-table.txt"
+
+# Carregar a tabela ASV
+asv_table <- read.delim(file_path, header = TRUE, sep = "\t")
+
+
+
+# Verificar a estrutura da tabela importada
+str(asv_table)
+
+screeplot(pca_resultado, col="red", pch=16, type="lines", cex=2, lwd=2, main="Scree Plot")
+
+library(ggfortify)
+library(ggplot2)
+
+autoplot(pca_resultado, data=dados_selecionados, loadings = TRUE, loadings = TRUE, frame = TRUE, frame.type = 'norm') + theme_classic() + scale_colour_brewer( aesthetics = c("color", "fill"), type = "q")
+
+
+# Instalar e carregar o pacote necessário
+install.packages("ggfortify")
+library(ggfortify)
+
+# Verificar o número de linhas em dados_selecionados
+nrow(dados_selecionados)
+
+# Verificar o número de linhas em pca_resultado$x
+nrow(pca_resultado$x)
+
+# Garantir que os dados estão alinhados
+if (nrow(dados_selecionados) == nrow(pca_resultado$x)) {
+  # Plotar o PCA com autoplot
+  autoplot(pca_resultado, data = dados_selecionados, loadings = TRUE, frame = TRUE, frame.type = 'norm') + 
+    theme_classic() + 
+    scale_colour_brewer(aesthetics = c("color", "fill"), type = "q")
+} else {
+  stop("O número de linhas em dados_selecionados e pca_resultado não correspondem. Verifique seus dados.")
+}
+
+#---
+# Remover linhas com valores ausentes de dados_selecionados
+dados_limpos <- na.omit(dados_selecionados)
+
+# Verificar o número de linhas em dados_limpos
+nrow(dados_limpos)
+
+# Recalcular o PCA com os dados limpos
+pca_resultado <- prcomp(dados_limpos[, -which(names(dados_limpos) == "ID")], scale. = TRUE)
+
+# Verificar novamente o número de linhas
+nrow(dados_limpos)
+nrow(pca_resultado$x)
+
+autoplot(pca_resultado, data=dados_limpos, loadings = TRUE, loadings.label = TRUE, frame = TRUE, frame.type = 'norm') + theme_classic() + scale_colour_brewer( aesthetics = c("color", "fill"), type = "q")
+
+
+pca_resultado$sdev
+pca_resultado$rotation
+pca_resultado$center
+dados_limpos2 <- as.data.frame(dados_limpos[,2:14])
+apply(pca_resultado$rotation[,1]*!is.na(dados_limpos2), 1, sum)
+
+#scree plot: The scree plot helps to visualize that we can use only PC1 and PC2 for the analysis, as we the other PC won't give us much more information.
+screeplot(pca_resultado, col="red", pch=16, type="lines", cex=2, lwd=2, main="Scree Plot")
+
+biplot(pca_resultado, xlabs=dados_limpos$ID, xlab="PC1", ylab="PC2", main="Biplot")
+
+biplot(pca_resultado, xlabs=dados_limpos$ID, xlab="PC1", ylab="PC2", main="Biplot")
+
+
+autoplot(pca_resultado, data=dados_limpos, loadings = TRUE, loadings.label = TRUE, frame = TRUE, frame.type = 'norm') + theme_classic() + scale_colour_brewer( aesthetics = c("color", "fill"), type = "q")
+
+apply(pca_resultado$rotation[,1]*dados_limpos[,2:9], 1, sum)
+
+######### PCoA
+
+dissimilaridade_bray_curtis <- vegdist(dados_limpos2, method = "bray")
+pcoa_resultado <- metaMDS(dissimilaridade_bray_curtis, k = 2)
+
+coordenadas_pcoa <- scores(pcoa_resultado, display = "sites")
+
+grafico_pcoa <- ggplot(as.data.frame(coordenadas_pcoa), aes(x = NMDS1, y = NMDS2)) +
+  geom_point() +
+  labs(title = "PCoA")
+
+grafico_pcoa
+
+
+dissimilaridade_bray_curtis2 <- vegdist(dados_limpos2, method = "bray")
+pcoa_resultado2 <- metaMDS(dissimilaridade_bray_curtis2, k = 2)
+
+coordenadas_pcoa <- scores(pcoa_resultado2, display = "sites")
+
+
+grafico_pcoa <- ggplot(as.data.frame(coordenadas_pcoa), aes(x = NMDS1, y = NMDS2)) +
+  geom_point() +
+  labs(title = "PCoA")
+
+grafico_pcoa
+
+dissimilaridade_bray_curtis2 <- vegdist(dados_limpos2, method = "bray")
+pcoa_resultado2 <- metaMDS(dissimilaridade_bray_curtis2, k = 2)
+
+
+coordenadas_pcoa2 <- scores(pcoa_resultado2, display = "sites")
+
+grafico_pcoa2 <- ggplot(as.data.frame(coordenadas_pcoa2), aes(x = NMDS1, y = NMDS2)) +
+  geom_point() +
+  labs(title = "PCoA usando Bray-Curtis")
+
+grafico_pcoa2
+
+
+#### Analises 
+
+
+
+# Pacotes necessários
+library(ggplot2)
+library(dplyr)
+library(cluster)
+library(factoextra)
+library(ggrepel)
+
+
+#mais analises
+
+
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados_raw[, c("Sample.id","IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR", "Age", "Systolic", "Diastolic", "IMC", "Waist",  "GLICOSE", "INSULINA", "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT")])
+
+# Padronizar os dados (exceto a coluna Sample.id)
+dados_cluster_scaled <- scale(dados_cluster[, -1])
+
+# Realizar a análise de clusters (k-means)
+set.seed(123)
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 2, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original
+dados_cluster$cluster <- factor(kmeans_result$cluster)
+
+# PCA para visualização
+pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = rownames(dados_cluster))
+
+# Criar um dataframe para visualização com ggplot2
+df_pca <- data.frame(pca_result$x[, 1:2], cluster = dados_cluster$cluster, Sample.id = dados_cluster$Sample.id)
+
+# Função para calcular convex hulls
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+
+# Calcular convex hulls para cada cluster
+hulls <- df_pca %>%
+  group_by(cluster) %>%
+  do(find_hull(.))
+
+# Plotar o gráfico de clusters
+ggplot(df_pca, aes(x = PC1, y = PC2, color = cluster, shape = cluster, label = Sample.id)) +
+  geom_point(size = 3) +
+  geom_text(vjust = 1, hjust = 1) +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, fill = cluster, color = cluster), alpha = 0.2) +
+  labs(title = "Cluster plot: IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, PCR, Age, Systolic, Diastolic, IMC, Waist, GLICOSE, INSULINA, HbA1c, COLESTEROL, LDL, HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT", x = paste0("Dim1 (", round(summary(pca_result)$importance[2, 1] * 100, 1), "%)"), 
+       y = paste0("Dim2 (", round(summary(pca_result)$importance[2, 2] * 100, 1), "%)")) +
+  theme_minimal()
+
+
+
+#---- Analise de correlções
+library(corrplot)
+
+# Selecionar variáveis de interesse
+dados_correlacao <- metadados_raw[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR", "Age", "Systolic", "Diastolic", "IMC", "Waist",  "GLICOSE", "INSULINA", "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT")]
+
+# Calcular a matriz de correlação
+cor_matrix <- cor(dados_correlacao, use = "complete.obs")
+
+
+
+#Plotando usando heatmap.2
+
+library(pheatmap)
+
+pheatmap(mat= cor_matrix)
+
+
+# Plotar a matriz de correlação
+corrplot(cor_matrix, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45)
+
+# Realizar ANOVA para comparar médias entre clusters
+anova_results <- aov(IL17A ~ cluster, data = dados_cluster)
+summary(anova_results)
+
+#com cluster começando PCR
+
+# Realizar o teste post-hoc Tukey HSD
+tukey_results <- TukeyHSD(anova_results)
+print(tukey_results)
+
+
+
+
+# ver quais variaveis tem mais peso
+
+library(ggplot2)
+library(dplyr)
+library(factoextra)
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- na.omit(metadados_raw[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR", "Age", "Systolic", "Diastolic", "IMC", "Waist",  "GLICOSE", "INSULINA", "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT")])
+
+# Padronizar os dados
+dados_cluster_scaled <- scale(dados_cluster)
+
+# Realizar PCA
+#pca_result <- prcomp(dados_cluster_scaled, center = TRUE, scale. = TRUE)
+
+# Supondo que você já tenha realizado a PCA
+pca_result <- prcomp(dados_cluster_scaled[, -ncol(dados_cluster_scaled)], scale. = TRUE)
+var_contrib <- as.data.frame(pca_result$rotation)
+
+# Calcular a significância das cargas (exemplo: utilizando um limiar arbitrário de 0.05)
+significant_contrib <- apply(var_contrib, 2, function(x) abs(x) > 0.05)
+
+# Filtrar os dados para incluir apenas valores significativos
+var_contrib$names <- rownames(var_contrib)
+var_contrib_sig <- var_contrib[significant_contrib[, 1] | significant_contrib[, 2], ]
+
+# Adicionar os valores das cargas às setas
+var_contrib$names <- rownames(var_contrib)
+
+# Visualizar a variância explicada por cada componente
+fviz_eig(pca_result)
+
+# Visualizar as cargas das variáveis nas duas primeiras componentes principais
+
+
+
+# Gráfico PCA com valores nas setas
+pca_plot <- fviz_pca_var(pca_result, col.var = "contrib", repel = TRUE) +
+  geom_text_repel(data = var_contrib, aes(x = PC1, y = PC2, label = round(PC1, 2)), 
+                  color = "blue", size = 2, max.overlaps = 20) +
+  labs(title = "PCA - Cargas das Variáveis",
+       x = "Dim1",
+       y = "Dim2") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Exibir o gráfico
+print(pca_plot)
+
+#Random Forest
+# Instalar o pacote randomForest
+install.packages("randomForest")
+library(randomForest)
+
+# Carregar pacotes necessários
+library(dplyr)
+
+# Carregar pacotes necessários
+library(dplyr)
+
+# Selecionar variáveis de interesse e remover NAs
+dados_cluster <- metadados[, c("Sample.id","IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "PCR", "Age", "Systolic", "Diastolic", "Weight", "Height", "Waist", "Hip", "GLICOSE", "INSULINA", "HbA1c", "COLESTEROL", "LDL", "HDL", "VLDL", "TRIGLICERIDES", "TGO", "TGP", "GGT")]
+dados_cluster_clean <- na.omit(dados_cluster)
+
+# Padronizar os dados
+dados_cluster_scaled <- scale(dados_cluster_clean[, -1])
+
+# Realizar a análise de clusters (k-means)
+set.seed(123)  # Definir uma semente para reprodutibilidade
+kmeans_result <- kmeans(dados_cluster_scaled, centers = 3, nstart = 25)
+
+# Adicionar os resultados dos clusters ao dataframe original (apenas para as linhas usadas na análise)
+dados_cluster_clean$cluster <- factor(kmeans_result$cluster)
+
+
+# Selecionar o dataframe com a coluna de cluster
+dados_cluster <- dados_cluster_clean
+
+# Convertendo os clusters para fator (já foi feito)
+dados_cluster$cluster <- factor(dados_cluster$cluster)
+
+# Treinar o modelo Random Forest
+set.seed(123)
+rf_model <- randomForest(cluster ~ ., data = dados_cluster[, -1], importance = TRUE)
+
+# Visualizar a importância das variáveis
+print(importance(rf_model))
+varImpPlot(rf_model)
+
+#####
+# Verifica os remotes configurados no projeto atual
+usethis::git_remotes()
+
+# Define ou modifica o remote 'origin' para usar SSH
+usethis::use_git_remote(
+  "origin",
+  "git@github.com:polianasdUSP/desktop-tutorial.git",
+  overwrite = TRUE
+)
+
+usethis::use_git()
+
+
+# Se preferir usar HTTPS, configure assim:
+usethis::use_git_remote(
+  "origin",
+  "https://github.com/polianasdUSP/UrbanAgriculture.git",
+  overwrite = TRUE
+)
+

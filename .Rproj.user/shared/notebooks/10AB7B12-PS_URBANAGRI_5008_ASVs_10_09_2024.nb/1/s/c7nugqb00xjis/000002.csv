@@ -1,0 +1,7 @@
+"0","```r
+# Verificando e exibindo diretamente as colunas que contêm apenas zeros
+print(names(merged_data)[sapply(merged_data, function(x) all(x == 0, na.rm = TRUE))])
+
+```"
+"1","character(0)
+"

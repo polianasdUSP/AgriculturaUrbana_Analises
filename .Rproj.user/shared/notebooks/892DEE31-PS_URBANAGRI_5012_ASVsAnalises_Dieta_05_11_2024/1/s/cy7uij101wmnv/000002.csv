@@ -1,0 +1,48 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3Bsb3QyKVxubGlicmFyeShwaGVhdG1hcClcblxuIyBDb252ZXJ0ZXIgZGUgdm9sdGEgcGFyYSBmb3JtYXRvIGxhcmdvIHBhcmEgbyBoZWF0bWFwXG5TVnNfbWF0cml4IDwtIFNWc19sb25nICU+JVxuICBzZWxlY3QoRmVhdHVyZS5JRCwgU2FtcGxlLmlkLCBOb3JtQWJ1bmRhbmNlKSAlPiVcbiAgc3ByZWFkKGtleSA9IFNhbXBsZS5pZCwgdmFsdWUgPSBOb3JtQWJ1bmRhbmNlLCBmaWxsID0gMCkgJT4lXG4gIGNvbHVtbl90b19yb3duYW1lcyhcIkZlYXR1cmUuSURcIilcblxuXG4jIEdlcmFyIG8gaGVhdG1hcCBjb20gdmlyaWRpcyBzZW0gYWp1c3RlIGRvIHplcm9cbnBoZWF0bWFwKFNWc19tYXRyaXgsIFxuICAgICAgICAgY2x1c3RlcmluZ19tZXRob2QgPSBcIndhcmQuRDJcIiwgICMgTcOpdG9kbyBkZSBjbHVzdGVyaXphw6fDo29cbiAgICAgICAgIHNjYWxlID0gXCJyb3dcIiwgICMgRXNjYWxhIHBvciBsaW5oYSBwYXJhIG5vcm1hbGl6YcOnw6NvXG4gICAgICAgICBtYWluID0gXCJIZWF0bWFwIGRlIEFidW5kw6JuY2lhIE5vcm1hbGl6YWRhIGUgTG9nLXRyYW5zZm9ybWFkYSBkYXMgQVNWc1wiLFxuICAgICAgICAgY29sb3IgPSB2aXJpZGlzKDUwKSkgICMgUGFsZXRhIHZpcmlkaXMgY29tIDUwIGdyYWRpZW50ZXNcblxuXG5cbmBgYCJ9 -->
+
+```r
+library(ggplot2)
+library(pheatmap)
+
+# Converter de volta para formato largo para o heatmap
+SVs_matrix <- SVs_long %>%
+  select(Feature.ID, Sample.id, NormAbundance) %>%
+  spread(key = Sample.id, value = NormAbundance, fill = 0) %>%
+  column_to_rownames(\"Feature.ID\")
+
+
+# Gerar o heatmap com viridis sem ajuste do zero
+pheatmap(SVs_matrix, 
+         clustering_method = \"ward.D2\",  # Método de clusterização
+         scale = \"row\",  # Escala por linha para normalização
+         main = \"Heatmap de Abundância Normalizada e Log-transformada das ASVs\",
+         color = viridis(50))  # Paleta viridis com 50 gradientes
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(ggplot2)
+library(pheatmap)
+
+# Converter de volta para formato largo para o heatmap
+SVs_matrix <- SVs_long %>%
+  select(Feature.ID, Sample.id, NormAbundance) %>%
+  spread(key = Sample.id, value = NormAbundance, fill = 0) %>%
+  column_to_rownames(\"Feature.ID\")
+
+
+# Gerar o heatmap com viridis sem ajuste do zero
+pheatmap(SVs_matrix, 
+         clustering_method = \"ward.D2\",  # Método de clusterização
+         scale = \"row\",  # Escala por linha para normalização
+         main = \"Heatmap de Abundância Normalizada e Log-transformada das ASVs\",
+         color = viridis(50))  # Paleta viridis com 50 gradientes
+
+
+
+```"

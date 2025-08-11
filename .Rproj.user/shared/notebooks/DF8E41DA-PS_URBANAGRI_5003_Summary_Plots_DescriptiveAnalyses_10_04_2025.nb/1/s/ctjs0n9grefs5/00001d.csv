@@ -1,0 +1,6 @@
+"0","# Visualizando o resultado final
+print(caracteristicas)
+"
+"2","Aviso: não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/DF8E41DA-PS_URBANAGRI_5003_Summary_Plots_DescriptiveAnalyses_10_04_2025.nb/1/4E7A587F669de6d7/ctjs0n9grefs5_t\_rs_rdf_3e1c24365818.rdf', motivo provável 'No such file or directory'"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

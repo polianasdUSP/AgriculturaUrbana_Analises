@@ -1,0 +1,5 @@
+"0","tree <- read_qza(""caminho_para_arquivo/rooted-tree.qza"")$data
+"
+"2","Error in read_qza(""caminho_para_arquivo/rooted-tree.qza"") : 
+  Input artifact (caminho_para_arquivo/rooted-tree.qza) not found. Please check path and/or use list.files() to see files in current working directory.
+"

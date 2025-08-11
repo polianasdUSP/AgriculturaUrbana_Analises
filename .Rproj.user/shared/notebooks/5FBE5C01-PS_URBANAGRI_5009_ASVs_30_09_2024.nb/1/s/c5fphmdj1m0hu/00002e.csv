@@ -1,0 +1,58 @@
+"0","metadados %>%
+  filter(!is.na(shannon_entropy)) %>%
+  ggplot(aes(x = TRIGLICERIDES, y = shannon_entropy, color = Region)) +
+  stat_summary(geom = ""errorbar"", fun.data = mean_se, width = 0) +
+  stat_summary(geom = ""line"", fun.data = mean_se) +
+  stat_summary(geom = ""point"", fun.data = mean_se) +
+  xlab(""TRIGLICERIDES"") +
+  ylab(""Shannon Diversity"") +
+  theme_q2r() +  # Experimente outros temas como theme_bw() ou theme_classic()
+  scale_color_viridis_d(name = ""Region"")
+"
+"2","Aviso:"
+"2"," [38;5;232mRemoved 12 rows containing non-finite outside the scale range
+(`stat_summary()`).[39m
+"
+"2","Aviso:"
+"2"," [38;5;232mRemoved 12 rows containing non-finite outside the scale range
+(`stat_summary()`).[39m
+"
+"2","Aviso:"
+"2"," [38;5;232mRemoved 12 rows containing non-finite outside the scale range
+(`stat_summary()`).[39m
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"

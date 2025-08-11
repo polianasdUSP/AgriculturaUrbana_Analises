@@ -1,0 +1,41 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGhlYXRtYXAoY29yX21hdHJpeCxcbiAgICAgICAgIGRpc3BsYXlfbnVtYmVycyA9IHN0YXJfbWF0cml4LFxuICAgICAgICAgY2x1c3RlcmluZ19tZXRob2QgPSBcIndhcmQuRDJcIixcbiAgICAgICAgIGNsdXN0ZXJpbmdfZGlzdGFuY2Vfcm93cyA9IFwiZXVjbGlkZWFuXCIsXG4gICAgICAgICBjbHVzdGVyaW5nX2Rpc3RhbmNlX2NvbHMgPSBcImV1Y2xpZGVhblwiLFxuICAgICAgICAgY29sb3IgPSBjb2xvcl9wYWxldHRlLFxuICAgICAgICAgYnJlYWtzID0gYnJlYWtzLFxuICAgICAgICAgbWFpbiA9IFwiQ29ycmVsYcOnw6NvIGVudHJlIEFTVnMgZSBQYXLDom1ldHJvcyBkZSBTYcO6ZGVcXG4oKiBGRFIgPCAwLjA1KVwiLFxuICAgICAgICAgZm9udHNpemVfcm93ID0gNixcbiAgICAgICAgIGZvbnRzaXplX2NvbCA9IDksXG4gICAgICAgICBmb250c2l6ZV9udW1iZXIgPSAxMCxcbiAgICAgICAgIGJvcmRlcl9jb2xvciA9IE5BLFxuICAgICAgICAgYW5ub3RhdGlvbl9yb3cgPSBhbm5vdGF0aW9uX3JvdylcblxuYGBgIn0= -->
+
+```r
+pheatmap(cor_matrix,
+         display_numbers = star_matrix,
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         color = color_palette,
+         breaks = breaks,
+         main = \"Correlação entre ASVs e Parâmetros de Saúde\n(* FDR < 0.05)\",
+         fontsize_row = 6,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA,
+         annotation_row = annotation_row)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+pheatmap(cor_matrix,
+         display_numbers = star_matrix,
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         color = color_palette,
+         breaks = breaks,
+         main = \"Correlação entre ASVs e Parâmetros de Saúde\n(* FDR < 0.05)\",
+         fontsize_row = 6,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA,
+         annotation_row = annotation_row)
+
+```"
+"1","Error in (function (filename = \"Rplot%03d.png\", width = 480, height = 480,  : 
+  não é possível iniciar dispositivo png()
+"

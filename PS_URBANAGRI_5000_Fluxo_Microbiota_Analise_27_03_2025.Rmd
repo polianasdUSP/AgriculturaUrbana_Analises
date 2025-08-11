@@ -1,0 +1,82 @@
+---
+title: "Fluxo Microbiota Analise"
+author: "Poliana Scarcella"
+date: "2025-03-27"
+output: html_document
+---
+
+---
+title: "Análise Integrada: Microbiota, Dieta e Saúde"
+author: "Seu Nome"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+``` 
+
+# 1. Carregamento dos Dados
+```{r}
+# Exemplo
+library(tidyverse)
+# metadata <- read.csv("metadados.csv")
+# asv_table <- read.csv("asvs.csv")
+```
+
+# 2. Pré-processamento
+```{r}
+# Filtragem, tratamento de NAs, variáveis derivadas
+# metadata$IMC <- metadata$Weight / (metadata$Height^2)
+# metadata$W_H_Ratio <- metadata$Waist / metadata$Hip
+```
+
+# 3. Alpha Diversidade
+```{r}
+# Cálculo e testes estatísticos (ex: shannon, chao1)
+# Comparações entre grupos com Kruskal-Wallis ou MW
+```
+
+# 4. Beta Diversidade
+```{r}
+# Importar distâncias e PCoA
+# Visualizações + PERMANOVA
+```
+
+# 5. Dieta: ingestão e índices
+```{r}
+# Cálculo de ingestão, ajuste por energia, tercis de BHEI
+# summary(metadata$residual_carboidrato_total_g)
+```
+
+# 6. Correlação Microbiota ↔ Dieta
+```{r}
+# Correlações ASVs vs nutrientes e BHEI
+# Correlação com FDR + heatmap
+```
+
+# 7. Correlação Microbiota ↔ Saúde
+```{r}
+# Correlações ASVs vs ILs, lipídios, TGP, etc.
+# Visualizações (heatmaps, boxplots)
+```
+
+# 8. Integração Dieta ↔ Microbiota ↔ Saúde
+```{r}
+# Exploração cruzada: taxa ligada à gordura trans e à TGP, por exemplo
+```
+
+# 9. Resultados e Exportação
+```{r}
+# Exportar planilhas e gráficos significativos
+# write.csv(resultados, "resultados_significativos.csv")
+```
+
+# 10. Conclusões e Interpretações
+```{r}
+# Discussão sobre os padrões encontrados

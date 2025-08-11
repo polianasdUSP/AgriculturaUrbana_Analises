@@ -1,0 +1,12 @@
+"0","```r
+# Exibir os resultados do teste de Mann-Whitney-Wilcoxon
+print(wilcox_test_result)
+
+```"
+"1","
+	Wilcoxon rank sum test with continuity correction
+
+data:  shannon_entropy by Region_type
+W = 2001, p-value = 0.6636
+alternative hypothesis: true location shift is not equal to 0
+"

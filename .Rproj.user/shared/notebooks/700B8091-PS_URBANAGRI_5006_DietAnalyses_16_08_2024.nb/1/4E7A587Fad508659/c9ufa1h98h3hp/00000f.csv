@@ -1,0 +1,2 @@
+"0","# Adiciona a coluna 'IdVoluntarios' ao dataframe de residuais"
+"0","recall.calc.residuals$IdVoluntario <- recall.calc$IdVoluntario"

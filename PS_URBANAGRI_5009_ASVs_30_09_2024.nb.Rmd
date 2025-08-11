@@ -1,0 +1,634 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+
+
+
+```
+
+```{r}
+metadata <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv", 
+                     sep = ";", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+rm(metadata)
+
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+```
+
+```{r}
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs[!grepl("\\.F01$", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep("\\.F00$", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+
+```{r}
+SVs<-apply(SVs, 2, function(x) x/sum(x)*100) #convert to percent
+
+
+
+
+```
+
+```{r}
+physeq <- qza_to_phyloseq(
+  features = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/table.qza", 
+  tree = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/rooted-tree.qza", 
+  taxonomy = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/taxonomy_silva.qza", 
+  metadata = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/Metadata.tsv"
+)
+```
+
+```{r}
+
+metadata<-read_q2metadata("sample-metadata.tsv")
+shannon<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/diversity_analysis/shannon_diversity.qza")
+
+shannon<-shannon$data %>% rownames_to_column("Sample.ID") # this moves the sample names to a new column that matches the metadata and allows them to be merged
+```
+
+```{r}
+#Filtrar Shannon
+
+
+class(shannon)
+
+
+
+
+# Substituir "-" por "." dentro da coluna Sample.ID
+shannon$Sample.ID <- gsub("-", ".", shannon$Sample.ID)
+
+
+# Remover linhas em que a coluna Sample.ID termina com ".F00"
+shannon <- shannon[grepl("\\.F00$", shannon$Sample.ID), ]
+
+
+
+# Verificar o resultado
+colnames(shannon)
+
+```
+```{r}
+gplots::venn(list(metadata = metadata$Sample.id, shannon = shannon$SampleID))
+
+```
+```{r}
+# Renomear a coluna Sample.id para SampleID
+metadados <- metadata %>%
+  rename(SampleID = Sample.id)
+
+# Renomear a coluna Sample.ID para SampleID
+shannon <-shannon %>%
+  rename(SampleID = Sample.ID)
+
+metadados<-
+metadados %>% 
+  left_join(shannon)
+head(metadados)
+```
+
+
+
+```{r}
+metadados %>%
+  filter(!is.na(shannon_entropy)) %>%
+  ggplot(aes(x = TRIGLICERIDES, y = shannon_entropy, color = Region)) +
+  stat_summary(geom = "errorbar", fun.data = mean_se, width = 0) +
+  stat_summary(geom = "line", fun.data = mean_se) +
+  stat_summary(geom = "point", fun.data = mean_se) +
+  xlab("TRIGLICERIDES") +
+  ylab("Shannon Diversity") +
+  theme_q2r() +  # Experimente outros temas como theme_bw() ou theme_classic()
+  scale_color_viridis_d(name = "Region")
+
+```
+```{r}
+metadados %>%
+  filter(!is.na(shannon_entropy)) %>%
+  ggplot(aes(x=`Treponema`, y=shannon_entropy, fill=`Treponema`)) +
+  stat_summary(geom="bar", fun.data=mean_se, color="black") + #here black is the outline for the bars
+  geom_jitter(shape=21, width=0.2, height=0) +
+  coord_cartesian(ylim=c(2,7)) + # adjust y-axis
+  facet_grid(~`Region`) + # create a panel for each Region
+  xlab("Treponema Presence") +
+  ylab("Shannon Diversity") +
+  theme_q2r() +
+  scale_fill_manual(values=c("cornflowerblue","indianred")) + #specify custom colors
+  theme(legend.position="none") #remove the legend as it isn't needed
+  ggsave("../../../images/Shannon_by_Treponema.pdf", height=3, width=4, device="pdf") # save a PDF 3 inches by 4 inches
+
+```
+
+
+```{r}
+# Obter os nomes das amostras de unweighted_unifrac e metadados
+amostras_unifrac <- rownames(unweighted_unifrac)
+amostras_metadados <- metadados$SampleID
+
+# Verificar quais amostras estão em metadados mas não em unweighted_unifrac
+amostras_faltantes <- setdiff(amostras_metadados, amostras_unifrac)
+print(amostras_faltantes)
+
+```
+```{r}
+# Filtrar metadados para manter apenas as amostras presentes em unweighted_unifrac
+metadados_filtrado <- metadados %>% filter(SampleID %in% amostras_unifrac)
+
+unw_pcoa_points$SampleID <- rownames(unw_pcoa_points)  # Convertendo rownames em uma coluna 'SampleID'
+
+```
+
+
+```{r}
+unw_pcoa_points <- as.data.frame(unwunifrac.pcoa$points)  # Pegando os pontos da PCoA
+
+# Combinando com metadados e shannon
+combined_data <- unw_pcoa_points %>%
+  left_join(metadados_filtrado, by = "SampleID") %>%
+  left_join(shannon, by = "SampleID")
+
+
+
+
+```
+
+
+```{r}
+# Usando o dataframe 'combined_data' que contém 'V1' (PC1) e 'V2' (PC2)
+combined_data %>%
+  ggplot(aes(x = V1, y = V2, color = Region, shape = Treponema, size = shannon_entropy)) +
+  geom_point(alpha = 0.5) +  # Controles de transparência
+  theme_q2r() +  # Tema do QIIME2
+  scale_shape_manual(values = c(16, 1), name = "Treponema") +  # Código para os diferentes tipos de pontos
+  scale_size_continuous(name = "Shannon Diversity") +
+  scale_color_discrete(name = "Region") +
+  labs(x = "PC1", y = "PC2")  # Etiquetas dos eixos
+```
+
+
+```{r}
+
+SVsToPlot<-  
+  data.frame(MeanAbundance=rowMeans(SVs)) %>% #find the average abundance of a SV
+  rownames_to_column("Feature.ID") %>%
+  arrange(desc(MeanAbundance)) %>%
+  top_n(-30, MeanAbundance) %>%
+  pull(Feature.ID) #extract only the names from the table
+```
+
+```{r}
+SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key="SampleID", value="Abundance") %>%
+  mutate(Feature.ID=if_else(Feature.ID %in% SVsToPlot,  Feature.ID, "Remainder")) %>% #flag features to be collapsed
+  group_by(SampleID, Feature.ID) %>%
+  summarize(Abundance=sum(Abundance)) %>%
+  left_join(metadados) %>%
+  mutate(NormAbundance=log10(Abundance+0.01)) %>% # do a log10 transformation after adding a 0.01% pseudocount. Could also add 1 read before transformation to percent
+  left_join(taxonomy) %>%
+  mutate(Feature=paste(Feature.ID, Taxon)) %>%
+  mutate(Feature=gsub("[kpcofgs]__", "", Feature)) %>% # trim out leading text from taxonomy string
+  ggplot(aes(x=SampleID, y=Feature, fill=NormAbundance)) +
+  geom_tile() +
+  facet_grid(~`Region`, scales="free_x") +
+  theme_q2r() +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_fill_viridis_c(name="log10(% Abundance)")
+  ggsave("heatmap.pdf", height=4, width=11, device="pdf") # save a PDF 3 inches by 4 inches
+
+```
+
+```{r}
+
+# Passo 1: Calcular a abundância total por taxa e selecionar as 30 mais abundantes
+top_30_taxas <- SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  group_by(Feature.ID) %>%
+  summarize(TotalAbundance = sum(Abundance)) %>%
+  arrange(desc(TotalAbundance)) %>%
+  slice(1:30) %>%
+  pull(Feature.ID)
+
+# Passo 2: Criar a matriz de abundância transformada (sem duplicatas)
+mat_abundance <- SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  filter(Feature.ID %in% top_30_taxas) %>%
+  group_by(SampleID, Feature.ID) %>%
+  summarize(Abundance = sum(Abundance), .groups = 'drop') %>%
+  spread(key = SampleID, value = Abundance, fill = 0)  # Converter para formato wide, preencher com 0 onde faltar
+
+# Passo 3: Calcular quantas amostras cada taxa está presente (abundância > 0)
+presenca_por_taxa <- rowSums(as.matrix(mat_abundance[, -1]) > 0)
+
+# Exibir o resultado: número de amostras por taxa
+tabela_presenca <- data.frame(
+  Taxa = mat_abundance$Feature.ID,
+  Presenca_em_amostras = presenca_por_taxa
+)
+
+# Exibir o resultado
+print(tabela_presenca)
+
+
+
+```
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Exibir a tabela com nomes taxonômicos ao invés de ASVs
+SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  group_by(Feature.ID) %>%
+  summarize(TotalAbundance = sum(Abundance)) %>%
+  arrange(desc(TotalAbundance)) %>%
+  slice(1:30) %>%
+  pull(Feature.ID) %>%
+  {
+ top_30_taxas <- .  # Guarda os 30 ASVs mais abundantes
+
+    SVs %>%
+      as.data.frame() %>%
+      rownames_to_column("Feature.ID") %>%
+      gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+      filter(Feature.ID %in% top_30_taxas) %>%
+      group_by(SampleID, Feature.ID) %>%
+      summarize(Abundance = sum(Abundance), .groups = 'drop') %>%
+      spread(key = SampleID, value = Abundance, fill = 0) %>%
+      {
+        mat_abundance <- .  # Atribui a matriz de abundância
+
+        # Unindo os ASVs com os nomes taxonômicos e a presença em amostras
+        mat_abundance %>%
+          left_join(taxonomy, by = "Feature.ID") %>%
+          mutate(Presenca_em_amostras = rowSums(as.matrix(mat_abundance[, -1]) > 0)) %>%
+          select(Taxon, Feature.ID, Presenca_em_amostras) %>%
+          arrange(desc(Presenca_em_amostras)) %>%
+          print()
+      }
+  }
+
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+
+
+
+    SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  filter(Feature.ID %in% top_30_taxas) %>%
+  group_by(SampleID, Feature.ID) %>%
+  summarize(Abundance = sum(Abundance), .groups = 'drop') %>%
+  spread(key = SampleID, value = Abundance, fill = 0) %>%
+  {
+    mat_abundance <- .  # Atribui a matriz de abundância
+
+    # Unindo os ASVs com os nomes taxonômicos
+    taxa_abundance <- mat_abundance %>%
+      left_join(taxonomy, by = "Feature.ID") %>%
+      mutate(Taxon = paste0(Feature.ID, " - ", Taxon)) %>%  # Concatenar Feature.ID e Taxon
+      gather(-Feature.ID, -Taxon, key = "SampleID", value = "Abundance")  # Transformar de wide para long
+
+    # Criar o heatmap com ggplot
+    ggplot(taxa_abundance, aes(x = SampleID, y = Taxon, fill = log10(Abundance + 0.01))) +
+      geom_tile(color = "white", size = 0.1) +  # Tamanho da borda ajustado para bordas mais finas
+      scale_fill_viridis_c(name = "log10(% Abundance)", option = "magma") +  # Paleta viridis (magma)
+      theme_minimal() +
+      theme(
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3, size = 4),  # Texto menor no eixo x
+        axis.text.y = element_text(size = 6),  # Texto menor no eixo y
+        panel.grid = element_blank(),
+        legend.position = "right"
+      ) +
+      ggtitle("Heatmap das 30 Taxas Mais Abundantes") +  # Adiciona o título
+      theme(plot.title = element_text(hjust = 0.5)) +  # Centraliza o título
+      theme(
+        aspect.ratio = 1,  # Ajuste a razão de aspecto
+        panel.spacing = unit(0.1, "lines")  # Ajuste o espaçamento do painel
+      ) +
+      scale_x_discrete(expand = expansion(mult = c(0, 0.1))) +  # Ajusta espaçamento nas bordas
+      scale_y_discrete(expand = expansion(mult = c(0, 0.1)))  # Ajusta espaçamento nas bordas
+  }
+```
+
+```{r}
+# Salvar o gráfico como PDF
+ggsave("frequencia_taxa_top_30_ggplot.pdf", height = 10, width = 10, device = "pdf")
+
+```
+
+```{r}
+
+
+# Corrigir o cálculo da presença em amostras únicas
+taxa_frequencia <- SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  mutate(Presenca = ifelse(Abundance > 0, 1, 0)) %>%  # Verifica se a bactéria está presente (Abundância > 0)
+  distinct(SampleID, Feature.ID, .keep_all = TRUE) %>%  # Remove duplicatas
+  group_by(Feature.ID) %>%
+  summarize(Frequencia = sum(Presenca)) %>%
+  filter(Frequencia >= 13) %>%  # Filtrar apenas taxas com presença em pelo menos 10 amostras
+  left_join(taxonomy, by = c("Feature.ID" = "Feature.ID")) %>%
+  select(Taxon, Frequencia)
+
+# Criar o gráfico de barras com ggplot para as taxas que aparecem em ≥ 10 amostras
+plot <- ggplot(taxa_frequencia, aes(x = reorder(Taxon, -Frequencia), y = Frequencia)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +  # Inverte os eixos para facilitar a visualização
+  theme_minimal() +
+  labs(x = "Taxa", y = "Frequência (número de amostras)", title = "Taxas Presentes em ≥ 10% Amostras") +
+  theme(axis.text.y = element_text(size = 8), plot.title = element_text(hjust = 0.5))
+
+# Exibir o gráfico no RStudio
+print(plot)
+
+# Salvar o gráfico como arquivo PDF e PNG
+ggsave("frequencia_taxas_10_amostras.pdf", plot = plot, height = 16, width = 10, device = "pdf")
+ggsave("frequencia_taxas_10_amostras.png", plot = plot, height = 16, width = 10, device = "png")
+
+```
+
+```{r}
+taxa_frequencia_binaria <- SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  mutate(Presenca = ifelse(Abundance > 0, 1, 0)) %>%  # Presença binária (1 para presente, 0 para ausente)
+  group_by(Feature.ID) %>%
+  summarize(Frequencia = sum(Presenca)) %>%  # Soma as presenças de cada taxa
+  filter(Frequencia >= 10) %>%  # Mantém apenas as taxas que aparecem em pelo menos 10 amostras
+  left_join(taxonomy, by = c("Feature.ID" = "Feature.ID")) %>%
+  select(Taxon, Frequencia)
+
+# Exibir o resultado para verificar a correção
+print(taxa_frequencia_binaria)
+```
+```{r}
+SVs %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "SampleID", value = "Abundance") %>%
+  filter(Feature.ID %in% top_30_taxas) %>%
+  group_by(SampleID, Feature.ID) %>%
+  summarize(Abundance = sum(Abundance), .groups = 'drop') %>%
+  spread(key = SampleID, value = Abundance, fill = 0) %>%
+  {
+    mat_abundance <- .  # Atribui a matriz de abundância
+
+    # Unindo os ASVs com os nomes taxonômicos
+    taxa_abundance <- mat_abundance %>%
+      left_join(taxonomy, by = "Feature.ID") %>%
+      mutate(Taxon = paste0(Feature.ID, " - ", Taxon)) %>%  # Concatenar Feature.ID e Taxon
+      gather(-Feature.ID, -Taxon, key = "SampleID", value = "Abundance")  # Transformar de wide para long
+
+    # Criar o heatmap com ggplot
+    ggplot(taxa_abundance, aes(x = SampleID, y = Taxon, fill = log10(Abundance + 0.01))) +
+      geom_tile(color = NA, size = 0.1) +  # Remove a borda ao definir color = NA
+      scale_fill_viridis_c(name = "log10(% Abundance)", option = "magma") +  # Paleta viridis (magma)
+      theme_minimal() +
+      theme(
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4, size = 5),  # Texto menor no eixo x
+        axis.text.y = element_text(size = 6),  # Texto menor no eixo y
+        panel.grid = element_blank(),
+        legend.position = "right"
+      ) +
+      ggtitle("30 ASVs MAIS ABUNDANTES") +  # Adiciona o título
+      theme(plot.title = element_text(hjust = 0.5)) +  # Centraliza o título
+      theme(
+        aspect.ratio = 1,  # Ajuste a razão de aspecto
+        panel.spacing = unit(0.1, "lines")  # Ajuste o espaçamento do painel
+      ) +
+      scale_x_discrete(expand = expansion(mult = c(0, 0.1))) +  # Ajusta espaçamento nas bordas
+      scale_y_discrete(expand = expansion(mult = c(0, 0.1)))  # Ajusta espaçamento nas bordas
+  }
+
+```
+
+```{r}
+# Contar quantas amostras têm abundância maior que 0 para cada ASV
+prevalence_counts <- colSums(asv_columns > 0)
+
+# Ordenar os ASVs pela prevalência e selecionar os 30 mais prevalentes
+top_30_asvs <- names(sort(prevalence_counts, decreasing = TRUE))[1:30]
+
+# Filtrar o dataframe para conter apenas os 30 ASVs mais prevalentes
+top_30_asv_data <- asv_columns[, top_30_asvs]
+
+```
+
+
+```{r}
+head (merged_data_ASVs)
+
+colnames(merged_data_ASVs)
+```
+
+```{r}
+diet_vars <- c("IdVoluntario", "residual_carboidrato_total_g", "residual_proteina_g", 
+               "residual_lipidios_g", "residual_fibra_alimentar_g", "residual_colesterol_mg", 
+               "residual_acidos_graxos_saturados_g", "residual_acidos_graxos_monoinsaturados_g", 
+               "residual_acidos_graxos_poliinsaturados_g", "residual_acidos_graxos_trans_g", 
+               "residual_calcio_mg", "residual_ferro_mg", "residual_sodio_mg", "residual_magnesio_mg", 
+               "residual_fosforo_mg", "residual_potassio_mg", "residual_manganes_mg", "residual_zinco_mg", 
+               "residual_cobre_mg", "residual_selenio_mcg", 
+               "residual_vitamina_A_RAE_mcg", "residual_vitamina_D_mcg", "residual_vitamina_E_mg", 
+               "residual_tiamina_mg", "residual_riboflavina_mg", "residual_niacina_mg", "residual_vitamina_B6_mg", 
+               "residual_vitamina_B12_mcg", "residual_vitamina_C_mg", "residual_equivalente_de_folato_mcg", 
+               "residual_sal_de_adicao_g", "residual_acucar_de_adicao_g")
+
+```
+
+Para correlacionar ASVs com dieta
+
+```{r}
+# Passo 1: Selecionar as colunas dietéticas
+diet_data <- metadados.dieta.saude.alpha[, diet_vars]
+
+#transpor SVs
+SVs_t <- t(SVs)
+
+# Passo 2: Selecionar as 30 taxas mais prevalentes do objeto SVs
+# Vamos garantir que as IDs em top_30_taxas correspondam às colunas do objeto SVs
+top_30_SVs <- SVs[top_30_taxas, ]
+
+
+# Passo 3: Transpor as SVs selecionadas para que as amostras fiquem nas linhas
+top_30_SVs <- t(top_30_SVs)
+
+
+# Remover os IDs "S10041.F00" e "S10232.F00" de top_30_SVs
+top_30_SVs <- top_30_SVs[!rownames(top_30_SVs) %in% c("S10041.F00", "S10232.F00"), ]
+
+# Remover os IDs "S10041.F00" e "S10232.F00" de diet_data com base na coluna IdVoluntario
+diet_data <- diet_data[!diet_data$IdVoluntario %in% c("S10041.F00", "S10232.F00"), ]
+
+
+```
+
+```{r}
+# Converter todas as colunas de diet_data para numéricas (ignorando IdVoluntario)
+diet_data_numeric <- as.data.frame(lapply(diet_data[, -which(colnames(diet_data) == "IdVoluntario")], as.numeric))
+
+
+
+# Verificar se houve conversão correta
+print(str(diet_data_numeric))
+print(str(top_30_SVs))
+
+# Calcular a matriz de correlação entre os datasets numéricos
+correlation_matrix <- cor(diet_data_numeric, top_30_SVs, use = "complete.obs")
+
+# Exibir a matriz de correlação
+print(correlation_matrix)
+```
+
+
+```{r}
+
+
+
+# Passo 1: Calcular a matriz de correlação e os valores-p
+cor_results <- rcorr(as.matrix(diet_data_numeric), as.matrix(top_30_SVs), type = "pearson")
+correlation_matrix <- cor_results$r  # Matriz de correlação
+p_value_matrix <- cor_results$P      # Matriz de valores-p
+
+# Passo 2: Definir um limiar de significância (por exemplo, p < 0.05)
+# Definir os limiares de significância
+significance_thresholds <- c(0.001, 0.01, 0.05)
+
+# Criar uma matriz de símbolos de significância com base nos valores-p
+asterisks <- ifelse(p_value_matrix < significance_thresholds[1], "***",
+             ifelse(p_value_matrix < significance_thresholds[2], "**",
+             ifelse(p_value_matrix < significance_thresholds[3], "*", "")))
+
+# Exibir a matriz de asteriscos para ver a categorização de significância
+print(asterisks)
+
+# Filtrar colunas que tenham "residual" no nome
+columns_with_residual <- grep("residual", colnames(correlation_matrix), value = TRUE)
+
+# Filtrar linhas que não tenham "residual" no nome
+rows_without_residual <- grep("residual", rownames(correlation_matrix), invert = TRUE, value = TRUE)
+
+# Criar a nova matriz filtrada
+filtered_matrix <- correlation_matrix[rows_without_residual, columns_with_residual]
+
+# Exibir a nova matriz filtrada
+print(filtered_matrix)
+
+# Definir o valor mínimo e máximo simétricos em torno do zero
+max_abs_value <- max(abs(filtered_matrix), na.rm = TRUE)
+
+# Definir os intervalos (breaks) para a paleta de cores simetricamente em torno de zero
+breaks <- seq(-max_abs_value, max_abs_value, length.out = 51)
+
+# Definir a paleta de cores, com zero no meio
+color_palette <- colorRampPalette(c("blue", "white", "red"))(50)
+
+# Criar o heatmap com zero centralizado
+pheatmap(filtered_matrix,
+         display_numbers = asterisks[rows_without_residual, columns_with_residual],  # Adicionar asteriscos
+         cluster_rows = TRUE,          # Clusterizar as linhas
+         cluster_cols = TRUE,          # Clusterizar as colunas
+         main = "ASVs vs Dieta",
+         fontsize_number = 12,         # Tamanho da fonte dos números
+         color = color_palette,        # Aplicar a nova paleta de cores
+         breaks = breaks)              # Aplicar os breaks para centralizar o zero
+
+
+```
+
+
+```{r}
+# Garantir que os IDs das ASVs no objeto 'filtered_matrix' correspondam aos IDs no objeto 'taxonomy'
+asv_ids <- rownames(filtered_matrix)  # IDs das ASVs na matriz de correlação
+
+# Mapear os IDs com seus respectivos nomes taxonômicos
+asv_names <- taxonomy$Taxon[match(asv_ids, taxonomy$Feature.ID)]
+
+# Garantir que os nomes mapeados sejam aplicados à matriz filtrada
+rownames(filtered_matrix) <- asv_names
+
+# Criar o heatmap com os nomes das ASVs nas linhas
+pheatmap(filtered_matrix,
+         display_numbers = asterisks[rows_without_residual, columns_with_residual],  # Adicionar asteriscos
+         cluster_rows = TRUE,          # Clusterizar as linhas
+         cluster_cols = TRUE,          # Clusterizar as colunas
+         main = "Taxa vs Dieta",
+         fontsize_number = 12,         # Tamanho da fonte dos números
+         color = color_palette,        # Aplicar a nova paleta de cores
+         breaks = breaks,              # Definir os intervalos simétricos para centralizar o zero
+         labels_row = asv_names)       # Adicionar os nomes taxonômicos das ASVs nas linhas
+```
+

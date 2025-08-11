@@ -1,0 +1,305 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+---
+title: "LEfSe"
+output: html_notebook
+---
+
+
+```{r}
+install.packages(c("phyloseq", "ggplot2", "dplyr", "tidyverse"))
+BiocManager::install(c("microbiomeMarker", "DESeq2", "vegan"))
+
+install.packages("BiocManager")
+
+library(phyloseq)
+library(microbiomeMarker)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(vegan)
+library(DESeq2)
+
+
+```
+
+
+
+```{r}
+library(phyloseq)
+
+
+
+# Renomeando a matriz de contagem original para evitar conflito com a função
+otu_matrix <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/table_corrigida.qza")$data
+
+
+
+
+# Verifique se as ASVs estão nas linhas
+taxa_are_rows <- TRUE  # ajuste para FALSE se suas amostras estiverem nas linhas
+
+# Filtrando colunas indesejadas
+otu_matrix_filtrada <- otu_matrix[, !colnames(otu_matrix) %in% c(
+  # Amostras reais a excluir
+  "S10011.F01", "S10012.F01", "S10021.F01", "S10031.F01", "S10041.F01", "S10051.F01",
+  "S10052.F01", "S10061.F01", "S10062.F01", "S10091.F01", "S10092.F01", "S10111.F01",
+  "S10121.F01", "S10122.F01", "S10131.F01", "S10141.F01", "S10142.F01", "S10161.F01", "S10171.F01",
+  
+  # Controles negativos e positivos
+  "NEG_Run1_DNA_S5_L001", "NEG_Run2_DNA_S30_L001", "NEG_Run3_DNA_S54_L001",
+  "NEG_Run4_DNA_S75_L001", "Pooled-Extractioncontrol-NEG_S56_L001",
+  "Pooled-Extractioncontrol-POS-MOCK_S55_L001", "POSZymo_Run1_DNA_S6_L001"
+)]
+
+# Criando objeto phyloseq::otu_table a partir da matriz filtrada
+otu_tab <- otu_table(otu_matrix_filtrada, taxa_are_rows = taxa_are_rows)
+
+taxonomy <- taxonomy %>%
+  column_to_rownames("Feature.ID")  # se estiver como data.frame do tidyverse
+
+
+```
+
+```{r}
+library(tidyverse)
+
+#Carregar o pacote qiime2R (se ainda não tiver)
+
+if (!requireNamespace("qiime2R", quietly = TRUE)) {
+  devtools::install_github("jbisanz/qiime2R")
+}
+library(qiime2R)
+
+#Importar a taxonomia
+taxonomy_qza <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/taxonomy.qza")
+taxonomy <- taxonomy_qza$data
+
+#Corrigir a tabela para usar no phyloseq
+#O taxonomy.qza geralmente tem colunas: Feature.ID, Taxon, Confidence.
+
+#Se quiser separar os níveis taxonômicos (Reino, Filo, Classe, etc.), use:
+
+taxonomy_clean <- taxonomy %>%
+  separate(Taxon, into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", extra = "drop") %>%
+  column_to_rownames("Feature.ID")
+
+#4. Converter para tax_table (phyloseq)
+tax_tab <- tax_table(as.matrix(taxonomy_clean))
+
+
+```
+
+
+
+
+```{r}
+my.phyloseq <- qza_to_phyloseq(
+  features  = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/table_corrigida.qza",
+  tree      = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/unrooted-tree.qza",
+  taxonomy  = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/taxonomy.qza",
+  metadata  = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/metadata.tsv"
+)
+
+```
+
+```{r}
+# Vetor com as amostras a excluir
+amostras_excluir <- c(
+  "S10011.F01", "S10012.F01", "S10021.F01", "S10031.F01", "S10041.F01", "S10051.F01",
+  "S10052.F01", "S10061.F01", "S10062.F01", "S10091.F01", "S10092.F01", "S10111.F01",
+  "S10121.F01", "S10122.F01", "S10131.F01", "S10141.F01", "S10142.F01", "S10161.F01", "S10171.F01",
+  "20240125-PCRNEG_S57_L001", "20240131-PCRNEG_S96_L001", "20240319_PCRNEG_S96_L001",
+  "NEG_Run1_DNA_S5_L001", "NEG_Run2_DNA_S30_L001", "NEG_Run3_DNA_S54_L001",
+  "NEG_Run4_DNA_S75_L001", "Pooled-Extractioncontrol-NEG_S56_L001",
+  "Pooled-Extractioncontrol-POS-MOCK_S55_L001", "POSZymo_Run1_DNA_S6_L001"
+)
+
+# Filtrando as amostras
+my.phyloseq_filtrado <- subset_samples(my.phyloseq, !(sample_names(my.phyloseq) %in% amostras_excluir))
+
+# Verifique se deu certo
+my.phyloseq_filtrado
+
+```
+
+```{r}
+# 1. Selecionar amostras válidas
+amostras_validas <- intersect(rownames(metadados.all), sample_names(my.phyloseq_filtrado))
+
+# 2. Selecionar as colunas de interesse
+variaveis_desejadas <- c(
+  "BHEI_R_Score_Total", "Percentual_NOVA_group_1", "Percentual_NOVA_group_2", 
+  "Percentual_NOVA_group_3", "TyG", "VAI", "QUICKI", "METS_IR",
+  "TyG_BMI", "TyG_WC", "WHR", "HOMA.IR", "Region", "Age", "BMI", "Sex"
+)
+  
+ #1. Verifique quais estão duplicadas
+   duplicated_ids <- metadados.all$Sample.id[duplicated(metadados.all$Sample.id)]
+duplicated_ids
+
+#2. Ver todas as linhas duplicadas (para decidir o que manter)
+metadados.all[metadados.all$Sample.id %in% duplicated_ids, ]
+
+#3. Remover duplicatas
+metadados.all <- metadados.all[!duplicated(metadados.all$Sample.id), ]
+
+#definir os rownames()
+rownames(metadados.all) <- metadados.all$Sample.id
+
+#Atribui o metadado final ao seu objeto phyloseq 
+amostras_validas <- intersect(rownames(metadados.all), sample_names(my.phyloseq_filtrado))
+metadados_lefse <- metadados.all[amostras_validas, variaveis_desejadas]
+metadados_lefse <- metadados_lefse[sample_names(my.phyloseq_filtrado), ]
+sample_data(my.phyloseq_filtrado) <- sample_data(metadados_lefse)
+
+```
+```{r}
+# Criar categorias com base na mediana
+sample_data(my.phyloseq_filtrado)$VAI_group <- ifelse(
+  sample_data(my.phyloseq_filtrado)$VAI > median(sample_data(my.phyloseq_filtrado)$VAI, na.rm = TRUE),
+  "Alto", "Baixo"
+)
+
+sample_data(my.phyloseq_filtrado)$TyG_group <- ifelse(
+  sample_data(my.phyloseq_filtrado)$TyG > median(sample_data(my.phyloseq_filtrado)$TyG, na.rm = TRUE),
+  "Alto", "Baixo"
+)
+
+```
+
+```{r}
+
+library(microbiomeMarker)
+
+
+# Remover amostras com NA em VAI_group
+my.phyloseq_vai <- subset_samples(my.phyloseq_filtrado, !is.na(VAI_group))
+
+# Remover amostras com NA em VAI_group
+my.phyloseq_vai <- subset_samples(my.phyloseq_filtrado, !is.na(VAI_group))
+
+
+# Agregar novamente por Gênero
+phylo_genus_vai <- tax_glom(my.phyloseq_vai, taxrank = "Genus")
+
+# Remover amostras com NA em VAI_group
+phylo_genus_vai_clean <- subset_samples(phylo_genus, !is.na(VAI_group))
+
+# Rodar LEfSe agora
+lefse_vai <- run_lefse(
+  phylo_genus_vai_clean,
+  "VAI_group",
+  norm = "CPM",
+  lda_cutoff = 2,
+  multigrp_strat = FALSE
+)
+
+
+head(lefse_vai@marker_table)
+
+
+# Visualizar
+plot_ef_bar(lefse_vai)
+
+
+```
+```{r}
+plot_ef_dot(lefse_vai)
+
+
+library(ggplot2)
+
+# Gerar o gráfico
+lefse_plot <- plot_ef_bar(lefse_vai)
+
+# Adicionar título em inglês
+lefse_plot + 
+  labs(
+    title = "Differential Taxa by VAI Group (LEfSe)",
+    x = "LDA score (log10)",
+    y = "Taxon"
+  )
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Gerar o gráfico
+lefse_dot <- plot_ef_dot(lefse_vai)
+
+# Adicionar título
+lefse_dot + 
+  labs(
+    title = "Differential Taxa by VAI Group (LEfSe)",
+    x = "LDA score (log10)",
+    y = "Taxon"
+  )
+
+```
+```{r}
+# Remover amostras com NA em TyG_group
+phylo_genus_tyg_clean <- subset_samples(phylo_genus, !is.na(TyG_group))
+
+```
+
+```{r}
+library(microbiomeMarker)
+
+lefse_tyg <- run_lefse(
+  phylo_genus_tyg_clean,
+  "TyG_group",
+  norm = "CPM",
+  lda_cutoff = 2,
+  multigrp_strat = FALSE
+)
+
+```
+```{r}
+plot_ef_bar(lefse_tyg) +
+  labs(title = "Differential Taxa by TyG Group (LEfSe)")
+
+```
+```{r}
+plot_ef_dot(lefse_tyg) +
+  labs(title = "Differential Taxa by TyG Group (LEfSe)",
+       x = "LDA score (log10)",
+       y = "Taxon")
+
+```
+
+
+```{r}
+#1. Extrair os táxons diferenciais dos dois objetos lefse:
+
+# Taxa nomes significativos em VAI
+taxa_vai <- marker_table(lefse_vai)$taxon
+
+# Taxa nomes significativos em TyG
+taxa_tyg <- marker_table(lefse_tyg)$taxon
+
+## Táxons comuns aos dois grupos
+taxa_comum <- intersect(taxa_vai, taxa_tyg)
+
+# Mostrar os resultados
+taxa_comum
+
+#Se quiser ver como eles aparecem nos dois grupos:
+
+# Filtrar apenas os marcadores comuns
+lefse_vai_comum <- subset_marker(lefse_vai, taxa %in% taxa_comum)
+lefse_tyg_comum <- subset_marker(lefse_tyg, taxa %in% taxa_comum)
+
+# Visualizar
+plot_ef_dot(lefse_vai_comum) + labs(title = "Common Differential Taxa in VAI")
+plot_ef_dot(lefse_tyg_comum) + labs(title = "Common Differential Taxa in TyG")
+
+
+```
+

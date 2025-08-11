@@ -1,0 +1,44 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcblxuIyBSZW1vdmVyIGFzIGNvbHVuYXMgaW5kZXNlamFkYXMgZG8gbWV0YWRhdGFcbiNtZXRhZGF0YV9EaWV0YV9TYXVkZV9maWx0ZXJlZCA8LSBtZXRhZGF0YSAlPiVcbiAjIHNlbGVjdCgtYyhcIkVkdWxjb3JhbnRlP1wiLCBcIkNvb3JkaW5hdGVzXCIsIFwiTm9tZVwiICwgXCJFUklUUk9DSVRPU1wiLCBcIkhFTU9HTE9CSU5BXCIsICBcIkhFTUFUT0NSSVRPXCIsIFwiVkNNXCIsIFxuICAgIyAgICAgICAgIFwiSENNXCIsIFwiQ0hDTVwiLCBcIlJEV1wiLCBcIkxFVUNPQ0lUT1NcIiwgXCJORVVUUk9GSUxPU1wiLCBcIkVPU0lOT0ZJTE9TXCIsIFwiQkFTT0ZJTE9TXCIsIFxuICAgIyAgICAgICAgIFwiTElORk9DSVRPU1wiLCBcIk1PTk9DSVRPU1wiLCBcIlBMQVFVRVRBU1wiLCBcIlJpc2NvX2RpYWJldGVzXCIsIFwiUmlzY29fY29sZXN0ZXJvbFwiLCBcbiAgICAgIyAgICAgICBcIkRvcm1lXCIsIFwiQWNvcmRhXCIsIFwiSG9yYXNfRG9ybWlkYXNcIiwgXCJwcmVzc2FvX2FsdGFcIiwgXCJzaW5kcm9tZV9tZXRhYm9saWNhXCIsIFwiV2VpZ2h0XCIsIFwiV2Fpc3RcIiwgXCJIaXBcIiwgXCJIZWlnaHRcIikpXG5cbnN0cihtZXRhZGF0YV9maWx0ZXJlZClcblxuXG4jIEp1bnRhciBBU1ZzX2xvbmcgY29tIG1ldGFkYXRhIGZpbHRyYWRvXG4jIEFzc3VtaW5kbyBxdWUgYSBjb2x1bmEgZGUganVuw6fDo28gc2VqYSBcIlNhbXBsZS5pZFwiIGVtIEFTVnNfbG9uZyBlIFwiU2FtcGxlSURcIiBlbSBtZXRhZGF0YV9maWx0ZXJlZFxubWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YSA8LSBTVnNfbG9uZyAlPiVcbiAgaW5uZXJfam9pbihtZXRhZGFkb3MuZGlldGEuc2F1ZGUuYWxwaGEsIGJ5ID0gYyhcIlNhbXBsZS5pZFwiID0gXCJJZFZvbHVudGFyaW9cIikpXG5cbmBgYCJ9 -->
+
+```r
+library(dplyr)
+
+# Remover as colunas indesejadas do metadata
+#metadata_Dieta_Saude_filtered <- metadata %>%
+ # select(-c(\"Edulcorante?\", \"Coordinates\", \"Nome\" , \"ERITROCITOS\", \"HEMOGLOBINA\",  \"HEMATOCRITO\", \"VCM\", 
+   #         \"HCM\", \"CHCM\", \"RDW\", \"LEUCOCITOS\", \"NEUTROFILOS\", \"EOSINOFILOS\", \"BASOFILOS\", 
+   #         \"LINFOCITOS\", \"MONOCITOS\", \"PLAQUETAS\", \"Risco_diabetes\", \"Risco_colesterol\", 
+     #       \"Dorme\", \"Acorda\", \"Horas_Dormidas\", \"pressao_alta\", \"sindrome_metabolica\", \"Weight\", \"Waist\", \"Hip\", \"Height\"))
+
+str(metadata_filtered)
+
+
+# Juntar ASVs_long com metadata filtrado
+# Assumindo que a coluna de junção seja \"Sample.id\" em ASVs_long e \"SampleID\" em metadata_filtered
+metadata_ASVs_Saude_dieta <- SVs_long %>%
+  inner_join(metadados.dieta.saude.alpha, by = c(\"Sample.id\" = \"IdVoluntario\"))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(dplyr)
+
+# Remover as colunas indesejadas do metadata
+#metadata_Dieta_Saude_filtered <- metadata %>%
+ # select(-c(\"Edulcorante?\", \"Coordinates\", \"Nome\" , \"ERITROCITOS\", \"HEMOGLOBINA\",  \"HEMATOCRITO\", \"VCM\", 
+   #         \"HCM\", \"CHCM\", \"RDW\", \"LEUCOCITOS\", \"NEUTROFILOS\", \"EOSINOFILOS\", \"BASOFILOS\", 
+   #         \"LINFOCITOS\", \"MONOCITOS\", \"PLAQUETAS\", \"Risco_diabetes\", \"Risco_colesterol\", 
+     #       \"Dorme\", \"Acorda\", \"Horas_Dormidas\", \"pressao_alta\", \"sindrome_metabolica\", \"Weight\", \"Waist\", \"Hip\", \"Height\"))
+
+str(metadata_filtered)
+
+
+# Juntar ASVs_long com metadata filtrado
+# Assumindo que a coluna de junção seja \"Sample.id\" em ASVs_long e \"SampleID\" em metadata_filtered
+metadata_ASVs_Saude_dieta <- SVs_long %>%
+  inner_join(metadados.dieta.saude.alpha, by = c(\"Sample.id\" = \"IdVoluntario\"))
+
+```"

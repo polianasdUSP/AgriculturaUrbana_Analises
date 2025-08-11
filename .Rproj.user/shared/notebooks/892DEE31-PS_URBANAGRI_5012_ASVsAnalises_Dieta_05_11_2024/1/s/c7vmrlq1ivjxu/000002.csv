@@ -1,0 +1,40 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZW9yZ2FuaXphciBwYXJhIHF1ZSBTYW1wbGUuaWQgc2VqYSBhIHByaW1laXJhIGNvbHVuYVxubWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YSA8LSBtZXRhZGF0YV9BU1ZzX1NhdWRlX2RpZXRhICU+JVxuICBzZWxlY3QoU2FtcGxlLmlkLCBldmVyeXRoaW5nKCkpXG5cbiMgVmlzdWFsaXphciBvIHJlc3VsdGFkb1xuZ2xpbXBzZShtZXRhZGF0YV9BU1ZzX1NhdWRlX2RpZXRhKVxuXG4jIENhbGN1bGFyIElNQyBlIGFkaWNpb25hciBub3ZhIGNvbHVuYSBhbyBvYmpldG8gbWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YVxubWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YSA8LSBtZXRhZGF0YV9BU1ZzX1NhdWRlX2RpZXRhICU+JVxuICBkcGx5cjo6bXV0YXRlKElNQyA9IFdlaWdodCAvIChIZWlnaHReMikpICAjIEbDs3JtdWxhIGRvIElNQ1xuXG4jIFZpc3VhbGl6YXIgYXMgcHJpbWVpcmFzIGxpbmhhcyBkbyBkYXRhZnJhbWUgY29tIGEgbm92YSBjb2x1bmFcbmhlYWQobWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YSlcblxuXG5gYGAifQ== -->
+
+```r
+# Reorganizar para que Sample.id seja a primeira coluna
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, everything())
+
+# Visualizar o resultado
+glimpse(metadata_ASVs_Saude_dieta)
+
+# Calcular IMC e adicionar nova coluna ao objeto metadata_ASVs_Saude_dieta
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  dplyr::mutate(IMC = Weight / (Height^2))  # Fórmula do IMC
+
+# Visualizar as primeiras linhas do dataframe com a nova coluna
+head(metadata_ASVs_Saude_dieta)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Reorganizar para que Sample.id seja a primeira coluna
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, everything())
+
+# Visualizar o resultado
+glimpse(metadata_ASVs_Saude_dieta)
+
+# Calcular IMC e adicionar nova coluna ao objeto metadata_ASVs_Saude_dieta
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  dplyr::mutate(IMC = Weight / (Height^2))  # Fórmula do IMC
+
+# Visualizar as primeiras linhas do dataframe com a nova coluna
+head(metadata_ASVs_Saude_dieta)
+
+
+```"

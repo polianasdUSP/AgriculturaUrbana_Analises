@@ -1,0 +1,84 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZWNhbGN1bGFyIGEgbWF0cml6IGRlIGNvcnJlbGHDp8OjbyBkZSBTcGVhcm1hblxuY29yX21hdHJpeF9hbHBoYS5zYXVkZSA8LSBjb3IobWV0YWRhZG9zLnNhdWRlLmFscGhhLCBtZXRob2QgPSBcInNwZWFybWFuXCIsIHVzZSA9IFwicGFpcndpc2UuY29tcGxldGUub2JzXCIpXG5cbiMgRnVuw6fDo28gcGFyYSBjYWxjdWxhciBvcyBwLXZhbG9yZXMgZGFzIGNvcnJlbGHDp8O1ZXMgKHN1YnN0aXR1YSBwZWxhIHN1YSBmdW7Dp8OjbyBhcHJvcHJpYWRhKVxuY29yLm10ZXN0IDwtIGZ1bmN0aW9uKG1hdCwgY29uZi5sZXZlbCA9IDAuOTUpIHtcbiAgbWF0IDwtIGFzLm1hdHJpeChtYXQpXG4gIG4gPC0gbmNvbChtYXQpXG4gIHAubWF0IDwtIG1hdHJpeChOQSwgbiwgbilcbiAgZGlhZyhwLm1hdCkgPC0gMFxuICBmb3IgKGkgaW4gMToobiAtIDEpKSB7XG4gICAgZm9yIChqIGluIChpICsgMSk6bikge1xuICAgICAgdGVzdCA8LSBjb3IudGVzdChtYXRbLCBpXSwgbWF0Wywgal0sIGNvbmYubGV2ZWwgPSBjb25mLmxldmVsLCBtZXRob2QgPSBcInNwZWFybWFuXCIpXG4gICAgICBwLm1hdFtpLCBqXSA8LSBwLm1hdFtqLCBpXSA8LSB0ZXN0JHAudmFsdWVcbiAgICB9XG4gIH1cbiAgcmV0dXJuKHAubWF0KVxufVxuXG4jIENhbGN1bGFyIG9zIHAtdmFsb3Jlc1xucF92YWx1ZXNfYWxwaGEuc2F1ZGUgPC0gY29yLm10ZXN0KG1ldGFkYWRvcy5zYXVkZS5hbHBoYSlcblxuIyBDcmlhciBhIG1hdHJpeiBkZSBhc3RlcmlzY29zIHBhcmEgc2lnbmlmaWPDom5jaWFcbmFzdGVyaXNrc19hbHBoYS5zYXVkZSA8LSBpZmVsc2UocF92YWx1ZXNfYWxwaGEuc2F1ZGUgPCAwLjAwMSwgXCIqKipcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgaWZlbHNlKHBfdmFsdWVzX2FscGhhLnNhdWRlIDwgMC4wMSwgXCIqKlwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaWZlbHNlKHBfdmFsdWVzX2FscGhhLnNhdWRlIDwgMC4wNSwgXCIqXCIsIFwiXCIpKSlcblxuIyBBanVzdGFyIGEgcGxvdGFnZW0gZG8gaGVhdG1hcCwgY29tIHBoZWF0bWFwXG5waGVhdG1hcChjb3JfbWF0cml4X2FscGhhLnNhdWRlLCBcbiAgICAgICAgIGRpc3BsYXlfbnVtYmVycyA9IGFzdGVyaXNrc19hbHBoYS5zYXVkZSwgIyBNb3N0cmEgb3MgYXN0ZXJpc2NvcyBubyBtYXBhXG4gICAgICAgICBjb2xvciA9IGNvbG9yUmFtcFBhbGV0dGUoYyhcImJsdWVcIiwgXCJ3aGl0ZVwiLCBcInJlZFwiKSkoMTAwKSwgIyBQYWxldGEgZGUgY29yZXMgYWp1c3RhZGFcbiAgICAgICAgIGJyZWFrcyA9IHNlcSgtMSwgMSwgbGVuZ3RoLm91dCA9IDEwMSksICAjIEFqdXN0YSBvcyBicmVha3MgcGFyYSBhIHBhbGV0YSBkZSBjb3Jlc1xuICAgICAgICAgY2x1c3Rlcl9yb3dzID0gRkFMU0UsIFxuICAgICAgICAgY2x1c3Rlcl9jb2xzID0gRkFMU0UsIFxuICAgICAgICAgY2VsbGhlaWdodCA9IDEwLCAgIyBBanVzdGUgZGEgYWx0dXJhIGRhcyBjw6lsdWxhc1xuICAgICAgICAgY2VsbHdpZHRoID0gMTAsICAgICMgQWp1c3RlIGRhIGxhcmd1cmEgZGFzIGPDqWx1bGFzXG4gICAgICAgICBtYWluID0gXCJDb3JyZWxhw6fDo28gZW50cmUgQWxwaGEgRGl2ZXJzaXR5IGUgU2HDumRlXCIpXG5cbmBgYCJ9 -->
+
+```r
+# Recalcular a matriz de correlação de Spearman
+cor_matrix_alpha.saude <- cor(metadados.saude.alpha, method = \"spearman\", use = \"pairwise.complete.obs\")
+
+# Função para calcular os p-valores das correlações (substitua pela sua função apropriada)
+cor.mtest <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      test <- cor.test(mat[, i], mat[, j], conf.level = conf.level, method = \"spearman\")
+      p.mat[i, j] <- p.mat[j, i] <- test$p.value
+    }
+  }
+  return(p.mat)
+}
+
+# Calcular os p-valores
+p_values_alpha.saude <- cor.mtest(metadados.saude.alpha)
+
+# Criar a matriz de asteriscos para significância
+asterisks_alpha.saude <- ifelse(p_values_alpha.saude < 0.001, \"***\", 
+                            ifelse(p_values_alpha.saude < 0.01, \"**\", 
+                                   ifelse(p_values_alpha.saude < 0.05, \"*\", \"\")))
+
+# Ajustar a plotagem do heatmap, com pheatmap
+pheatmap(cor_matrix_alpha.saude, 
+         display_numbers = asterisks_alpha.saude, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c(\"blue\", \"white\", \"red\"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = 10,  # Ajuste da altura das células
+         cellwidth = 10,    # Ajuste da largura das células
+         main = \"Correlação entre Alpha Diversity e Saúde\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Recalcular a matriz de correlação de Spearman
+cor_matrix_alpha.saude <- cor(metadados.saude.alpha, method = \"spearman\", use = \"pairwise.complete.obs\")
+
+# Função para calcular os p-valores das correlações (substitua pela sua função apropriada)
+cor.mtest <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      test <- cor.test(mat[, i], mat[, j], conf.level = conf.level, method = \"spearman\")
+      p.mat[i, j] <- p.mat[j, i] <- test$p.value
+    }
+  }
+  return(p.mat)
+}
+
+# Calcular os p-valores
+p_values_alpha.saude <- cor.mtest(metadados.saude.alpha)
+
+# Criar a matriz de asteriscos para significância
+asterisks_alpha.saude <- ifelse(p_values_alpha.saude < 0.001, \"***\", 
+                            ifelse(p_values_alpha.saude < 0.01, \"**\", 
+                                   ifelse(p_values_alpha.saude < 0.05, \"*\", \"\")))
+
+# Ajustar a plotagem do heatmap, com pheatmap
+pheatmap(cor_matrix_alpha.saude, 
+         display_numbers = asterisks_alpha.saude, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c(\"blue\", \"white\", \"red\"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = 10,  # Ajuste da altura das células
+         cellwidth = 10,    # Ajuste da largura das células
+         main = \"Correlação entre Alpha Diversity e Saúde\")
+
+```"

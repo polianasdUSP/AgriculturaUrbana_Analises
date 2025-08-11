@@ -1,0 +1,30 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBBcGxpY2FyIHRyYW5zZm9ybWHDp8OjbyBsb2dhcsOtdG1pY2FcblxuU1ZzX2xvbmcgPC0gU1ZzX2xvbmcgJT4lXG4gIG11dGF0ZShOb3JtQWJ1bmRhbmNlID0gbG9nMTAoQWJ1bmRhbmNlICsgMC4wMSkpICAjIEFkaWNpb25hIDAuMDEgcGFyYSBldml0YXIgbG9nKDApXG5cbiMgRXhwb3J0YXIgcGFyYSB1bWEgcGxhbmlsaGFcbndyaXRlLmNzdihTVnNfbG9uZywgXCJTVnNfbm9ybWFsaXplZF9sb2dfdHJhbnNmb3JtZWQuY3N2XCIsIHJvdy5uYW1lcyA9IEZBTFNFKVxuXG5cblxuYGBgIn0= -->
+
+```r
+# Aplicar transformação logarítmica
+
+SVs_long <- SVs_long %>%
+  mutate(NormAbundance = log10(Abundance + 0.01))  # Adiciona 0.01 para evitar log(0)
+
+# Exportar para uma planilha
+write.csv(SVs_long, \"SVs_normalized_log_transformed.csv\", row.names = FALSE)
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Aplicar transformação logarítmica
+
+SVs_long <- SVs_long %>%
+  mutate(NormAbundance = log10(Abundance + 0.01))  # Adiciona 0.01 para evitar log(0)
+
+# Exportar para uma planilha
+write.csv(SVs_long, \"SVs_normalized_log_transformed.csv\", row.names = FALSE)
+
+
+
+```"

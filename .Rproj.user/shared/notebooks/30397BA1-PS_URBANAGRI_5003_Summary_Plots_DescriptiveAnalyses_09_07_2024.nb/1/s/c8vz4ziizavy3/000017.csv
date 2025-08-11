@@ -1,0 +1,15 @@
+"0","ggplot(contagem_regiao, aes(x = reorder(Region, -n), y = n, fill = Region)) +
+  geom_bar(stat = ""identity"") +
+  labs(title = ""Número de Participantes por Região"",
+       x = ""Região"",
+       y = ""Número de Participantes"") +
+  theme_minimal() +
+  theme(legend.position = ""none"")
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/30397BA1-PS_URBANAGRI_5003_Summary_Plots_DescriptiveAnalyses_09_07_2024.nb/1/4E7A587F5127b895/c8vz4ziizavy3_t/c024a0ca38494d50867b7822558bef96.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

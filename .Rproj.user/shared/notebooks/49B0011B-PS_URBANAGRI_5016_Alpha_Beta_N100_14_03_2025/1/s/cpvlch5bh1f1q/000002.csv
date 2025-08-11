@@ -1,0 +1,82 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3B1YnIpXG5cblxuXG4jIFNoYW5ub25cbnAxIDwtIGdnYm94cGxvdChtZXRhZGFkb3MuZGlldC5pbmRleC5hbHBoYSwgeCA9IFwiQkhFSV9jYXRlZ29yeVwiLCB5ID0gXCJzaGFubm9uX2VudHJvcHlcIixcbiAgICAgICAgICAgICAgICBmaWxsID0gXCJCSEVJX2NhdGVnb3J5XCIsIHBhbGV0dGUgPSBcInZpcmlkaXNcIikgK1xuICBsYWJzKHRpdGxlID0gcGFzdGUwKFwiQS4gU2hhbm5vbiBFbnRyb3B5IChLcnVza2FsLVdhbGxpcyBwID0gXCIsIHNpZ25pZihrd19zaGFubm9uLCAzKSwgXCIpXCIpLFxuICAgICAgIHggPSBcIkRpZXQgUXVhbGl0eVwiLCB5ID0gXCJTaGFubm9uIEVudHJvcHlcIikgK1xuICBzdGF0X3B2YWx1ZV9tYW51YWwoY29tcGFyYWNvZXNfYmhlaV9zaGFubm9uLCBsYWJlbCA9IFwicC5zaWduaWZcIiwgdGlwLmxlbmd0aCA9IDAuMDEpICtcbiAgdGhlbWVfbWluaW1hbCgpXG5cbiMgUGllbG91XG5wMiA8LSBnZ2JveHBsb3QobWV0YWRhZG9zLmRpZXQuaW5kZXguYWxwaGEsIHggPSBcIkJIRUlfY2F0ZWdvcnlcIiwgeSA9IFwicGllbG91X2V2ZW5uZXNzXCIsXG4gICAgICAgICAgICAgICAgZmlsbCA9IFwiQkhFSV9jYXRlZ29yeVwiLCBwYWxldHRlID0gXCJ2aXJpZGlzXCIpICtcbiAgbGFicyh0aXRsZSA9IHBhc3RlMChcIkIuIFBpZWxvdSBFdmVubmVzcyAoS3J1c2thbC1XYWxsaXMgcCA9IFwiLCBzaWduaWYoa3dfcGllbG91LCAzKSwgXCIpXCIpLFxuICAgICAgIHggPSBcIkRpZXQgUXVhbGl0eVwiLCB5ID0gXCJQaWVsb3UgSW5kZXhcIikgK1xuICBzdGF0X3B2YWx1ZV9tYW51YWwoY29tcGFyYWNvZXNfYmhlaV9waWVsb3UsIGxhYmVsID0gXCJwLnNpZ25pZlwiLCB0aXAubGVuZ3RoID0gMC4wMSkgK1xuICB0aGVtZV9taW5pbWFsKClcblxuIyBDaGFvMVxucDMgPC0gZ2dib3hwbG90KG1ldGFkYWRvcy5kaWV0LmluZGV4LmFscGhhLCB4ID0gXCJCSEVJX2NhdGVnb3J5XCIsIHkgPSBcImNoYW8xXCIsXG4gICAgICAgICAgICAgICAgZmlsbCA9IFwiQkhFSV9jYXRlZ29yeVwiLCBwYWxldHRlID0gXCJ2aXJpZGlzXCIpICtcbiAgbGFicyh0aXRsZSA9IHBhc3RlMChcIkMuIENoYW8xIFJpY2huZXNzIChLcnVza2FsLVdhbGxpcyBwID0gXCIsIHNpZ25pZihrd19jaGFvMSwgMyksIFwiKVwiKSxcbiAgICAgICB4ID0gXCJEaWV0IFF1YWxpdHlcIiwgeSA9IFwiQ2hhbzEgUmljaG5lc3NcIikgK1xuICBzdGF0X3B2YWx1ZV9tYW51YWwoY29tcGFyYWNvZXNfYmhlaV9jaGFvMSwgbGFiZWwgPSBcInAuc2lnbmlmXCIsIHRpcC5sZW5ndGggPSAwLjAxKSArXG4gIHRoZW1lX21pbmltYWwoKVxuXG4jIEZhaXRoJ3MgUERcbnA0IDwtIGdnYm94cGxvdChtZXRhZGFkb3MuZGlldC5pbmRleC5hbHBoYSwgeCA9IFwiQkhFSV9jYXRlZ29yeVwiLCB5ID0gXCJmYWl0aF9wZFwiLFxuICAgICAgICAgICAgICAgIGZpbGwgPSBcIkJIRUlfY2F0ZWdvcnlcIiwgcGFsZXR0ZSA9IFwidmlyaWRpc1wiKSArXG4gIGxhYnModGl0bGUgPSBwYXN0ZTAoXCJELiBGYWl0aCdzIFBEIChLcnVza2FsLVdhbGxpcyBwID0gXCIsIHNpZ25pZihrd19mYWl0aCwgMyksIFwiKVwiKSxcbiAgICAgICB4ID0gXCJEaWV0IFF1YWxpdHlcIiwgeSA9IFwiRmFpdGgncyBQaHlsb2dlbmV0aWMgRGl2ZXJzaXR5XCIpICtcbiAgc3RhdF9wdmFsdWVfbWFudWFsKGNvbXBhcmFjb2VzX2JoZWlfZmFpdGgsIGxhYmVsID0gXCJwLnNpZ25pZlwiLCB0aXAubGVuZ3RoID0gMC4wMSkgK1xuICB0aGVtZV9taW5pbWFsKClcblxuYGBgIn0= -->
+
+```r
+library(ggpubr)
+
+
+
+# Shannon
+p1 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"shannon_entropy\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"A. Shannon Entropy (Kruskal-Wallis p = \", signif(kw_shannon, 3), \")\"),
+       x = \"Diet Quality\", y = \"Shannon Entropy\") +
+  stat_pvalue_manual(comparacoes_bhei_shannon, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+# Pielou
+p2 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"pielou_evenness\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"B. Pielou Evenness (Kruskal-Wallis p = \", signif(kw_pielou, 3), \")\"),
+       x = \"Diet Quality\", y = \"Pielou Index\") +
+  stat_pvalue_manual(comparacoes_bhei_pielou, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+# Chao1
+p3 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"chao1\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"C. Chao1 Richness (Kruskal-Wallis p = \", signif(kw_chao1, 3), \")\"),
+       x = \"Diet Quality\", y = \"Chao1 Richness\") +
+  stat_pvalue_manual(comparacoes_bhei_chao1, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+# Faith's PD
+p4 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"faith_pd\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"D. Faith's PD (Kruskal-Wallis p = \", signif(kw_faith, 3), \")\"),
+       x = \"Diet Quality\", y = \"Faith's Phylogenetic Diversity\") +
+  stat_pvalue_manual(comparacoes_bhei_faith, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(ggpubr)
+
+
+
+# Shannon
+p1 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"shannon_entropy\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"A. Shannon Entropy (Kruskal-Wallis p = \", signif(kw_shannon, 3), \")\"),
+       x = \"Diet Quality\", y = \"Shannon Entropy\") +
+  stat_pvalue_manual(comparacoes_bhei_shannon, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+# Pielou
+p2 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"pielou_evenness\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"B. Pielou Evenness (Kruskal-Wallis p = \", signif(kw_pielou, 3), \")\"),
+       x = \"Diet Quality\", y = \"Pielou Index\") +
+  stat_pvalue_manual(comparacoes_bhei_pielou, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+# Chao1
+p3 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"chao1\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"C. Chao1 Richness (Kruskal-Wallis p = \", signif(kw_chao1, 3), \")\"),
+       x = \"Diet Quality\", y = \"Chao1 Richness\") +
+  stat_pvalue_manual(comparacoes_bhei_chao1, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+# Faith's PD
+p4 <- ggboxplot(metadados.diet.index.alpha, x = \"BHEI_category\", y = \"faith_pd\",
+                fill = \"BHEI_category\", palette = \"viridis\") +
+  labs(title = paste0(\"D. Faith's PD (Kruskal-Wallis p = \", signif(kw_faith, 3), \")\"),
+       x = \"Diet Quality\", y = \"Faith's Phylogenetic Diversity\") +
+  stat_pvalue_manual(comparacoes_bhei_faith, label = \"p.signif\", tip.length = 0.01) +
+  theme_minimal()
+
+```"

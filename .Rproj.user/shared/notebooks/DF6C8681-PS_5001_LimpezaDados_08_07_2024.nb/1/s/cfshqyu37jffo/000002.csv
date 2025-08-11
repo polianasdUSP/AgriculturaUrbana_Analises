@@ -1,0 +1,22 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5tZXRhZGFkb3Muc2hhbm5vbiA8LSBtZXJnZShtZXRhZGFkb3MsIGFscGhhLnNoYW5ub24sIGJ5LnggPSBcIlNhbXBsZS5pZFwiLCBieS55ID0gXCJyb3cubmFtZXNcIilcblxud3JpdGUuY3N2KHggPSBtZXRhZGFkb3Muc2hhbm5vbiwgXG4gICAgICAgICAgZmlsZSA9IFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL1BsYW5pbGhhc19VcmJhbkFncmkvbWV0YWRhZG9zLnNoYW5ub24uY3N2XCIsIHJvdy5uYW1lcyA9IEZBTFNFKVxuXG5gYGAifQ== -->
+
+```r
+
+metadados.shannon <- merge(metadados, alpha.shannon, by.x = \"Sample.id\", by.y = \"row.names\")
+
+write.csv(x = metadados.shannon, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.shannon.csv\", row.names = FALSE)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+metadados.shannon <- merge(metadados, alpha.shannon, by.x = \"Sample.id\", by.y = \"row.names\")
+
+write.csv(x = metadados.shannon, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.shannon.csv\", row.names = FALSE)
+
+```"

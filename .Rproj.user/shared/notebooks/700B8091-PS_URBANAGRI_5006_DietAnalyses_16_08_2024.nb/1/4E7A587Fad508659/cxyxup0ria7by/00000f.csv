@@ -1,0 +1,1 @@
+"0","hist(recall.calc$energia2_kcal, main=""Distribuição de Energia (kcal)"", xlab=""Energia (kcal)"", col=""blue"", border=""black"")"

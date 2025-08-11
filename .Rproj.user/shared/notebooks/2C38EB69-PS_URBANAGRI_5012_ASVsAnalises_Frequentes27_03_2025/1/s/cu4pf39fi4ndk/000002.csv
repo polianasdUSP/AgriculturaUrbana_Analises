@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNYXJjYXIgY29tbyBzaWduaWZpY2F0aXZvIGNvbSBiYXNlIG5vIHAtdmFsb3IgY3J1XG5kZl92YWkkcHZhbF9zaWduaWYgPC0gaWZlbHNlKCFpcy5uYShkZl92YWkkcHZhbHVlKSAmIGRmX3ZhaSRwdmFsdWUgPCAwLjA1ICYgYWJzKGRmX3ZhaSRsb2cyRkMpID4gMSwgXCJZZXNcIiwgXCJOb1wiKVxuXG5gYGAifQ== -->
+
+```r
+# Marcar como significativo com base no p-valor cru
+df_vai$pval_signif <- ifelse(!is.na(df_vai$pvalue) & df_vai$pvalue < 0.05 & abs(df_vai$log2FC) > 1, \"Yes\", \"No\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Marcar como significativo com base no p-valor cru
+df_vai$pval_signif <- ifelse(!is.na(df_vai$pvalue) & df_vai$pvalue < 0.05 & abs(df_vai$log2FC) > 1, \"Yes\", \"No\")
+
+```"

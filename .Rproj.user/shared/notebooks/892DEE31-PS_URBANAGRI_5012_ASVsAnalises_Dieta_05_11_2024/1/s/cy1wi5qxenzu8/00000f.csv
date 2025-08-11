@@ -1,0 +1,26 @@
+"0","library(Hmisc)
+"
+"2","
+Anexando pacote: ‘Hmisc’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:ape’:
+
+    zoom
+
+"
+"2","O seguinte objeto é mascarado por ‘package:Biobase’:
+
+    contents
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:dplyr’:
+
+    src, summarize
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:base’:
+
+    format.pval, units
+
+"

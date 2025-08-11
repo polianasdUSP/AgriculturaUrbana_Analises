@@ -1,0 +1,26 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuU1ZzIDwtIEFTVi50YWJsZS5yYXdcblxuIyBDYWxjdWxhciBvIG7Dum1lcm8gZGUgdm9sdW50w6FyaW9zIGVtIHF1ZSBjYWRhIEFTViBlc3TDoSBwcmVzZW50ZVxuYXN2X3ByZXNlbmNlIDwtIHJvd1N1bXMoU1ZzID4gMClcblxuIyBGaWx0cmFyIEFTVnMgcHJlc2VudGVzIGVtIHBlbG8gbWVub3MgMTMgdm9sdW50w6FyaW9zXG5TVnNfZmlsdGVyZWQgPC0gU1ZzW2Fzdl9wcmVzZW5jZSA+PSAxMCwgXVxuXG5gYGAifQ== -->
+
+```r
+SVs <- ASV.table.raw
+
+# Calcular o número de voluntários em que cada ASV está presente
+asv_presence <- rowSums(SVs > 0)
+
+# Filtrar ASVs presentes em pelo menos 13 voluntários
+SVs_filtered <- SVs[asv_presence >= 10, ]
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+SVs <- ASV.table.raw
+
+# Calcular o número de voluntários em que cada ASV está presente
+asv_presence <- rowSums(SVs > 0)
+
+# Filtrar ASVs presentes em pelo menos 13 voluntários
+SVs_filtered <- SVs[asv_presence >= 10, ]
+
+```"

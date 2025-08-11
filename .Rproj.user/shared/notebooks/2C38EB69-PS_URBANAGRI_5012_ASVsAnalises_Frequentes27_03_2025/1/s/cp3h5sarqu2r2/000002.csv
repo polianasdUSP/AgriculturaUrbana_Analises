@@ -1,0 +1,70 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI21ldGFkYXRhIDwtIHJlYWQuY3N2KFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL21ldGFkYWRvc19yYXdfVjAxX2xvY2FsX25hc2NpbWVudG8yLmNzdlwiLCBcbiAgICAgICAgICAgICAgICAgICAgIHNlcCA9IFwiO1wiLCBcbiAgICAgICAgICAgICAgICAgICAgIGhlYWRlciA9IFRSVUUsIFxuICAgICAgICAgICAgICAgICAgICAgc3RyaW5nc0FzRmFjdG9ycyA9IEZBTFNFLCBcbiAgICAgICAgICAgICAgICAgICAgIGZpbGVFbmNvZGluZyA9IFwiVVRGLThcIilcblxubWV0YWRhdGEgPC1tZXRhZGFkb3MucmF3XG5cbiMgTWFudGVyIGFwZW5hcyBhcyBwcmltZWlyYXMgMTMwIGxpbmhhc1xubWV0YWRhdGEgPC0gbWV0YWRhdGFbMToxMzAsIF1cblxuIyBSZW1vdmVyIGEgcHJpbWVpcmEgY29sdW5hXG5tZXRhZGF0YSA8LSBtZXRhZGF0YVssIC0xXVxuXG5cbiMgUmVtb3ZlciBxdWFpc3F1ZXIgbGluaGFzIGNvbXBsZXRhbWVudGUgdmF6aWFzIChzZSBuZWNlc3PDoXJpbylcbm1ldGFkYXRhIDwtIG1ldGFkYXRhW3Jvd1N1bXMoaXMubmEobWV0YWRhdGEpKSAhPSBuY29sKG1ldGFkYXRhKSwgXVxuXG5cblxuIyBFeGliaXIgYXMgcHJpbWVpcmFzIGxpbmhhcyBwYXJhIHZlcmlmaWNhciBzZSBvcyBkYWRvcyBmb3JhbSBpbXBvcnRhZG9zIGNvcnJldGFtZW50ZVxuaGVhZChtZXRhZGF0YSlcblxuIyBWZXJpZmlxdWUgb3Mgbm9tZXMgZGFzIGNvbHVuYXMgcGFyYSBnYXJhbnRpciBxdWUgZm9yYW0gY2FycmVnYWRvcyBjb3JyZXRhbWVudGVcbmNvbG5hbWVzKG1ldGFkYXRhKVxuXG5cblxuU1ZzPC1yZWFkX3F6YShcIkM6L1VzZXJzL3BvbGlhL09uZURyaXZlL0Rlc2t0b3AvRXN0YXRpc3RpY2FSL0FnclVyYmFuYS8xNlNfQWdyaVVyYmFuYS90YWJsZS5xemFcIikkZGF0YVxudGF4b25vbXk8LXJlYWRfcXphKFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL3RheG9ub215X3NpbHZhLnF6YVwiKSRkYXRhXG5gYGAifQ== -->
+
+```r
+#metadata <- read.csv(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv\", 
+                     sep = \";\", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = \"UTF-8\")
+
+metadata <-metadados.raw
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+
+SVs<-read_qza(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza\")$data
+taxonomy<-read_qza(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza\")$data
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+#metadata <- read.csv(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv\", 
+                     sep = \";\", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = \"UTF-8\")
+
+metadata <-metadados.raw
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+
+SVs<-read_qza(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza\")$data
+taxonomy<-read_qza(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza\")$data
+```"

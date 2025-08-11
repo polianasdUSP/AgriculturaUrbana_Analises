@@ -1,0 +1,18 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2F1ZGVfZGlldGEkUmF6YW9XSCA8LSBzYXVkZV9kaWV0YSRXYWlzdCAvIHNhdWRlX2RpZXRhJEhpcFxuIyBSZW5vbWVhbmRvIGEgY29sdW5hIFJhemFvV0ggcGFyYSBXMkhSYXRpb1xuY29sbmFtZXMoc2F1ZGVfZGlldGEpW2NvbG5hbWVzKHNhdWRlX2RpZXRhKSA9PSBcIlJhemFvV0hcIl0gPC0gXCJXMkhSYXRpb1wiXG5cbmBgYCJ9 -->
+
+```r
+saude_dieta$RazaoWH <- saude_dieta$Waist / saude_dieta$Hip
+# Renomeando a coluna RazaoWH para W2HRatio
+colnames(saude_dieta)[colnames(saude_dieta) == \"RazaoWH\"] <- \"W2HRatio\"
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+saude_dieta$RazaoWH <- saude_dieta$Waist / saude_dieta$Hip
+# Renomeando a coluna RazaoWH para W2HRatio
+colnames(saude_dieta)[colnames(saude_dieta) == \"RazaoWH\"] <- \"W2HRatio\"
+
+```"

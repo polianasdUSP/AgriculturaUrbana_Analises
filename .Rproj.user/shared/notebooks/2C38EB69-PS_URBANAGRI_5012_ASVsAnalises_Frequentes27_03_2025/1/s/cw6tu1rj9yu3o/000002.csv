@@ -1,0 +1,128 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cblxubGlicmFyeShkcGx5cilcbmxpYnJhcnkodGlkeXIpXG5saWJyYXJ5KHBoZWF0bWFwKVxubGlicmFyeSh0aWJibGUpXG5cbiMgMS4gU2VsZWNpb25hciBhcGVuYXMgY29sdW5hcyByZWxldmFudGVzIGRlIHNhw7pkZVxuIyBDb3JyaWdpZG9cbmhlYWx0aF9kYXRhIDwtIG1ldGFkYXRhX0FTVnMgJT4lXG4gIHNlbGVjdChTYW1wbGUuaWQsIElMMTdBLCBJRk5HYW1tYSwgVE5GLCBJTDEwLCBJTDYsIElMNCwgSUwyLCBBZ2UsXG4gICAgICAgICAgICAgICAgU3lzdG9saWMsIERpYXN0b2xpYywgVVJFSUEsIENSRUFUSU5JTkEsIEhiQTFjLCBDT0xFU1RFUk9MLCBMREwsXG4gICAgICAgICAgICAgICAgSERMLCBWTERMLCBUUklHTElDRVJJREVTLCBUR08sIFRHUCwgR0dULCBHTElDT1NFLCBJTlNVTElOQSwgSE9NQS5JUiwgXG4gICAgICAgICAgICAgICAgUENSLCBCTUksIFR5RywgVkFJLCBRVUlDS0ksIE1FVFNfSVIsIFcuSCkgJT4lXG4gIGRpc3RpbmN0KFNhbXBsZS5pZCwgLmtlZXBfYWxsID0gVFJVRSlcblxuXG4jIDIuIEp1bnRhciBjb20gYWJ1bmTDom5jaWFcbmNvbWJpbmVkX2RhdGEgPC0gU1ZzX2xvbmcgJT4lXG4gbGVmdF9qb2luKGhlYWx0aF9kYXRhLCBieSA9IFwiU2FtcGxlLmlkXCIpXG5cbiMgMy4gQ2FsY3VsYXIgY29ycmVsYcOnw7VlcyBwYXJhIGNhZGEgQVNWIGNvbSBhcyB2YXJpw6F2ZWlzIGRlIHNhw7pkZVxuY29yX3Jlc3VsdHMgPC0gY29tYmluZWRfZGF0YSAlPiVcbiBncm91cF9ieShGZWF0dXJlLklEKSAlPiVcbiAgc3VtbWFyaXplKGFjcm9zcyhcbiAgICAuY29scyA9IGMoSUwxN0EsIElGTkdhbW1hLCBUTkYsIElMMTAsIElMNiwgSUw0LCBJTDIsIEFnZSxcbiAgICAgICAgICAgICAgICBTeXN0b2xpYywgRGlhc3RvbGljLCBVUkVJQSwgQ1JFQVRJTklOQSwgSGJBMWMsIENPTEVTVEVST0wsIExETCxcbiAgICAgICAgICAgICAgICBIREwsIFZMREwsIFRSSUdMSUNFUklERVMsIFRHTywgVEdQLCBHR1QsIEdMSUNPU0UsIElOU1VMSU5BLCBIT01BLklSLCBcbiAgICAgICAgICAgICAgICBQQ1IsIEJNSSwgVHlHLCBWQUksIFFVSUNLSSwgTUVUU19JUiwgVy5IKSxcbiAgICAuZm5zID0gfiBjb3IoTm9ybUFidW5kYW5jZSwgLngsIHVzZSA9IFwiY29tcGxldGUub2JzXCIpLFxuICAgIC5uYW1lcyA9IFwiY29yX3suY29sfVwiXG4gICkpICU+JVxuIHVuZ3JvdXAoKVxuXG4jIDQuIFRyYW5zZm9ybWFyIGVtIGZvcm1hdG8gbG9uZ29cbmNvcl9sb25nIDwtIGNvcl9yZXN1bHRzICU+JVxuICBwaXZvdF9sb25nZXIoY29scyA9IHN0YXJ0c193aXRoKFwiY29yX1wiKSwgbmFtZXNfdG8gPSBcIkhlYWx0aF9QYXJhbVwiLCB2YWx1ZXNfdG8gPSBcIkNvcnJlbGF0aW9uXCIpICU+JVxuIG11dGF0ZShIZWFsdGhfUGFyYW0gPSBnc3ViKFwiY29yX1wiLCBcIlwiLCBIZWFsdGhfUGFyYW0pKVxuXG4jIDUuIENyaWFyIG1hdHJpelxuY29yX21hdHJpeCA8LSBjb3JfbG9uZyAlPiVcbnBpdm90X3dpZGVyKG5hbWVzX2Zyb20gPSBIZWFsdGhfUGFyYW0sIHZhbHVlc19mcm9tID0gQ29ycmVsYXRpb24pICU+JVxuY29sdW1uX3RvX3Jvd25hbWVzKFwiRmVhdHVyZS5JRFwiKSAlPiVcbiAgYXMubWF0cml4KClcblxuIyA2LiBIZWF0bWFwXG5jb2xvcl9wYWxldHRlIDwtIGNvbG9yUmFtcFBhbGV0dGUoYyhcImJsdWVcIiwgXCJ3aGl0ZVwiLCBcInJlZFwiKSkoNTApXG5icmVha3MgPC0gc2VxKC0wLjUsIDAuNSwgbGVuZ3RoLm91dCA9IDUxKVxuXG5waGVhdG1hcChjb3JfbWF0cml4LCBcbiAgICAgICAgIGNsdXN0ZXJpbmdfbWV0aG9kID0gXCJ3YXJkLkQyXCIsXG4gICAgICAgICBjbHVzdGVyaW5nX2Rpc3RhbmNlX3Jvd3MgPSBcImV1Y2xpZGVhblwiLFxuICAgICAgICAgY2x1c3RlcmluZ19kaXN0YW5jZV9jb2xzID0gXCJldWNsaWRlYW5cIixcbiAgICAgICAgIG1haW4gPSBcIkhlYXRtYXAgZGUgQ29ycmVsYcOnw6NvIGVudHJlIEFTVnMgZSBQYXLDom1ldHJvcyBkZSBTYcO6ZGVcIixcbiAgICAgICAgIGNvbG9yID0gY29sb3JfcGFsZXR0ZSwgXG4gICAgICAgICBicmVha3MgPSBicmVha3MsXG4gICAgICAgICBib3JkZXJfY29sb3IgPSBOQSlcblxuYGBgIn0= -->
+
+```r
+
+
+
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+library(tibble)
+
+# 1. Selecionar apenas colunas relevantes de saúde
+# Corrigido
+health_data <- metadata_ASVs %>%
+  select(Sample.id, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age,
+                Systolic, Diastolic, UREIA, CREATININA, HbA1c, COLESTEROL, LDL,
+                HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT, GLICOSE, INSULINA, HOMA.IR, 
+                PCR, BMI, TyG, VAI, QUICKI, METS_IR, W.H) %>%
+  distinct(Sample.id, .keep_all = TRUE)
+
+
+# 2. Juntar com abundância
+combined_data <- SVs_long %>%
+ left_join(health_data, by = \"Sample.id\")
+
+# 3. Calcular correlações para cada ASV com as variáveis de saúde
+cor_results <- combined_data %>%
+ group_by(Feature.ID) %>%
+  summarize(across(
+    .cols = c(IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age,
+                Systolic, Diastolic, UREIA, CREATININA, HbA1c, COLESTEROL, LDL,
+                HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT, GLICOSE, INSULINA, HOMA.IR, 
+                PCR, BMI, TyG, VAI, QUICKI, METS_IR, W.H),
+    .fns = ~ cor(NormAbundance, .x, use = \"complete.obs\"),
+    .names = \"cor_{.col}\"
+  )) %>%
+ ungroup()
+
+# 4. Transformar em formato longo
+cor_long <- cor_results %>%
+  pivot_longer(cols = starts_with(\"cor_\"), names_to = \"Health_Param\", values_to = \"Correlation\") %>%
+ mutate(Health_Param = gsub(\"cor_\", \"\", Health_Param))
+
+# 5. Criar matriz
+cor_matrix <- cor_long %>%
+pivot_wider(names_from = Health_Param, values_from = Correlation) %>%
+column_to_rownames(\"Feature.ID\") %>%
+  as.matrix()
+
+# 6. Heatmap
+color_palette <- colorRampPalette(c(\"blue\", \"white\", \"red\"))(50)
+breaks <- seq(-0.5, 0.5, length.out = 51)
+
+pheatmap(cor_matrix, 
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         main = \"Heatmap de Correlação entre ASVs e Parâmetros de Saúde\",
+         color = color_palette, 
+         breaks = breaks,
+         border_color = NA)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+
+
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+library(tibble)
+
+# 1. Selecionar apenas colunas relevantes de saúde
+# Corrigido
+health_data <- metadata_ASVs %>%
+  select(Sample.id, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age,
+                Systolic, Diastolic, UREIA, CREATININA, HbA1c, COLESTEROL, LDL,
+                HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT, GLICOSE, INSULINA, HOMA.IR, 
+                PCR, BMI, TyG, VAI, QUICKI, METS_IR, W.H) %>%
+  distinct(Sample.id, .keep_all = TRUE)
+
+
+# 2. Juntar com abundância
+combined_data <- SVs_long %>%
+ left_join(health_data, by = \"Sample.id\")
+
+# 3. Calcular correlações para cada ASV com as variáveis de saúde
+cor_results <- combined_data %>%
+ group_by(Feature.ID) %>%
+  summarize(across(
+    .cols = c(IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, Age,
+                Systolic, Diastolic, UREIA, CREATININA, HbA1c, COLESTEROL, LDL,
+                HDL, VLDL, TRIGLICERIDES, TGO, TGP, GGT, GLICOSE, INSULINA, HOMA.IR, 
+                PCR, BMI, TyG, VAI, QUICKI, METS_IR, W.H),
+    .fns = ~ cor(NormAbundance, .x, use = \"complete.obs\"),
+    .names = \"cor_{.col}\"
+  )) %>%
+ ungroup()
+
+# 4. Transformar em formato longo
+cor_long <- cor_results %>%
+  pivot_longer(cols = starts_with(\"cor_\"), names_to = \"Health_Param\", values_to = \"Correlation\") %>%
+ mutate(Health_Param = gsub(\"cor_\", \"\", Health_Param))
+
+# 5. Criar matriz
+cor_matrix <- cor_long %>%
+pivot_wider(names_from = Health_Param, values_from = Correlation) %>%
+column_to_rownames(\"Feature.ID\") %>%
+  as.matrix()
+
+# 6. Heatmap
+color_palette <- colorRampPalette(c(\"blue\", \"white\", \"red\"))(50)
+breaks <- seq(-0.5, 0.5, length.out = 51)
+
+pheatmap(cor_matrix, 
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         main = \"Heatmap de Correlação entre ASVs e Parâmetros de Saúde\",
+         color = color_palette, 
+         breaks = breaks,
+         border_color = NA)
+
+```"

@@ -1,0 +1,46 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBWZXJpZmlxdWUgb3MgSURzIGRhcyBPVFVzIG5hIG1hdHJpeiBkZSBhYnVuZMOibmNpYVxub3R1X2lkcyA8LSB0YXhhX25hbWVzKG90dV90YWJsZV9wcylcblxuIyBWZXJpZmlxdWUgb3MgSURzIG5hIHRhYmVsYSB0YXhvbsO0bWljYVxudGF4YV9pZHMgPC0gdGF4YV9uYW1lcyh0YXhfdGFibGVfcHMpXG5cbiMgVmVyaWZpcXVlIG9zIElEcyBuYSDDoXJ2b3JlIGZpbG9nZW7DqXRpY2FcbnRyZWVfaWRzIDwtIHBoeV90cmVlKHBoeV90cmVlX3BzKSR0aXAubGFiZWxcblxuIyBWZWphIHF1YW50YXMgT1RVcyBkYSB0YWJlbGEgZXN0w6NvIG5hIHRheG9ub21pYVxuc3VtKG90dV9pZHMgJWluJSB0YXhhX2lkcykgICMgRGV2ZSBzZXIgaWd1YWwgYW8gbsO6bWVybyBkZSBPVFVzXG5cbiMgVmVqYSBxdWFudGFzIE9UVXMgZGEgw6Fydm9yZSBlc3TDo28gbmEgbWF0cml6IE9UVVxuc3VtKG90dV9pZHMgJWluJSB0cmVlX2lkcykgICMgRGV2ZSBzZXIgaWd1YWwgYW8gbsO6bWVybyBkZSBPVFVzXG5cbiMgVmVqYSBxdWFudGFzIE9UVXMgZGEgw6Fydm9yZSBlc3TDo28gbmEgdGF4b25vbWlhXG5zdW0odHJlZV9pZHMgJWluJSB0YXhhX2lkcykgIyBEZXZlIHNlciBpZ3VhbCBhbyBuw7ptZXJvIGRlIE9UVXNcblxuYGBgIn0= -->
+
+```r
+# Verifique os IDs das OTUs na matriz de abundância
+otu_ids <- taxa_names(otu_table_ps)
+
+# Verifique os IDs na tabela taxonômica
+taxa_ids <- taxa_names(tax_table_ps)
+
+# Verifique os IDs na árvore filogenética
+tree_ids <- phy_tree(phy_tree_ps)$tip.label
+
+# Veja quantas OTUs da tabela estão na taxonomia
+sum(otu_ids %in% taxa_ids)  # Deve ser igual ao número de OTUs
+
+# Veja quantas OTUs da árvore estão na matriz OTU
+sum(otu_ids %in% tree_ids)  # Deve ser igual ao número de OTUs
+
+# Veja quantas OTUs da árvore estão na taxonomia
+sum(tree_ids %in% taxa_ids) # Deve ser igual ao número de OTUs
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Verifique os IDs das OTUs na matriz de abundância
+otu_ids <- taxa_names(otu_table_ps)
+
+# Verifique os IDs na tabela taxonômica
+taxa_ids <- taxa_names(tax_table_ps)
+
+# Verifique os IDs na árvore filogenética
+tree_ids <- phy_tree(phy_tree_ps)$tip.label
+
+# Veja quantas OTUs da tabela estão na taxonomia
+sum(otu_ids %in% taxa_ids)  # Deve ser igual ao número de OTUs
+
+# Veja quantas OTUs da árvore estão na matriz OTU
+sum(otu_ids %in% tree_ids)  # Deve ser igual ao número de OTUs
+
+# Veja quantas OTUs da árvore estão na taxonomia
+sum(tree_ids %in% taxa_ids) # Deve ser igual ao número de OTUs
+
+```"

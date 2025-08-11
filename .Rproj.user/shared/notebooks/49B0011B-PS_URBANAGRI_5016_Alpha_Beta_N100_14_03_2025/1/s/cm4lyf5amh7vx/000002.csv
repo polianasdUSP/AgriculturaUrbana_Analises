@@ -1,0 +1,20 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxua3J1c2thbC50ZXN0KGNoYW8xIH4gZ29yZHVyYV9ib2FfY2F0ZWdvcmlhLCBkYXRhID0gbWV0YWRhZG9zLmRpZXQuaW5kZXguYWxwaGEpXG5cbmBgYCJ9 -->
+
+```r
+kruskal.test(chao1 ~ gordura_boa_categoria, data = metadados.diet.index.alpha)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+kruskal.test(chao1 ~ gordura_boa_categoria, data = metadados.diet.index.alpha)
+
+```"
+"1","
+	Kruskal-Wallis rank sum test
+
+data:  chao1 by gordura_boa_categoria
+Kruskal-Wallis chi-squared = 9.6712, df = 1, p-value = 0.001872
+"

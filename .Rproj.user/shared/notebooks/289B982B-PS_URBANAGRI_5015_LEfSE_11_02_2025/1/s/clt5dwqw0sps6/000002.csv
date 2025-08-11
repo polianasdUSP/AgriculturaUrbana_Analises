@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29sbmFtZXModGF4X3RhYmxlX3BzKVxuXG5gYGAifQ== -->
+
+```r
+colnames(tax_table_ps)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+colnames(tax_table_ps)
+
+```"
+"1","[1] \"Feature.ID\" \"Taxon\"      \"Confidence\"
+"

@@ -1,0 +1,24 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGaWx0cmFyIGNvcnJlbGHDp8O1ZXMgc2lnbmlmaWNhdGl2YXNcbmNvcl9zaWduaWZpY2FudF9zYXVkZV9kaWV0YSA8LSBjb3JfbG9uZ19TYXVkZV9kaWV0YSAlPiVcbiAgZmlsdGVyKHBfdmFsdWUgPD0gMC4wNSlcblxuIyBWaXN1YWxpemFyIG8gcmVzdWx0YWRvXG5wcmludChjb3Jfc2lnbmlmaWNhbnRfc2F1ZGVfZGlldGEpXG5cbmBgYCJ9 -->
+
+```r
+# Filtrar correlações significativas
+cor_significant_saude_dieta <- cor_long_Saude_dieta %>%
+  filter(p_value <= 0.05)
+
+# Visualizar o resultado
+print(cor_significant_saude_dieta)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Filtrar correlações significativas
+cor_significant_saude_dieta <- cor_long_Saude_dieta %>%
+  filter(p_value <= 0.05)
+
+# Visualizar o resultado
+print(cor_significant_saude_dieta)
+
+```"

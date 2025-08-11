@@ -1,0 +1,20 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yX2FsbCAlPiVcbiAgZmlsdGVyKHBfYWRqIDwgMC4wNSkgJT4lXG4gIGFycmFuZ2UoZGVzYyhhYnMoY29ycmVsYXRpb24pKSlcblxuYGBgIn0= -->
+
+```r
+cor_all %>%
+  filter(p_adj < 0.05) %>%
+  arrange(desc(abs(correlation)))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+cor_all %>%
+  filter(p_adj < 0.05) %>%
+  arrange(desc(abs(correlation)))
+
+```"
+"1","Aviso: não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/A8B65409-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F2419ec22/cqmkcsi8ixuni_t\_rs_rdf_834574782e.rdf', motivo provável 'No such file or directory'Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

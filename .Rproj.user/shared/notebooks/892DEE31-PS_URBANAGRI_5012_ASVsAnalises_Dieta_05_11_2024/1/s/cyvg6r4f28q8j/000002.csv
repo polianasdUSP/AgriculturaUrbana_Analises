@@ -1,0 +1,20 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cbiMgTm9ybWFsaXphciBwYXJhIHBvcmNlbnRhZ2VtXG5TVnNfbm9ybWFsaXplZCA8LSBhcHBseShTVnNfZmlsdGVyZWQsIDIsIGZ1bmN0aW9uKHgpIHggLyBzdW0oeCkgKiAxMDApICAjIENvbnZlcnRlIHBhcmEgcG9yY2VudGFnZW1cblxuYGBgIn0= -->
+
+```r
+
+
+# Normalizar para porcentagem
+SVs_normalized <- apply(SVs_filtered, 2, function(x) x / sum(x) * 100)  # Converte para porcentagem
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+
+# Normalizar para porcentagem
+SVs_normalized <- apply(SVs_filtered, 2, function(x) x / sum(x) * 100)  # Converte para porcentagem
+
+```"

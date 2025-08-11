@@ -1,0 +1,997 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+# Instala e carrega os pacotes necessários
+library(dplyr)
+library(readxl)
+library(writexl)
+library(fmsb)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+library(readxl)
+library(tidyr)
+
+
+
+metadata__ASVs_Saude_Dieta_NOVA
+
+```
+
+
+```{r}
+recall <- read.delim("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/urbagri_recall_nova - urbagri_recall_nova_ParaR.tsv", 
+                     header = TRUE)
+
+#tbca <- read.table("~/USP/projetos/rCodingClub/tbca_completa2024-10-04.txt", sep = "\t", header = T, row.names = 1)
+
+# Ler a primeira aba do arquivo
+tbca <- read_excel("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Dados_composição_TBCA_Hoffmann11022022v6.xlsx")
+
+```
+
+```{r}
+
+#Compare os valores únicos entre as colunas TBCA_code e cod_alimento para garantir que há correspondências:
+unique(recall$TBCA_code)
+unique(tbca$cod_alimento)
+
+#Corrigir Erros de Formatação. Erros comuns, como espaços extras, podem ser corrigidos removendo-os:
+recall$TBCA_code <- trimws(recall$TBCA_code)
+tbca$cod_alimento <- trimws(tbca$cod_alimento)
+
+
+# Merge dos dataframes
+recall.withEnergy <- merge(
+  x = recall[c("TBCA_code", "IdVoluntario", "R24H", "Quantidade", "NOVA_group", "NOVA_subgroup", "NOVA_subgroup_description_1")],
+  y = tbca[c("cod_alimento", "energia2_kcal")],  # Inclua "cod_alimento" explicitamente
+  by.x = "TBCA_code",
+  by.y = "cod_alimento",
+  all.x = TRUE  # Mantém todas as linhas de recall
+)
+
+# Verificar os primeiros dados
+head(recall.withEnergy)
+colnames(recall)
+
+
+
+```
+
+```{r}
+#convert energy based on "quantidade consumida"
+recall.withEnergy$consumedCals <- recall.withEnergy$energia2_kcal*recall.withEnergy$Quantidade/100
+```
+
+```{r}
+# calculate energy per NOVA subcategory
+
+
+
+library(dplyr)
+
+recall.withEnergy.NOVA <- recall.withEnergy %>%
+  group_by(IdVoluntario) %>% 
+  mutate(nRcord = length(unique(R24H))) %>% 
+  ungroup() %>% 
+  group_by(IdVoluntario, R24H, NOVA_group, NOVA_subgroup, NOVA_subgroup_description_1) %>%
+  summarise(consumoTotalDiario = sum(consumedCals, na.rm = TRUE), 
+            nRcord = mean(nRcord, na.rm = TRUE), .groups = "drop") %>% 
+  group_by(IdVoluntario, NOVA_group, NOVA_subgroup, NOVA_subgroup_description_1) %>% 
+  summarise(somaConsumoDiario = sum(consumoTotalDiario, na.rm = TRUE), 
+            nRcord = mean(nRcord, na.rm = TRUE), .groups = "drop") %>% 
+  mutate(mediaConsumoDiario = somaConsumoDiario / nRcord) %>% 
+  select(-somaConsumoDiario)  # Removendo a coluna intermediária que não é mais necessária
+
+
+
+```
+
+
+```{r}
+# calc percentages for each person 
+recall.withEnergy.NOVA.percentage <- recall.withEnergy.NOVA %>%
+  group_by(IdVoluntario) %>%
+  mutate(consumoTotal = sum(mediaConsumoDiario)) %>%
+  group_by(NOVA_subgroup, .add = TRUE) %>%  # Substituí `add` por `.add`
+  mutate(prop = 100 * mediaConsumoDiario / consumoTotal)  # Calcula a proporção
+
+
+```
+
+```{r}
+#alternative
+recall.withEnergy.NOVA %>%
+  group_by(IdVoluntario) %>%
+  mutate(per =  mediaConsumoDiario/sum(mediaConsumoDiario)) %>% 
+  ungroup
+```
+```{r}
+write.csv(recall.withEnergy.NOVA, 
+          "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/recall_withEnergy_NOVA.csv", 
+          row.names = FALSE)
+
+write.table(recall.withEnergy.NOVA, 
+            "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/recall_withEnergy_NOVA.tsv", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+
+write_xlsx(recall.withEnergy.NOVA, 
+           "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/recall_withEnergy_NOVA.xlsx")
+
+
+```
+
+```{r}
+write.csv(recall.withEnergy.NOVA.percentage, 
+          "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/recall_withEnergy_NOVA.percentage.csv", 
+          row.names = FALSE)
+
+write.table(recall.withEnergy.NOVA.percentage, 
+            "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/recall_withEnergy_NOVA.percentage.tsv", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+library(writexl)
+
+write_xlsx(recall.withEnergy.NOVA.percentage, 
+           "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/recall_withEnergy_NOVA.percentage.xlsx")
+
+
+```
+
+
+```{r}
+#other transformations
+recall.withEnergy.NOVA %>%
+  group_by(IdVoluntario) %>%
+  summarise(ConsumoDiarioTotal = sum(mediaConsumoDiario, na.rm = T))
+
+```
+
+```{r}
+
+
+# Calcular a porcentagem de cada NOVA_group por voluntário
+nova_percentages <- recall.withEnergy.NOVA %>%
+  group_by(IdVoluntario, NOVA_group) %>%
+  summarise(ConsumoGrupo = sum(mediaConsumoDiario, na.rm = TRUE)) %>%
+  mutate(Percentual = ConsumoGrupo / sum(ConsumoGrupo) * 100) %>%
+  ungroup()
+
+# Visualizar os primeiros registros
+head(nova_percentages)
+
+# Salvar o resultado em um arquivo Excel
+library(writexl)
+write_xlsx(nova_percentages, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/nova_percentages_voluntario_agrUrbana.xlsx")
+
+```
+
+```{r}
+# Resumo descritivo por NOVA_group
+resumo_consumo <- nova_percentages %>%
+  group_by(NOVA_group) %>%
+  summarise(
+    MediaConsumo = mean(Percentual),
+    MedianaConsumo = median(Percentual),
+    DesvioPadrao = sd(Percentual)
+  )
+print(resumo_consumo)
+```
+
+```{r}
+# Classificar voluntários com base no maior consumo
+classificacao <- nova_percentages %>%
+  group_by(IdVoluntario) %>%
+  slice_max(order_by = Percentual, n = 1) %>%
+  select(IdVoluntario, NOVA_group, Percentual)
+
+print(classificacao)
+```
+
+```{r}
+library(ggplot2)
+
+# Boxplot
+ggplot(nova_percentages, aes(x = as.factor(NOVA_group), y = Percentual)) +
+  geom_boxplot() +
+  labs(x = "NOVA Group", y = "Percentual de Consumo (%)", title = "Distribuição do Consumo por Grupo Alimentar")
+```
+
+
+```{r}
+# Gráfico de barras das médias
+ggplot(resumo_consumo, aes(x = as.factor(NOVA_group), y = MediaConsumo, fill = as.factor(NOVA_group))) +
+  geom_bar(stat = "identity") +
+  labs(x = "NOVA Group", y = "Consumo Médio (%)", title = "Consumo Médio por Grupo Alimentar")
+
+```
+
+```{r}
+# Identificar voluntários com alto consumo de ultraprocessados
+altos_consumidores <- nova_percentages %>%
+  filter(NOVA_group == 3, Percentual > 50)
+
+print(altos_consumidores)
+
+```
+```{r}
+# Identificar voluntários com alto consumo de ultraprocessados
+baixos_consumidores <- nova_percentages %>%
+  filter(NOVA_group == 3, Percentual < 5)
+
+print(baixos_consumidores)
+```
+
+```{r}
+#pivotar nova_percentages
+
+
+
+# Transformar os dados para que cada voluntário tenha apenas uma linha
+nova_wide_percentagens <- nova_percentages %>%
+  pivot_wider(
+    id_cols = IdVoluntario, 
+    names_from = NOVA_group, 
+    values_from = c(ConsumoGrupo, Percentual),
+    names_prefix = "NOVA_group_"
+  )
+
+# Ver a tabela final
+print(nova_wide_percentagens)
+
+
+# Substituir NA por 0
+nova_wide_percentagens <- nova_wide_percentagens %>%
+  mutate(across(starts_with("ConsumoGrupo"), ~ replace_na(., 0))) %>%
+  mutate(across(starts_with("Percentual"), ~ replace_na(., 0)))
+
+# Salvar a nova planilha
+write_xlsx(nova_wide_percentagens, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/nova_wide_sem_NA.xlsx")
+
+# Salvar o objeto em um arquivo CSV
+write.csv(nova_wide_percentagens, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/nova_wide_sem_NA.csv", row.names = FALSE)
+
+
+
+```
+
+```{r}
+# Alterar o formato de IdVoluntario para "Sxxxxx.F00"
+nova_wide_percentagens <- nova_wide_percentagens %>%
+  mutate(IdVoluntario = paste0("S", IdVoluntario, ".F00"))
+
+# Verificar o resultado
+print(nova_wide_percentagens)
+
+# Salvar o novo arquivo
+library(writexl)
+write_xlsx(nova_wide_percentagens, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/nova_wide_percentagens.xlsx")
+
+```
+```{r}
+
+
+# Realizar a junção
+metadata__ASVs_Saude_Dieta_NOVA <- metadata_ASVs_Saude_dieta %>%
+  left_join(nova_wide_percentagens, by = c("Sample.id" = "IdVoluntario"))
+
+# Salvar o novo dataframe
+library(writexl)
+write_xlsx(metadata__ASVs_Saude_Dieta_NOVA, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/metadata__ASVs_Saude_Dieta_NOVA.xlsx")
+
+# Visualizar o resultado
+head(metadata_com_percentagens)
+
+```
+
+
+
+
+```{r}
+
+# Realizar a junção
+metadata_com_NOVA <- metadados_completo %>%
+  left_join(nova_wide_percentagens, by = c("Sample.id" = "IdVoluntario"))
+
+# Salvar o novo dataframe
+library(writexl)
+write_xlsx(metadata_com_percentagens, "C:/Users/polia/Desktop/metadata_com_percentagens.xlsx")
+
+colnames(metadata_com_NOVA)
+
+```
+Comparação de Consumo de Ultraprocessados por Sexo
+```{r}
+
+
+ggplot(metadata_com_NOVA, aes(x = Sex, y = Percentual_NOVA_group_3, fill = Sex)) +
+  geom_boxplot() +
+  labs(title = "Consumo de Ultraprocessados por Sexo",
+       x = "Sexo",
+       y = "Percentual de Ultraprocessados (%)") +
+  theme_minimal()
+
+
+
+```
+
+```{r}
+# Teste t para comparar os grupos
+t.test(Percentual_NOVA_group_3 ~ Sex, data = metadata_com_NOVA, var.equal = FALSE)
+```
+
+Comparação de Consumo de Ultraprocessados por Faixas Etárias
+```{r}
+# Criar faixas etárias
+metadata_com_NOVA$Faixa_Etaria <- cut(metadata_com_NOVA$Age,
+                                      breaks = c(0, 30, 50, 70, 100),
+                                      labels = c("0-30", "31-50", "51-70", "71+"))
+
+# Boxplot por Faixa Etária
+ggplot(metadata_com_NOVA, aes(x = Faixa_Etaria, y = Percentual_NOVA_group_3, fill = Faixa_Etaria)) +
+  geom_boxplot() +
+  labs(title = "Consumo de Ultraprocessados por Faixa Etária",
+       x = "Faixa Etária",
+       y = "Percentual de Ultraprocessados (%)") +
+  theme_minimal()
+
+
+```
+```{r}
+# ANOVA para testar diferenças entre grupos etários
+anova_result <- aov(Percentual_NOVA_group_3 ~ Faixa_Etaria, data = metadata_com_NOVA)
+summary(anova_result)
+
+```
+```{r}
+
+# Teste post-hoc (Tukey)
+TukeyHSD(anova_result)
+```
+Correlação de Consumo de Ultraprocessados com Idade e IMC
+```{r}
+# Calcular IMC
+metadata_com_NOVA$IMC <- metadata_com_NOVA$Weight / (metadata_com_NOVA$Height/100)^2
+
+# Correlação entre Percentual de Ultraprocessados e Idade
+cor.test(metadata_com_NOVA$Percentual_NOVA_group_3, metadata_com_NOVA$Age, method = "spearman")
+
+
+
+```
+
+```{r}
+# Correlação entre Percentual de Ultraprocessados e IMC
+cor.test(metadata_com_NOVA$Percentual_NOVA_group_3, metadata_com_NOVA$IMC, method = "spearman")
+
+
+```
+
+```{r}
+# Scatterplot com linha de tendência
+ggplot(metadata_com_NOVA, aes(x = Age, y = Percentual_NOVA_group_3)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Correlação entre Idade e Consumo de Ultraprocessados",
+       x = "Idade",
+       y = "Percentual de Ultraprocessados (%)") +
+  theme_minimal()
+```
+```{r}
+# Ajustar um modelo de regressão
+modelo <- lm(Percentual_NOVA_group_3 ~ Age + Sex + IMC + Region_type, data = metadata_com_NOVA)
+summary(modelo)
+
+# Visualizar os resultados
+library(broom)
+tidy(modelo)
+
+```
+```{r}
+library(ggplot2)
+
+# Dados dos ajustes e resíduos
+modelo_df <- data.frame(
+  Ajustados = modelo$fitted.values,
+  Residuos = modelo$residuals
+)
+
+# Gráfico
+ggplot(modelo_df, aes(x = Ajustados, y = Residuos)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Gráfico de Resíduos vs Ajustados",
+       x = "Valores Ajustados",
+       y = "Resíduos") +
+  theme_minimal()
+
+```
+
+```{r}
+library(ggplot2)
+library(ggfortify)
+
+# Gráfico de efeitos parciais
+autoplot(modelo, which = 1:6, ncol = 2)
+
+```
+
+```{r}
+# Mostrando a linha 146 do dataframe
+metadata_com_NOVA[146, ]
+
+```
+
+
+```{r}
+
+ggplot(metadata_com_NOVA, aes(x = Sex, y = Percentual_NOVA_group_3, fill = Sex)) +
+  geom_boxplot() +
+  labs(title = "Consumo de Ultraprocessados por Sexo",
+       x = "Sexo",
+       y = "Percentual de Ultraprocessados (%)") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Pastel1")
+
+```
+
+```{r}
+ggplot(metadata_com_NOVA, aes(x = Age, y = Percentual_NOVA_group_3)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue", se = TRUE) +
+  labs(title = "Consumo de Ultraprocessados vs Idade",
+       x = "Idade",
+       y = "Percentual de Ultraprocessados (%)") +
+  theme_minimal()
+
+```
+
+```{r}
+coef_df <- data.frame(
+  Variavel = rownames(coef(summary(modelo))),
+  Estimativa = coef(modelo),
+  Erro_Padrao = coef(summary(modelo))[, "Std. Error"]
+)
+
+ggplot(coef_df[-1, ], aes(x = reorder(Variavel, Estimativa), y = Estimativa)) +
+  geom_col(fill = "steelblue") +
+  geom_errorbar(aes(ymin = Estimativa - Erro_Padrao, ymax = Estimativa + Erro_Padrao), width = 0.2) +
+  coord_flip() +
+  labs(title = "Coeficientes do Modelo de Regressão",
+       x = "Variável",
+       y = "Estimativa") +
+  theme_minimal()
+
+```
+```{r}
+metadata_com_NOVA
+```
+
+
+```{r}
+# Corrigir o subset para incluir apenas linhas onde Percentual_NOVA_group_3 não é NA
+merged_data_para_PCOa <- merge(wunifrac.pcoa$points, 
+                     subset(metadata_com_NOVA, !is.na(Percentual_NOVA_group_3)), 
+                     by.x = "row.names", 
+                     by.y = "Sample.id")
+
+
+# Criar o gráfico
+ggplot(merged_data_para_PCOa) + 
+  geom_point(aes(x = V1, y = V2, color = Percentual_NOVA_group_3), size = 2) + 
+  scale_color_gradient(low = "blue", high = "red", name = "Ultraprocessados (%)") +
+  labs(title = "Weighted Unifrac",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+
+```{r}
+# Corrigir o subset para incluir apenas linhas onde Percentual_NOVA_group_3 não é NA
+merged_data_para_PCOa2 <- merge(uwunifrac.pcoa$points, 
+                     subset(metadata_com_NOVA, !is.na(Percentual_NOVA_group_3)), 
+                     by.x = "row.names", 
+                     by.y = "Sample.id")
+```
+
+```{r}
+# Criar o gráfico
+ggplot(merged_data_para_PCOa2) + 
+  geom_point(aes(x = V1, y = V2, color = Percentual_NOVA_group_3), size = 2) + 
+  scale_color_gradient(low = "blue", high = "red", name = "Ultraprocessados (%)") +
+  labs(title = "Unweighted Unifrac",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+```
+
+```{r}
+library(ggplot2)
+library(viridis)
+
+# Plot com escala de cores viridis
+ggplot(merged_data_para_PCOa, aes(x = V1, y = V2, color = Percentual_NOVA_group_3)) +
+  geom_point(size = 2) +
+  scale_color_viridis(option = "viridis", name = "Ultraprocessados (%)") +
+  labs(title = "Weighted Unifrac",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+
+```{r}
+
+
+# Plot com escala de cores viridis
+ggplot(merged_data_para_PCOa2, aes(x = V1, y = V2, color = Percentual_NOVA_group_3)) +
+  geom_point(size = 2) +
+  scale_color_viridis(option = "viridis", name = "Ultraprocessados (%)") +
+  labs(title = "Unweighted Unifrac",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+
+```{r}
+# Criando faixas para o Percentual de Ultraprocessados
+merged_data_para_PCOa$Faixas_Ultraprocessados <- cut(
+  merged_data_para_PCOa$Percentual_NOVA_group_3,
+  breaks = c(0, 20, 40, 60, 80, 100),
+  labels = c("0-20%", "21-40%", "41-60%", "61-80%", "81-100%"),
+  include.lowest = TRUE
+)
+
+# Plot com escala de cores discreta
+ggplot(merged_data_para_PCOa, aes(x = V1, y = V2, color = Faixas_Ultraprocessados)) +
+  geom_point(size = 2) +
+  scale_color_brewer(palette = "Set1", name = "Ultraprocessados (%)") +
+  labs(title = "Weighted Unifrac com Faixas Discretas",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+
+```{r}
+# Criando faixas para o Percentual de Ultraprocessados
+merged_data_para_PCOa2$Faixas_Ultraprocessados <- cut(
+  merged_data_para_PCOa2$Percentual_NOVA_group_3,
+  breaks = c(0, 20, 40, 60, 80, 100),
+  labels = c("0-20%", "21-40%", "41-60%", "61-80%", "81-100%"),
+  include.lowest = TRUE
+)
+
+# Plot com escala de cores discreta
+ggplot(merged_data_para_PCOa2, aes(x = V1, y = V2, color = Faixas_Ultraprocessados)) +
+  geom_point(size = 2) +
+  scale_color_brewer(palette = "Set1", name = "Ultraprocessados (%)") +
+  labs(title = "Unweighted Unifrac (Ultraprocessados)",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+```{r}
+# Criando faixas para o Percentual de alimentos in natura (NOVA_group_1)
+merged_data_para_PCOa$Faixas_Natura <- cut(
+  merged_data_para_PCOa$Percentual_NOVA_group_1,
+  breaks = c(0, 20, 40, 60, 80, 100),
+  labels = c("0-20%", "21-40%", "41-60%", "61-80%", "81-100%"),
+  include.lowest = TRUE
+)
+
+# Plot com escala de cores discreta para Percentual_NOVA_group_1
+ggplot(merged_data_para_PCOa, aes(x = V1, y = V2, color = Faixas_Natura)) +
+  geom_point(size = 2) +
+  scale_color_brewer(palette = "Set1", name = "In Natura (%)") +
+  labs(title = "Weighted Unifrac com Faixas Discretas (In Natura)",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+
+```{r}
+# Criando faixas para o Percentual de alimentos in natura (NOVA_group_1)
+merged_data_para_PCOa2$Faixas_Natura <- cut(
+  merged_data_para_PCOa2$Percentual_NOVA_group_1,
+  breaks = c(0, 20, 40, 60, 80, 100),
+  labels = c("0-20%", "21-40%", "41-60%", "61-80%", "81-100%"),
+  include.lowest = TRUE
+)
+
+# Plot com escala de cores discreta para Percentual_NOVA_group_1
+ggplot(merged_data_para_PCOa2, aes(x = V1, y = V2, color = Faixas_Natura)) +
+  geom_point(size = 2) +
+  scale_color_brewer(palette = "Set1", name = "In Natura (%)") +
+  labs(title = "Unweighted Unifrac (In Natura)",
+       x = "V1",
+       y = "V2") +
+  theme_minimal()
+
+```
+
+```{r}
+# Caminho do arquivo
+file_path <- "C:/Users/polia/Downloads/sociodemografico.csv"
+
+sociodemografico <- read.csv("C:/Users/polia/Downloads/sociodemografico.csv", sep = ";", stringsAsFactors = FALSE, encoding = "latin1")
+
+# Visualizar as primeiras linhas
+head(sociodemografico)
+
+```
+
+```{r}
+# Adicionar o prefixo e sufixo ao ID
+sociodemografico$Sample.id <- paste0("S", sociodemografico$Sample.id, ".F00")
+
+# Verificar o resultado
+head(sociodemografico)
+
+
+```
+```{r}
+# Selecionar as colunas desejadas do objeto sociodemografico
+colunas_desejadas <- c("Sample.id", "Race", "Literacy", "Education", "Smoke", "Alcohol", "Medication", "Antibiotic")
+sociodemografico_selecionado <- sociodemografico[, colunas_desejadas]
+
+# Fazer o merge das colunas do sociodemografico no metadata_com_NOVA
+metadata_com_NOVA <- merge(metadata_com_NOVA, sociodemografico_selecionado, by = "Sample.id", all.x = TRUE)
+
+# Verificar o resultado
+head(metadata_com_NOVA)
+```
+
+
+
+```{r}
+# Remover a coluna Cytokines_Date
+metadata_com_NOVA$Cytokines_Date <- NULL
+
+# Verificar o resultado
+head(metadata_com_NOVA)
+
+```
+```{r}
+# Adicionar 'Race' à lista de variáveis categóricas
+variaveis_categoricas <- c("Race", "Literacy", "Education", "Smoke", "Alcohol", "Medication", "Antibiotic")
+
+# Criar uma lista para armazenar os resultados
+resultados <- list()
+
+# Loop para realizar os testes
+for (variavel in variaveis_categoricas) {
+  print(paste("Analisando:", variavel))
+  
+  # Verificar o número de categorias na variável
+  if (length(unique(metadata_com_NOVA[[variavel]])) == 2) {
+    # Teste de Mann-Whitney para variáveis binárias
+    teste <- wilcox.test(Percentual_NOVA_group_3 ~ get(variavel), data = metadata_com_NOVA)
+    resultados[[variavel]] <- list(
+      "Teste" = "Mann-Whitney",
+      "p-value" = teste$p.value
+    )
+  } else {
+    # Teste de Kruskal-Wallis para variáveis com mais de duas categorias
+    teste <- kruskal.test(Percentual_NOVA_group_3 ~ get(variavel), data = metadata_com_NOVA)
+    resultados[[variavel]] <- list(
+      "Teste" = "Kruskal-Wallis",
+      "p-value" = teste$p.value
+    )
+  }
+}
+
+# Exibir os resultados
+resultados
+
+
+```
+
+```{r}
+# Renomear a coluna 'IdVoluntario' em metadados.dieta.saude.alpha para 'Sample.id'
+colnames(metadados.alpha.all)[colnames(metadados.alpha.all) == "Sample"] <- "Sample.id"
+
+# Selecionar as colunas necessárias de metadata_com_NOVA
+novas_colunas <- metadata_com_NOVA[, c("Sample.id", 
+                                       "ConsumoGrupo_NOVA_group_1", 
+                                       "ConsumoGrupo_NOVA_group_2", 
+                                       "ConsumoGrupo_NOVA_group_3", 
+                                       "Percentual_NOVA_group_1", 
+                                       "Percentual_NOVA_group_2", 
+                                       "Percentual_NOVA_group_3")]
+
+
+# Juntar os dois dataframes
+metadados.alpha.all <- merge(metadados.alpha.all, 
+                                     novas_colunas, 
+                                     by = "Sample.id", 
+                                     all.x = TRUE)
+
+# Remover colunas duplicadas com base nos nomes únicos
+metadados.alpha.all1 <- metadados.alpha.all[, !duplicated(sub("\\.x$|\\.y$", "", colnames(metadados.alpha.all1)))]
+
+# Exibir os nomes das colunas após a remoção de duplicatas
+colnames(metadados.alpha.all1)
+
+
+# Visualizar as primeiras linhas para verificar
+head(metadados.alpha.all)
+colnames(metadados.alpha.all)
+
+library(dplyr)
+library(stringr)
+
+# Remover o sufixo .x de todas as colunas em metadados.alpha.all
+metadados.alpha.all1 <- metadados.alpha.all %>%
+  rename_with(~ str_remove(., "\\.x$"))
+
+# Verificar os novos nomes das colunas
+colnames(metadados.alpha.all1)
+
+
+```
+```{r}
+# Remover colunas que terminam com ".y"
+metadados.alpha.all1 <- metadados.alpha.all1 %>%
+  select(-ends_with(".y"))
+
+metadados.alpha.all <-metadados.alpha.all1
+
+# Verificar as colunas restantes
+colnames(metadados.alpha.all)
+
+```
+
+```{r}
+# Verificar as colunas relevantes
+str(metadados.alpha.all[, c("Percentual_NOVA_group_3", "shannon_entropy")])
+
+```
+
+```{r}
+# Calcular a correlação (Spearman, pois não depende de linearidade)
+cor_ultraprocessados <- cor(metadados.alpha.all$Percentual_NOVA_group_3, 
+                            metadados.alpha.all$shannon_entropy, 
+                            use = "complete.obs", 
+                            method = "spearman")
+
+# Exibir o valor da correlação
+cor_ultraprocessados
+
+```
+
+```{r}
+
+
+# Criar o gráfico
+ggplot(metadados.alpha.all, aes(x = Percentual_NOVA_group_3, y = shannon_entropy)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue", se = FALSE) +
+  labs(title = "Alpha Diversidade vs Consumo de Ultraprocessados",
+       x = "Percentual de Consumo de Ultraprocessados",
+       y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+```{r}
+# Criar categorias de consumo de ultraprocessados
+metadados.alpha.all$ConsumoCategoria <- cut(metadados.alpha.all$Percentual_NOVA_group_3, 
+                                            breaks = c(0, 10, 20, 30, 100), 
+                                            labels = c("Baixo", "Moderado", "Alto", "Muito Alto"), 
+                                            include.lowest = TRUE)
+
+# Verificar distribuição
+table(metadados.alpha.all$ConsumoCategoria)
+
+# Gráfico de boxplot por categoria
+ggplot(metadados.alpha.all, aes(x = ConsumoCategoria, y = shannon_entropy)) +
+  geom_boxplot() +
+  labs(title = "Alpha Diversidade por Categoria de Consumo de Ultraprocessados",
+       x = "Categoria de Consumo de Ultraprocessados",
+       y = "Shannon Entropy") +
+  theme_minimal()
+
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr) # Para valores de p
+library(dplyr)  # Para manipulação de dados
+
+# Reordenar os níveis da categoria de consumo
+dados_filtrados$ConsumoCategoria <- factor(dados_filtrados$ConsumoCategoria, 
+                                           levels = c("Muito Alto", "Alto", "Moderado", "Baixo"))
+
+# Criar o gráfico com cores invertidas
+ggplot(dados_filtrados, aes(x = ConsumoCategoria, y = shannon_entropy, fill = ConsumoCategoria)) +
+  geom_boxplot() +
+  stat_compare_means(method = "kruskal.test", label = "p.format") + # Adiciona valores de p
+  labs(title = "Alpha Diversidade por Categoria de Consumo de Ultraprocessados",
+       x = "Categoria de Consumo de Ultraprocessados",
+       y = "Shannon Entropy") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Spectral", direction = 1) # Inverter as cores da paleta
+
+
+```
+
+```{r}
+ggplot(dados_filtrados, aes(x = ConsumoCategoria, y = pielou_evenness, fill = ConsumoCategoria)) +
+  geom_boxplot() +
+  stat_compare_means(method = "kruskal.test", label = "p.format") + # Adiciona valores de p
+  labs(title = "Pielou Evenness por Categoria de Consumo de Ultraprocessados",
+       x = "Categoria de Consumo de Ultraprocessados",
+       y = "Pielou Evenness") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Spectral", direction = 1) # Inverter cores da paleta
+
+```
+
+```{r}
+ggplot(dados_filtrados, aes(x = ConsumoCategoria, y = faith_pd, fill = ConsumoCategoria)) +
+  geom_boxplot() +
+  stat_compare_means(method = "kruskal.test", label = "p.format") + # Adiciona valores de p
+  labs(title = "Faith PD por Categoria de Consumo de Ultraprocessados",
+       x = "Categoria de Consumo de Ultraprocessados",
+       y = "Faith PD") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Spectral", direction = 1) # Inverter cores da paleta
+
+```
+
+```{r}
+ggplot(dados_filtrados, aes(x = ConsumoCategoria, y = observed_features, fill = ConsumoCategoria)) +
+  geom_boxplot() +
+  stat_compare_means(method = "kruskal.test", label = "p.format") + # Adiciona valores de p
+  labs(title = "Observed Features por Categoria de Consumo de Ultraprocessados",
+       x = "Categoria de Consumo de Ultraprocessados",
+       y = "Observed Features") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Spectral", direction = 1) # Inverter cores da paleta
+
+```
+
+```{r}
+# Lista das métricas
+metricas <- c("pielou_evenness", "faith_pd", "observed_features", "shannon_entropy")
+
+# Loop para gerar gráficos com jitter
+for (metrica in metricas) {
+  print(
+    ggplot(dados_filtrados, aes_string(x = "ConsumoCategoria", y = metrica, fill = "ConsumoCategoria")) +
+      geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+      geom_jitter(position = position_jitter(width = 0.2), size = 2, alpha = 0.6) +
+      stat_compare_means(method = "kruskal.test", label = "p.format") +
+      labs(title = paste(metrica, "por Categoria de Consumo de Ultraprocessados"),
+           x = "Categoria de Consumo de Ultraprocessados",
+           y = metrica) +
+      theme_minimal() +
+      scale_fill_brewer(palette = "Spectral", direction = 1)
+  )
+}
+
+```
+
+```{r}
+# Criar categorias para Percentual_NOVA_group_1
+dados_filtrados$ConsumoNaturaCategoria <- cut(dados_filtrados$Percentual_NOVA_group_1, 
+                                              breaks = c(0, 25, 50, 75, 100), 
+                                              labels = c("Muito Baixo", "Baixo", "Moderado", "Alto"), 
+                                              include.lowest = TRUE)
+
+# Verificar a distribuição das categorias
+table(dados_filtrados$ConsumoNaturaCategoria)
+
+```
+
+```{r}
+# Lista das métricas
+metricas <- c("shannon_entropy", "pielou_evenness", "faith_pd", "observed_features")
+
+# Loop para gerar gráficos com jitter para cada métrica
+for (metrica in metricas) {
+  print(
+    ggplot(dados_filtrados, aes_string(x = "ConsumoNaturaCategoria", y = metrica, fill = "ConsumoNaturaCategoria")) +
+      geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+      geom_jitter(position = position_jitter(width = 0.2), size = 2, alpha = 0.6) +
+      stat_compare_means(method = "kruskal.test", label = "p.format") +
+      labs(title = paste(metrica, "por Categoria de Consumo de Alimentos In Natura"),
+           x = "Categoria de Consumo de Alimentos In Natura",
+           y = metrica) +
+      theme_minimal() +
+      scale_fill_brewer(palette = "Spectral", direction = 1)
+  )
+}
+
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr) # Para calcular o valor de p
+
+# Lista de métricas de diversidade
+metricas <- c("shannon_entropy", "pielou_evenness", "faith_pd", "observed_features")
+
+# Loop para gerar gráficos de dispersão para cada métrica
+for (metrica in metricas) {
+  print(
+    ggplot(dados_filtrados, aes_string(x = "Percentual_NOVA_group_1", y = metrica)) +
+      geom_point(alpha = 0.6, size = 2) + # Adiciona pontos
+      geom_smooth(method = "lm", color = "blue", se = TRUE) + # Linha de regressão linear
+      stat_cor(method = "pearson", label.x = 10, label.y = max(dados_filtrados[[metrica]], na.rm = TRUE)) + # Valor de p e correlação
+      labs(title = paste("Correlação entre", metrica, "e Consumo de Alimentos In Natura"),
+           x = "Percentual de Consumo de Alimentos In Natura",
+           y = metrica) +
+      theme_minimal()
+  )
+}
+
+
+```
+```{r}
+library(ggplot2)
+library(ggpubr) # Para calcular o valor de p
+
+# Lista de métricas de diversidade
+metricas <- c("shannon_entropy", "pielou_evenness", "faith_pd", "observed_features")
+
+# Loop para gerar gráficos de dispersão para cada métrica com Percentual_NOVA_group_3
+for (metrica in metricas) {
+  print(
+    ggplot(dados_filtrados, aes_string(x = "Percentual_NOVA_group_3", y = metrica)) +
+      geom_point(alpha = 0.6, size = 2) + # Adiciona pontos
+      geom_smooth(method = "lm", color = "blue", se = TRUE) + # Linha de regressão linear
+      stat_cor(method = "pearson", label.x = 10, label.y = max(dados_filtrados[[metrica]], na.rm = TRUE)) + # Valor de p e correlação
+      labs(title = paste("Correlação entre", metrica, "e Consumo de Ultraprocessados"),
+           x = "Percentual de Consumo de Ultraprocessados",
+           y = metrica) +
+      theme_minimal()
+  )
+}
+
+```
+```{r}
+
+# Loop para gerar gráficos de dispersão para cada métrica com Percentual_NOVA_group_2
+for (metrica in metricas) {
+  print(
+    ggplot(dados_filtrados, aes_string(x = "Percentual_NOVA_group_2", y = metrica)) +
+      geom_point(alpha = 0.6, size = 2) + # Adiciona pontos
+      geom_smooth(method = "lm", color = "blue", se = TRUE) + # Linha de regressão linear
+      stat_cor(method = "pearson", label.x = 10, label.y = max(dados_filtrados[[metrica]], na.rm = TRUE)) + # Valor de p e correlação
+      labs(title = paste("Correlação entre", metrica, "e Consumo de Alimentos Processados"),
+           x = "Percentual de Consumo de Alimentos Processados",
+           y = metrica) +
+      theme_minimal()
+  )
+}
+
+```
+
+
+#========== Analise por Clusters ================
+
+```{r}
+# Garantir que os IDs das amostras sejam compatíveis antes do merge
+metadata__ASVs_Saude_Dieta_NOVA <- metadata__ASVs_Saude_Dieta_NOVA %>%
+  left_join(metadados.alpha.all %>% select(Sample.id, Cluster_Hclust), by = "Sample.id")
+
+# Verificar se a coluna foi adicionada corretamente
+head(metadata__ASVs_Saude_Dieta_NOVA)
+
+```

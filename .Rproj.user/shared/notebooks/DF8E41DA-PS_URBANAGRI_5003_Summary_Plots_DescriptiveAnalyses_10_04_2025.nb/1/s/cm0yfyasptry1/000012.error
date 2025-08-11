@@ -1,0 +1,1 @@
+{"frames":[{"func":"summary(as.dataframe(metadados.dieta.all))","file":"","line_number":0,"end_line_number":0,"character_number":0,"end_character_number":0}],"message":"Error in as.dataframe(metadados.dieta.all) : \n  não foi possível encontrar a função \"as.dataframe\"\n"}

@@ -1,0 +1,85 @@
+"0","# Usando o dataframe 'combined_data' que contém 'V1' (PC1) e 'V2' (PC2)
+combined_data %>%
+  ggplot(aes(x = V1, y = V2, color = Region, shape = Treponema, size = shannon_entropy)) +
+  geom_point(alpha = 0.5) +  # Controles de transparência
+  theme_q2r() +  # Tema do QIIME2
+  scale_shape_manual(values = c(16, 1), name = ""Treponema"") +  # Código para os diferentes tipos de pontos
+  scale_size_continuous(name = ""Shannon Diversity"") +
+  scale_color_discrete(name = ""Region"") +
+  labs(x = ""PC1"", y = ""PC2"")  # Etiquetas dos eixos
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"
+"2","Aviso em grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y,  :"
+"2","
+ "
+"2"," font family not found in Windows font database
+"

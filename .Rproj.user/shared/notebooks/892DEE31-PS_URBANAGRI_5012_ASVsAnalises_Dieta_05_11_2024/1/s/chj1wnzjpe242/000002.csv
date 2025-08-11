@@ -1,0 +1,62 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDcmlhciBvIGhlYXRtYXAgY29tIGJhc2UgbmFzIGNvcnJlbGHDp8O1ZXMgc2lnbmlmaWNhdGl2YXMgYWp1c3RhZGFzXG5oZWF0bWFwX2ZkciA8LSBnZ3Bsb3QoY29yX3NpZ25pZmljYW50X2ZkciwgYWVzKHggPSBwYXJhbWV0ZXIsIHkgPSBUYXhvbiwgZmlsbCA9IGNvcnJlbGF0aW9uKSkgK1xuICBnZW9tX3RpbGUoY29sb3IgPSBcIndoaXRlXCIpICtcbiAgc2NhbGVfZmlsbF9ncmFkaWVudDIobG93ID0gXCJibHVlXCIsIG1pZCA9IFwid2hpdGVcIiwgaGlnaCA9IFwicmVkXCIsIG1pZHBvaW50ID0gMCwgXG4gICAgICAgICAgICAgICAgICAgICAgIG5hbWUgPSBcIkNvcnJlbGHDp8Ojb1wiKSArXG4gIHRoZW1lX21pbmltYWwoKSArXG4gIHRoZW1lKFxuICAgIGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNDUsIGhqdXN0ID0gMSwgc2l6ZSA9IDgpLFxuICAgIGF4aXMudGV4dC55ID0gZWxlbWVudF90ZXh0KHNpemUgPSA2KSxcbiAgICBheGlzLnRpdGxlLnggPSBlbGVtZW50X2JsYW5rKCksXG4gICAgYXhpcy50aXRsZS55ID0gZWxlbWVudF9ibGFuaygpXG4gICkgK1xuICBsYWJzKHRpdGxlID0gXCJIZWF0bWFwIGRlIENvcnJlbGHDp8O1ZXMgU2lnbmlmaWNhdGl2YXMgKEZEUiDiiaQgMC4wNSlcIixcbiAgICAgICBzdWJ0aXRsZSA9IFwiQ29ycmXDp8O1ZXMgYWp1c3RhZGFzIHBhcmEgbcO6bHRpcGxvcyB0ZXN0ZXNcIilcblxuIyBFeGliaXIgbyBoZWF0bWFwXG5wcmludChoZWF0bWFwX2ZkcilcblxuIyBTYWx2YXIgbyBoZWF0bWFwIG5vIGNhbWluaG8gZXNwZWNpZmljYWRvXG5nZ3NhdmUoXCJDOi9Vc2Vycy9wb2xpYS9PbmVEcml2ZS9EZXNrdG9wL0VzdGF0aXN0aWNhUi9BZ3JVcmJhbmEvMTZTX0FncmlVcmJhbmEvUGxhbmlsaGFzL2hlYXRtYXBfZmRyLnBuZ1wiLCBcbiAgICAgICBwbG90ID0gaGVhdG1hcF9mZHIsIFxuICAgICAgIHdpZHRoID0gMTAsIFxuICAgICAgIGhlaWdodCA9IDgpXG5cbmdnc2F2ZShcImhlYXRtYXBfZmRyX2xhcmdlLnBuZ1wiLCBwbG90ID0gaGVhdG1hcF9mZHIsIHdpZHRoID0gMTUsIGhlaWdodCA9IDEyKVxuXG5gYGAifQ== -->
+
+```r
+# Criar o heatmap com base nas correlações significativas ajustadas
+heatmap_fdr <- ggplot(cor_significant_fdr, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas (FDR ≤ 0.05)\",
+       subtitle = \"Correções ajustadas para múltiplos testes\")
+
+# Exibir o heatmap
+print(heatmap_fdr)
+
+# Salvar o heatmap no caminho especificado
+ggsave(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/heatmap_fdr.png\", 
+       plot = heatmap_fdr, 
+       width = 10, 
+       height = 8)
+
+ggsave(\"heatmap_fdr_large.png\", plot = heatmap_fdr, width = 15, height = 12)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Criar o heatmap com base nas correlações significativas ajustadas
+heatmap_fdr <- ggplot(cor_significant_fdr, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas (FDR ≤ 0.05)\",
+       subtitle = \"Correções ajustadas para múltiplos testes\")
+
+# Exibir o heatmap
+print(heatmap_fdr)
+
+# Salvar o heatmap no caminho especificado
+ggsave(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/heatmap_fdr.png\", 
+       plot = heatmap_fdr, 
+       width = 10, 
+       height = 8)
+
+ggsave(\"heatmap_fdr_large.png\", plot = heatmap_fdr, width = 15, height = 12)
+
+```"

@@ -1,0 +1,160 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGdW7Dp8OjbyBwYXJhIGNvbXBhcmFyIGNvbSBGRFIgZSByZXRvcm5hciBhcGVuYXMgc2lnbmlmaWNhdGl2b3MgY29tIHBvc2nDp8OjbyB5XG5nZXRfY29tcGFyYWNvZXMgPC0gZnVuY3Rpb24odmFyLCB5X3Bvcykge1xuICBjb21wIDwtIGNvbXBhcmVfbWVhbnMoYXMuZm9ybXVsYShwYXN0ZTAodmFyLCBcIiB+IHRlcmNpbF9jb2xlc3Rlcm9sXCIpKSxcbiAgICAgICAgICAgICAgICAgICAgICAgIGRhdGEgPSBtZXRhZGFkb3MuZGlldGEucmVzaWR1YWwuYWxwaGEsXG4gICAgICAgICAgICAgICAgICAgICAgICBtZXRob2QgPSBcIndpbGNveC50ZXN0XCIsIHAuYWRqdXN0Lm1ldGhvZCA9IFwiZmRyXCIpXG4gIGNvbXBfc2lnIDwtIGNvbXAgJT4lIGZpbHRlcihwLmFkaiA8PSAwLjA1KVxuICBpZiAobnJvdyhjb21wX3NpZykgPiAwKSB7XG4gICAgY29tcF9zaWckeS5wb3NpdGlvbiA8LSB5X3Bvc1sxOm5yb3coY29tcF9zaWcpXVxuICAgIHJldHVybihjb21wX3NpZylcbiAgfSBlbHNlIHtcbiAgICByZXR1cm4oTlVMTClcbiAgfVxufVxuXG4jIEtydXNrYWwtV2FsbGlzIGdlcmFsXG5rd19jb2xlc3Rlcm9sX3NoYW5ub24gPC0ga3J1c2thbC50ZXN0KHNoYW5ub25fZW50cm9weSB+IHRlcmNpbF9jb2xlc3Rlcm9sLCBkYXRhID0gbWV0YWRhZG9zLmRpZXRhLnJlc2lkdWFsLmFscGhhKSRwLnZhbHVlXG5rd19jb2xlc3Rlcm9sX3BpZWxvdSAgPC0ga3J1c2thbC50ZXN0KHBpZWxvdV9ldmVubmVzcyB+IHRlcmNpbF9jb2xlc3Rlcm9sLCBkYXRhID0gbWV0YWRhZG9zLmRpZXRhLnJlc2lkdWFsLmFscGhhKSRwLnZhbHVlXG5rd19jb2xlc3Rlcm9sX2NoYW8xICAgPC0ga3J1c2thbC50ZXN0KGNoYW8xIH4gdGVyY2lsX2NvbGVzdGVyb2wsIGRhdGEgPSBtZXRhZGFkb3MuZGlldGEucmVzaWR1YWwuYWxwaGEpJHAudmFsdWVcbmt3X2NvbGVzdGVyb2xfZmFpdGggICA8LSBrcnVza2FsLnRlc3QoZmFpdGhfcGQgfiB0ZXJjaWxfY29sZXN0ZXJvbCwgZGF0YSA9IG1ldGFkYWRvcy5kaWV0YS5yZXNpZHVhbC5hbHBoYSkkcC52YWx1ZVxuXG4jIENvbXBhcmHDp8O1ZXMgY29tIFdpbGNveG9uXG5jb21wYXJhY29lc19jb2xfc2hhbm5vbiA8LSBnZXRfY29tcGFyYWNvZXMoXCJzaGFubm9uX2VudHJvcHlcIiwgYyg3LjIsIDcuNCwgNy42KSlcbmNvbXBhcmFjb2VzX2NvbF9waWVsb3UgIDwtIGdldF9jb21wYXJhY29lcyhcInBpZWxvdV9ldmVubmVzc1wiLCBjKDAuODgsIDAuOTEsIDAuOTQpKVxuY29tcGFyYWNvZXNfY29sX2NoYW8xICAgPC0gZ2V0X2NvbXBhcmFjb2VzKFwiY2hhbzFcIiwgYyg0MjAsIDQ0MCwgNDYwKSlcbmNvbXBhcmFjb2VzX2NvbF9mYWl0aCAgIDwtIGdldF9jb21wYXJhY29lcyhcImZhaXRoX3BkXCIsIGMoMjQsIDI2LCAyOCkpXG5cbiMgR3LDoWZpY28gU2hhbm5vblxucDFfY29sIDwtIGdnYm94cGxvdChtZXRhZGFkb3MuZGlldGEucmVzaWR1YWwuYWxwaGEsIHggPSBcInRlcmNpbF9jb2xlc3Rlcm9sXCIsIHkgPSBcInNoYW5ub25fZW50cm9weVwiLFxuICAgICAgICAgICAgICAgICAgICBmaWxsID0gXCJ0ZXJjaWxfY29sZXN0ZXJvbFwiLCBwYWxldHRlID0gXCJ2aXJpZGlzXCIpICtcbiAgbGFicyh0aXRsZSA9IHBhc3RlMChcIkEuIFNoYW5ub24gRW50cm9weSAoS3J1c2thbC1XYWxsaXMgcCA9IFwiLCBzaWduaWYoa3dfY29sZXN0ZXJvbF9zaGFubm9uLCAzKSwgXCIpXCIpLFxuICAgICAgIHggPSBcIkNob2xlc3Rlcm9sIEludGFrZSAodGVyY2lsZSlcIiwgeSA9IFwiU2hhbm5vbiBFbnRyb3B5XCIpICtcbiAgdGhlbWVfbWluaW1hbCgpXG5pZiAoIWlzLm51bGwoY29tcGFyYWNvZXNfY29sX3NoYW5ub24pKSB7XG4gIHAxX2NvbCA8LSBwMV9jb2wgKyBzdGF0X3B2YWx1ZV9tYW51YWwoY29tcGFyYWNvZXNfY29sX3NoYW5ub24sIGxhYmVsID0gXCJwLnNpZ25pZlwiLCB0aXAubGVuZ3RoID0gMC4wMSlcbn1cblxuIyBHcsOhZmljbyBQaWVsb3VcbnAyX2NvbCA8LSBnZ2JveHBsb3QobWV0YWRhZG9zLmRpZXRhLnJlc2lkdWFsLmFscGhhLCB4ID0gXCJ0ZXJjaWxfY29sZXN0ZXJvbFwiLCB5ID0gXCJwaWVsb3VfZXZlbm5lc3NcIixcbiAgICAgICAgICAgICAgICAgICAgZmlsbCA9IFwidGVyY2lsX2NvbGVzdGVyb2xcIiwgcGFsZXR0ZSA9IFwidmlyaWRpc1wiKSArXG4gIGxhYnModGl0bGUgPSBwYXN0ZTAoXCJCLiBQaWVsb3UgRXZlbm5lc3MgKEtydXNrYWwtV2FsbGlzIHAgPSBcIiwgc2lnbmlmKGt3X2NvbGVzdGVyb2xfcGllbG91LCAzKSwgXCIpXCIpLFxuICAgICAgIHggPSBcIkNob2xlc3Rlcm9sIEludGFrZSAodGVyY2lsZSlcIiwgeSA9IFwiUGllbG91IEluZGV4XCIpICtcbiAgdGhlbWVfbWluaW1hbCgpXG5pZiAoIWlzLm51bGwoY29tcGFyYWNvZXNfY29sX3BpZWxvdSkpIHtcbiAgcDJfY29sIDwtIHAyX2NvbCArIHN0YXRfcHZhbHVlX21hbnVhbChjb21wYXJhY29lc19jb2xfcGllbG91LCBsYWJlbCA9IFwicC5zaWduaWZcIiwgdGlwLmxlbmd0aCA9IDAuMDEpXG59XG5cbiMgR3LDoWZpY28gQ2hhbzFcbnAzX2NvbCA8LSBnZ2JveHBsb3QobWV0YWRhZG9zLmRpZXRhLnJlc2lkdWFsLmFscGhhLCB4ID0gXCJ0ZXJjaWxfY29sZXN0ZXJvbFwiLCB5ID0gXCJjaGFvMVwiLFxuICAgICAgICAgICAgICAgICAgICBmaWxsID0gXCJ0ZXJjaWxfY29sZXN0ZXJvbFwiLCBwYWxldHRlID0gXCJ2aXJpZGlzXCIpICtcbiAgbGFicyh0aXRsZSA9IHBhc3RlMChcIkMuIENoYW8xIFJpY2huZXNzIChLcnVza2FsLVdhbGxpcyBwID0gXCIsIHNpZ25pZihrd19jb2xlc3Rlcm9sX2NoYW8xLCAzKSwgXCIpXCIpLFxuICAgICAgIHggPSBcIkNob2xlc3Rlcm9sIEludGFrZSAodGVyY2lsZSlcIiwgeSA9IFwiQ2hhbzEgUmljaG5lc3NcIikgK1xuICB0aGVtZV9taW5pbWFsKClcbmlmICghaXMubnVsbChjb21wYXJhY29lc19jb2xfY2hhbzEpKSB7XG4gIHAzX2NvbCA8LSBwM19jb2wgKyBzdGF0X3B2YWx1ZV9tYW51YWwoY29tcGFyYWNvZXNfY29sX2NoYW8xLCBsYWJlbCA9IFwicC5zaWduaWZcIiwgdGlwLmxlbmd0aCA9IDAuMDEpXG59XG5cbiMgR3LDoWZpY28gRmFpdGgncyBQRFxucDRfY29sIDwtIGdnYm94cGxvdChtZXRhZGFkb3MuZGlldGEucmVzaWR1YWwuYWxwaGEsIHggPSBcInRlcmNpbF9jb2xlc3Rlcm9sXCIsIHkgPSBcImZhaXRoX3BkXCIsXG4gICAgICAgICAgICAgICAgICAgIGZpbGwgPSBcInRlcmNpbF9jb2xlc3Rlcm9sXCIsIHBhbGV0dGUgPSBcInZpcmlkaXNcIikgK1xuICBsYWJzKHRpdGxlID0gcGFzdGUwKFwiRC4gRmFpdGgncyBQRCAoS3J1c2thbC1XYWxsaXMgcCA9IFwiLCBzaWduaWYoa3dfY29sZXN0ZXJvbF9mYWl0aCwgMyksIFwiKVwiKSxcbiAgICAgICB4ID0gXCJDaG9sZXN0ZXJvbCBJbnRha2UgKHRlcmNpbGUpXCIsIHkgPSBcIkZhaXRoJ3MgUGh5bG9nZW5ldGljIERpdmVyc2l0eVwiKSArXG4gIHRoZW1lX21pbmltYWwoKVxuaWYgKCFpcy5udWxsKGNvbXBhcmFjb2VzX2NvbF9mYWl0aCkpIHtcbiAgcDRfY29sIDwtIHA0X2NvbCArIHN0YXRfcHZhbHVlX21hbnVhbChjb21wYXJhY29lc19jb2xfZmFpdGgsIGxhYmVsID0gXCJwLnNpZ25pZlwiLCB0aXAubGVuZ3RoID0gMC4wMSlcbn1cblxuIyBKdW50YXIgb3MgZ3LDoWZpY29zXG5wYWluZWxfY29sZXN0ZXJvbF9maW5hbCA8LSBnZ2FycmFuZ2UocDFfY29sLCBwMl9jb2wsIHAzX2NvbCwgcDRfY29sLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBuY29sID0gMiwgbnJvdyA9IDIsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbW1vbi5sZWdlbmQgPSBUUlVFLCBsZWdlbmQgPSBcImJvdHRvbVwiKVxuXG4jIFNhbHZhclxuZ2dzYXZlKFwicGFpbmVsX2NvbGVzdGVyb2xfc2lnbmlmaWNhdGl2by5wbmdcIiwgcGFpbmVsX2NvbGVzdGVyb2xfZmluYWwsIHdpZHRoID0gMTIsIGhlaWdodCA9IDgsIGRwaSA9IDMwMClcblxuXG5gYGAifQ== -->
+
+```r
+# Função para comparar com FDR e retornar apenas significativos com posição y
+get_comparacoes <- function(var, y_pos) {
+  comp <- compare_means(as.formula(paste0(var, \" ~ tercil_colesterol\")),
+                        data = metadados.dieta.residual.alpha,
+                        method = \"wilcox.test\", p.adjust.method = \"fdr\")
+  comp_sig <- comp %>% filter(p.adj <= 0.05)
+  if (nrow(comp_sig) > 0) {
+    comp_sig$y.position <- y_pos[1:nrow(comp_sig)]
+    return(comp_sig)
+  } else {
+    return(NULL)
+  }
+}
+
+# Kruskal-Wallis geral
+kw_colesterol_shannon <- kruskal.test(shannon_entropy ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_pielou  <- kruskal.test(pielou_evenness ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_chao1   <- kruskal.test(chao1 ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_faith   <- kruskal.test(faith_pd ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+
+# Comparações com Wilcoxon
+comparacoes_col_shannon <- get_comparacoes(\"shannon_entropy\", c(7.2, 7.4, 7.6))
+comparacoes_col_pielou  <- get_comparacoes(\"pielou_evenness\", c(0.88, 0.91, 0.94))
+comparacoes_col_chao1   <- get_comparacoes(\"chao1\", c(420, 440, 460))
+comparacoes_col_faith   <- get_comparacoes(\"faith_pd\", c(24, 26, 28))
+
+# Gráfico Shannon
+p1_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"shannon_entropy\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"A. Shannon Entropy (Kruskal-Wallis p = \", signif(kw_colesterol_shannon, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Shannon Entropy\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_shannon)) {
+  p1_col <- p1_col + stat_pvalue_manual(comparacoes_col_shannon, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Gráfico Pielou
+p2_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"pielou_evenness\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"B. Pielou Evenness (Kruskal-Wallis p = \", signif(kw_colesterol_pielou, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Pielou Index\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_pielou)) {
+  p2_col <- p2_col + stat_pvalue_manual(comparacoes_col_pielou, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Gráfico Chao1
+p3_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"chao1\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"C. Chao1 Richness (Kruskal-Wallis p = \", signif(kw_colesterol_chao1, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Chao1 Richness\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_chao1)) {
+  p3_col <- p3_col + stat_pvalue_manual(comparacoes_col_chao1, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Gráfico Faith's PD
+p4_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"faith_pd\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"D. Faith's PD (Kruskal-Wallis p = \", signif(kw_colesterol_faith, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Faith's Phylogenetic Diversity\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_faith)) {
+  p4_col <- p4_col + stat_pvalue_manual(comparacoes_col_faith, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Juntar os gráficos
+painel_colesterol_final <- ggarrange(p1_col, p2_col, p3_col, p4_col, 
+                                     ncol = 2, nrow = 2, 
+                                     common.legend = TRUE, legend = \"bottom\")
+
+# Salvar
+ggsave(\"painel_colesterol_significativo.png\", painel_colesterol_final, width = 12, height = 8, dpi = 300)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Função para comparar com FDR e retornar apenas significativos com posição y
+get_comparacoes <- function(var, y_pos) {
+  comp <- compare_means(as.formula(paste0(var, \" ~ tercil_colesterol\")),
+                        data = metadados.dieta.residual.alpha,
+                        method = \"wilcox.test\", p.adjust.method = \"fdr\")
+  comp_sig <- comp %>% filter(p.adj <= 0.05)
+  if (nrow(comp_sig) > 0) {
+    comp_sig$y.position <- y_pos[1:nrow(comp_sig)]
+    return(comp_sig)
+  } else {
+    return(NULL)
+  }
+}
+
+# Kruskal-Wallis geral
+kw_colesterol_shannon <- kruskal.test(shannon_entropy ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_pielou  <- kruskal.test(pielou_evenness ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_chao1   <- kruskal.test(chao1 ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+kw_colesterol_faith   <- kruskal.test(faith_pd ~ tercil_colesterol, data = metadados.dieta.residual.alpha)$p.value
+
+# Comparações com Wilcoxon
+comparacoes_col_shannon <- get_comparacoes(\"shannon_entropy\", c(7.2, 7.4, 7.6))
+comparacoes_col_pielou  <- get_comparacoes(\"pielou_evenness\", c(0.88, 0.91, 0.94))
+comparacoes_col_chao1   <- get_comparacoes(\"chao1\", c(420, 440, 460))
+comparacoes_col_faith   <- get_comparacoes(\"faith_pd\", c(24, 26, 28))
+
+# Gráfico Shannon
+p1_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"shannon_entropy\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"A. Shannon Entropy (Kruskal-Wallis p = \", signif(kw_colesterol_shannon, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Shannon Entropy\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_shannon)) {
+  p1_col <- p1_col + stat_pvalue_manual(comparacoes_col_shannon, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Gráfico Pielou
+p2_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"pielou_evenness\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"B. Pielou Evenness (Kruskal-Wallis p = \", signif(kw_colesterol_pielou, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Pielou Index\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_pielou)) {
+  p2_col <- p2_col + stat_pvalue_manual(comparacoes_col_pielou, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Gráfico Chao1
+p3_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"chao1\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"C. Chao1 Richness (Kruskal-Wallis p = \", signif(kw_colesterol_chao1, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Chao1 Richness\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_chao1)) {
+  p3_col <- p3_col + stat_pvalue_manual(comparacoes_col_chao1, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Gráfico Faith's PD
+p4_col <- ggboxplot(metadados.dieta.residual.alpha, x = \"tercil_colesterol\", y = \"faith_pd\",
+                    fill = \"tercil_colesterol\", palette = \"viridis\") +
+  labs(title = paste0(\"D. Faith's PD (Kruskal-Wallis p = \", signif(kw_colesterol_faith, 3), \")\"),
+       x = \"Cholesterol Intake (tercile)\", y = \"Faith's Phylogenetic Diversity\") +
+  theme_minimal()
+if (!is.null(comparacoes_col_faith)) {
+  p4_col <- p4_col + stat_pvalue_manual(comparacoes_col_faith, label = \"p.signif\", tip.length = 0.01)
+}
+
+# Juntar os gráficos
+painel_colesterol_final <- ggarrange(p1_col, p2_col, p3_col, p4_col, 
+                                     ncol = 2, nrow = 2, 
+                                     common.legend = TRUE, legend = \"bottom\")
+
+# Salvar
+ggsave(\"painel_colesterol_significativo.png\", painel_colesterol_final, width = 12, height = 8, dpi = 300)
+
+
+```"

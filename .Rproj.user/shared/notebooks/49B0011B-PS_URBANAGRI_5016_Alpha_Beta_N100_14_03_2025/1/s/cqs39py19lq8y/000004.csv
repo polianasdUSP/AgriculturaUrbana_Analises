@@ -1,0 +1,28 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KHBjb2FfcG9pbnRzX2phY2NhcmQsIGFlcyh4ID0gQXhpcy4xLCB5ID0gQXhpcy4yKSkgK1xuICBnZW9tX3BvaW50KHNpemUgPSAyKSArXG4gIGxhYnModGl0bGUgPSBcIlBDb0Eg4oCUIEphY2NhcmRcIixcbiAgICAgICB4ID0gcGFzdGUwKFwiUENvQTEgKFwiLCBleHBsX3Zhcl9qYWNjYXJkWzFdLCBcIiUpXCIpLFxuICAgICAgIHkgPSBwYXN0ZTAoXCJQQ29BMiAoXCIsIGV4cGxfdmFyX2phY2NhcmRbMl0sIFwiJSlcIikpICtcbiAgdGhlbWVfbWluaW1hbCgpXG5cbmBgYCJ9 -->
+
+```r
+ggplot(pcoa_points_jaccard, aes(x = Axis.1, y = Axis.2)) +
+  geom_point(size = 2) +
+  labs(title = \"PCoA — Jaccard\",
+       x = paste0(\"PCoA1 (\", expl_var_jaccard[1], \"%)\"),
+       y = paste0(\"PCoA2 (\", expl_var_jaccard[2], \"%)\")) +
+  theme_minimal()
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+ggplot(pcoa_points_jaccard, aes(x = Axis.1, y = Axis.2)) +
+  geom_point(size = 2) +
+  labs(title = \"PCoA — Jaccard\",
+       x = paste0(\"PCoA1 (\", expl_var_jaccard[1], \"%)\"),
+       y = paste0(\"PCoA2 (\", expl_var_jaccard[2], \"%)\")) +
+  theme_minimal()
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/AF6D5EA6-PS_URBANAGRI_5016_Alpha_Beta_N100_14_03_2025/1/4E7A587F21ebe5f4/cpmzxns7s4eoj_t/5d5a7be414f94decbd21a194de2055a3.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

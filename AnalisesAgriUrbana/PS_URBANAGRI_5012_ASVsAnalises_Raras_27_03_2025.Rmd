@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+
+# Carregar pacotes necessários
+library(tidyverse)
+
+
+# Instalar microbiomeMarker via Bioconductor
+BiocManager::install("microbiomeMarker")
+
+library(microbiomeMarker)
+
+library(qiime2R)
+library(phyloseq)
+install.packages("xfun")
+
+library(tibble)
+
+```
+
+
+```{r}
+
+#metadata <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv", 
+                     sep = ";", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+metadata <-metadados.raw
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+```
+
+```{r}
+
+```{r}
+SVs <- ASV.table.raw
+
+# Calcular o número de voluntários em que cada ASV está presente
+asv_presence <- rowSums(SVs > 0)
+
+# Filtrar ASVs presentes em pelo menos 13 voluntários
+SVs_filtered <- SVs[asv_presence >= 13, ]
+
+```
+
+
+```{r}
+
+
+# Normalizar para porcentagem
+SVs_normalized <- apply(SVs_filtered, 2, function(x) x / sum(x) * 100)  # Converte para porcentagem
+
+```
+
+
+```{r}
+# Transformar em data frame para manipulação
+SVs_long <- SVs_normalized %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "Sample.id", value = "Abundance")
+
+```
+
+
+```{r}
+# Aplicar transformação logarítmica
+
+SVs_long <- SVs_long %>%
+  mutate(NormAbundance = log10(Abundance + 0.01))  # Adiciona 0.01 para evitar log(0)
+
+# Exportar para uma planilha
+write.csv(SVs_long, "SVs_normalized_log_transformed.csv", row.names = FALSE)
+
+
+
+```
+
+
+```{r}
+# Total de ASVs por amostra (das filtradas)
+total_abund <- colSums(SVs_filtered)
+
+# Selecionar ASVs raras da matriz SVs_filtered
+SVs_raras_sobre_total <- SVs_filtered[rownames(SVs_filtered) %in% asvs_rare_ids, ]
+
+# Somar abundância das ASVs raras por amostra
+abund_raras_total <- colSums(SVs_raras_sobre_total)
+
+# Calcular % de ASVs raras sobre o total
+perc_raras_total <- abund_raras_total / total_abund * 100
+
+# Criar data.frame
+df_perc_raras_total <- data.frame(
+  Sample.id = names(perc_raras_total),
+  Perc_ASVs_raras_total = perc_raras_total
+)
+
+#Juntar com metadados
+metadados_com_raras_perc <- metadados.all %>%
+  left_join(df_perc_raras_total, by = "Sample.id")
+
+
+#3. Gerar gráfico com boxplot (exemplo com PCR)
+
+library(ggplot2)
+
+# Criar variável de grupo (exemplo: acima da mediana da PCR)
+metadados_com_raras_perc$PCR_acima_mediana <- metadados_com_raras_perc$PCR > median(metadados_com_raras_perc$PCR, na.rm = TRUE)
+
+# Boxplot
+ggplot(metadados_com_raras_perc, aes(x = PCR_acima_mediana, y = Perc_ASVs_raras_total)) +
+  geom_boxplot(fill = "orange", color = "black") +
+  labs(
+    title = "ASVs Raras (% do total) vs PCR",
+    x = "PCR acima da mediana",
+    y = "Abundância relativa (%) das ASVs raras"
+  ) +
+  theme_minimal()
+
+
+```

@@ -1,0 +1,27 @@
+"0","library(microbiome)
+"
+"2","Carregando pacotes exigidos: phyloseq
+"
+"2","
+microbiome R package (microbiome.github.com)
+    
+
+
+ Copyright (C) 2011-2022 Leo Lahti, 
+    Sudarshan Shetty et al. <microbiome.github.io>
+
+"
+"2","
+Anexando pacote: ‘microbiome’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:ggplot2’:
+
+    alpha
+
+"
+"2","O seguinte objeto é mascarado por ‘package:base’:
+
+    transform
+
+"

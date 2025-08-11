@@ -1,0 +1,5 @@
+"0","PERMANOVA_IL4UnWei <- adonis2(unweighted_unifrac~metadados_citocinas$IL4)
+"
+"2","Error in qr.fitted(qrhs, G) : 
+  'qr' e 'y' devem ter o mesmo número de linhas
+"

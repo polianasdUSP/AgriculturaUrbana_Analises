@@ -1,0 +1,24 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5tZXRhZGFkb3MuYWxwaGEuYWxsIDwtIG1lcmdlKG1ldGFkYWRvcywgYWxwaGEuYWxsLCBieS54ID0gXCJTYW1wbGUuaWRcIiwgYnkueSA9IFwiUm93Lm5hbWVzXCIpXG5cbndyaXRlLmNzdih4ID0gbWV0YWRhZG9zLmFscGhhLmFsbCwgXG4gICAgICAgICAgZmlsZSA9IFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL1BsYW5pbGhhc19VcmJhbkFncmkvbWV0YWRhZG9zLmFscGhhLmFsbC5jc3ZcIiwgcm93Lm5hbWVzID0gRkFMU0UpXG5cblxuYGBgIn0= -->
+
+```r
+
+metadados.alpha.all <- merge(metadados, alpha.all, by.x = \"Sample.id\", by.y = \"Row.names\")
+
+write.csv(x = metadados.alpha.all, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.alpha.all.csv\", row.names = FALSE)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+metadados.alpha.all <- merge(metadados, alpha.all, by.x = \"Sample.id\", by.y = \"Row.names\")
+
+write.csv(x = metadados.alpha.all, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.alpha.all.csv\", row.names = FALSE)
+
+
+```"

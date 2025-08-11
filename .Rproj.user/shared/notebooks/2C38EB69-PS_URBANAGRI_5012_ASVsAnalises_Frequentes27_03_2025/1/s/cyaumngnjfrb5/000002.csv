@@ -1,0 +1,45 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyA3LiBHZXJhciBoZWF0bWFwXG5waGVhdG1hcChjb3JfbWF0cml4X2RpZXQsXG4gICAgICAgICBkaXNwbGF5X251bWJlcnMgPSBzdGFyX21hdHJpeF9kaWV0LFxuICAgICAgICAgYW5ub3RhdGlvbl9yb3cgPSBhbm5vdGF0aW9uX3Jvd19kaWV0LFxuICAgICAgICAgI2Fubm90YXRpb25fY29sb3JzID0gYW5uX2NvbG9yc19kaWV0LFxuICAgICAgICAgY2x1c3RlcmluZ19tZXRob2QgPSBcIndhcmQuRDJcIixcbiAgICAgICAgIGNsdXN0ZXJpbmdfZGlzdGFuY2Vfcm93cyA9IFwiZXVjbGlkZWFuXCIsXG4gICAgICAgICBjbHVzdGVyaW5nX2Rpc3RhbmNlX2NvbHMgPSBcImV1Y2xpZGVhblwiLFxuICAgICAgICAgY29sb3IgPSBjb2xvcl9wYWxldHRlLFxuICAgICAgICAgYnJlYWtzID0gYnJlYWtzLFxuICAgICAgICAgbWFpbiA9IFwiQ29ycmVsYcOnw6NvIGVudHJlIEFTVnMgZSBWYXJpw6F2ZWlzIGRhIERpZXRhXFxuKCogRkRSIDwgMC4wNSlcIixcbiAgICAgICAgIGZvbnRzaXplX3JvdyA9IDYsXG4gICAgICAgICBmb250c2l6ZV9jb2wgPSA5LFxuICAgICAgICAgZm9udHNpemVfbnVtYmVyID0gMTAsXG4gICAgICAgICBib3JkZXJfY29sb3IgPSBOQSlcblxuYGBgIn0= -->
+
+```r
+# 7. Gerar heatmap
+pheatmap(cor_matrix_diet,
+         display_numbers = star_matrix_diet,
+         annotation_row = annotation_row_diet,
+         #annotation_colors = ann_colors_diet,
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         color = color_palette,
+         breaks = breaks,
+         main = \"Correlação entre ASVs e Variáveis da Dieta\n(* FDR < 0.05)\",
+         fontsize_row = 6,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# 7. Gerar heatmap
+pheatmap(cor_matrix_diet,
+         display_numbers = star_matrix_diet,
+         annotation_row = annotation_row_diet,
+         #annotation_colors = ann_colors_diet,
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         color = color_palette,
+         breaks = breaks,
+         main = \"Correlação entre ASVs e Variáveis da Dieta\n(* FDR < 0.05)\",
+         fontsize_row = 6,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA)
+
+```"
+"1","Error in (function (filename = \"Rplot%03d.png\", width = 480, height = 480,  : 
+  não é possível iniciar dispositivo png()
+"

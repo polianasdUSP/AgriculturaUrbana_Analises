@@ -1,0 +1,17 @@
+"0","```r
+# Exibir os resultados do teste t
+print(t_test_result)
+
+```"
+"1","
+	Welch Two Sample t-test
+
+data:  shannon_entropy by Region_type
+t = -0.38007, df = 122.9, p-value = 0.7046
+alternative hypothesis: true difference in means between group Rural and group Urban is not equal to 0
+95 percent confidence interval:
+ -0.3242833  0.2198133
+sample estimates:
+mean in group Rural mean in group Urban 
+           5.596068            5.648303 
+"

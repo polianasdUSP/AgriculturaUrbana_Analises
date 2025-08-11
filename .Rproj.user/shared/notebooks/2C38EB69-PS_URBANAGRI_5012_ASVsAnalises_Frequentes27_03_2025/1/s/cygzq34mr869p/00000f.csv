@@ -1,0 +1,17 @@
+"0","# Heatmap
+pheatmap(cor_matrix_health,
+         display_numbers = star_matrix_health,
+         clustering_method = ""ward.D2"",
+         clustering_distance_rows = ""euclidean"",
+         clustering_distance_cols = ""euclidean"",
+         color = colorRampPalette(c(""blue"", ""white"", ""red""))(100),
+         breaks = seq(-0.5, 0.5, length.out = 101),
+         main = ""Correlação entre Taxa e Parâmetros de Saúde\n(* FDR < 0.05)"",
+         fontsize_row = 7,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA)
+"
+"2","Error in pheatmap(cor_matrix_health, display_numbers = star_matrix_health,  : 
+  não foi possível encontrar a função ""pheatmap""
+"

@@ -1,0 +1,313 @@
+---
+title: "PS_URBANAGRI_5007_AlphaPhyloseq_24_09_2024"
+output: html_notebook
+---
+
+Aqui para calcular Alpha diversidade direto no R, sem usar os calculos que o Qiime ja fez.
+
+```{r}
+library(phyloseq)
+library(picante)
+library(vegan)
+```
+```{r}
+# Carregar o arquivo .tsv no R
+asv_table <- read.table("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/sequenciamento20240524/asv-table.tsv", 
+                        sep = "\t", 
+                        header = TRUE, 
+                        row.names = 1, 
+                        check.names = FALSE)
+
+# Visualizar as primeiras linhas da tabela
+head(asv_table)
+```
+
+```{r}
+# Verificar as dimensões do dataframe
+dim(asv_table)
+
+# Verificar os nomes das colunas e das linhas
+colnames(asv_table)
+rownames(asv_table)
+
+# Visualizar as primeiras linhas e colunas do dataframe
+head(asv_table)
+
+```
+
+
+```{r}
+
+# Carregar o arquivo feature-table.txt
+feature_table <- read.table("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/exported-asv-table/feature-table.txt", header = TRUE, row.names = 1, sep = "\t")
+
+my.asvs <- t(feature_table)
+
+# Verifique as primeiras linhas
+head(my.asvs)
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+my.asvs <- my.asvs[grepl("\\.F00$", rownames(my.asvs)), , drop = FALSE]
+
+
+
+```
+
+
+
+```{r}
+# Exemplo para criar objeto phyloseq (modifique de acordo com seus dados)
+# Abundance table
+# Recriar a OTU table corretamente com taxa_are_rows = FALSE
+otu_table <- otu_table(my.asvs, taxa_are_rows = FALSE)
+
+
+# Calcular apenas o índice de Simpson
+simpson_diversity <- estimate_richness(otu_table, measures = "Simpson")
+
+# Visualizar os resultados
+head(simpson_diversity)
+
+# Verificar a contagem mínima de OTUs por amostra
+min(colSums(otu_table))
+
+# Verificar se há OTUs com contagem total de 1
+any(rowSums(otu_table) == 1)
+
+# Remover amostras com contagem total de OTUs igual a zero
+otu_table <- prune_samples(colSums(otu_table) > 0, otu_table)
+
+# Calcular o índice de Simpson
+simpson_diversity <- estimate_richness(otu_table, measures = "Simpson")
+
+# Visualizar os resultados
+head(simpson_diversity)
+
+
+
+```
+
+```{r}
+# Calcular o índice de Chao1
+chao1_diversity <- estimate_richness(otu_table, measures = "Chao1")
+
+# Visualizar os resultados
+head(chao1_diversity)
+
+
+
+```
+
+
+```{r}
+# Calcular o índice de ACE
+ace_diversity <- estimate_richness(otu_table, measures = "ACE")
+
+# Visualizar os resultados
+head(ace_diversity)
+
+```
+```{r}
+# Extrair a OTU table do objeto phyloseq e converter para matriz
+otu_matrix <- as(otu_table(otu_table), "matrix")
+
+
+# Calcular o índice de Fisher para cada amostra
+fisher_diversity <- fisher.alpha(otu_matrix)
+
+# Visualizar os resultados
+head(fisher_diversity)
+
+```
+
+```{r}
+# Calcular o índice de Shannon
+shannon_diversity <- estimate_richness(otu_table, measures = "Shannon")
+
+# Visualizar os resultados
+head(shannon_diversity)
+
+```
+
+
+```{r}
+# Combinar os índices em um único dataframe
+alpha.all.2 <- data.frame(
+  Simpson = simpson_diversity$Simpson,
+  Chao1 = chao1_diversity$Chao1,
+  ACE = ace_diversity$ACE
+)
+
+# Adicionar o nome das amostras como rownames
+rownames(alpha.all.2) <- rownames(simpson_diversity)
+
+# Adicionar o índice de Fisher ao dataframe combinado
+alpha.all.2$Fisher <- fisher_diversity
+
+# Adicionar o índice de Shannon ao dataframe combinado
+alpha.all.2$Shannon <- shannon_diversity$Shannon
+
+# Visualizar os resultados combinados
+head(alpha.all.2)
+
+
+```
+
+```{r}
+# Carregar o pacote ape
+library(ape)
+install.packages("C:/Users/polia/Downloads/picante_1.8.2.zip", repos = NULL, type = "win.binary")
+
+library(picante)
+
+phy_tree <- read.tree("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/exported-tree/tree.nwk")
+
+
+# Verificar o conteúdo da árvore
+print(phy_tree)
+
+# Supondo que você já tenha o objeto phyloseq ps_urbanagri
+ps_urbanagri <- phyloseq(otu_table, sample_data, phy_tree(phy_tree))
+
+faith_pd <- pd(otu_table(ps_urbanagri), phy_tree)
+
+# Extraindo apenas a coluna Faith_PD (PD)
+faith_pd_df <- faith_pd[, "PD", drop = FALSE]
+
+# Renomeando a coluna para "Faith_PD"
+colnames(faith_pd_df) <- "Faith_PD"
+
+head(alpha.all.2)
+
+# Certifique-se de que as amostras estão na mesma ordem
+alpha.all.2 <- cbind(alpha.all.2, Faith_PD = faith_pd_df$Faith_PD)
+
+# Verificar o resultado
+head(alpha.all.2)
+
+
+```
+
+```{r}
+# Calcular richness usando estimate_richness
+richness <- estimate_richness(ps_urbanagri, measures = "Observed")
+
+# Verificar os resultados
+head(richness)
+
+```
+```{r}
+# Renomear a coluna "Observed" para "Richness"
+colnames(richness) <- "Richness"
+
+# Adicionar ao objeto alpha.all.2
+alpha.all.2 <- cbind(alpha.all.2, Richness = richness$Richness)
+
+# Verificar o resultado
+head(alpha.all.2)
+
+```
+ara calcular a Pielou's Evenness (Equitabilidade de Pielou), é necessário calcular a Shannon diversity e, em seguida, usar a fórmula da equitabilidade, que é a relação entre a diversidade observada (Shannon) e a diversidade máxima possível (logaritmo natural do número de OTUs).
+
+Passos para calcular Pielou's Evenness:
+Calcule a diversidade de Shannon (caso ainda não tenha).
+Calcule o número de OTUs observados por amostra.
+Calcule a Equitabilidade de Pielou usando a fórmula:
+Pielou’s Evenness
+=
+Shannon
+log
+⁡
+(
+Observed OTUs
+)
+Pielou’s Evenness= 
+log(Observed OTUs)
+Shannon
+​
+```{r}
+# 1. Calcular a diversidade de Shannon (se ainda não foi calculada)
+shannon_diversity <- estimate_richness(ps_urbanagri, measures = "Shannon")
+
+# 2. Calcular o número de OTUs observados (richness)
+observed_otus <- estimate_richness(ps_urbanagri, measures = "Observed")
+
+# 3. Calcular a equitabilidade de Pielou
+pielou_evenness <- shannon_diversity$Shannon / log(observed_otus$Observed)
+
+# Verificar o resultado
+head(pielou_evenness)
+
+# 4. Adicionar a Pielou's Evenness ao objeto alpha.all.2
+alpha.all.2 <- cbind(alpha.all.2, Pielou_Evenness = pielou_evenness)
+
+# Verificar o dataframe final
+head(alpha.all.2)
+
+```
+Indices de alpha diversidade menos usados: Berger-Parker Dominance, Goods Coverage, Margalef Index, e Menhinick Index,
+Explicação do código:
+Berger-Parker Dominance: Calcula a dominância da OTU mais abundante.
+Goods Coverage: Estima a cobertura de espécies observadas com base no número de singletons.
+Margalef Index: Relaciona o número de OTUs à abundância total.
+Menhinick Index: Relaciona o número de OTUs à abundância total, mas usando uma fórmula diferente de Margalef.
+
+```{r}
+# Carregar o pacote vegan
+library(vegan)
+
+# Extrair a matriz de OTUs (tabela de abundância) do objeto phyloseq
+otu_matrix <- as(otu_table(ps_urbanagri), "matrix")
+
+# Verificar se as OTUs estão nas colunas
+if (taxa_are_rows(ps_urbanagri)) {
+  otu_matrix <- t(otu_matrix)  # Transpor se as OTUs estiverem nas linhas
+}
+
+# Funções para calcular os índices faltantes
+calculate_indices <- function(otu_data) {
+  # Berger-Parker Dominance
+  berger_parker <- max(otu_data) / sum(otu_data)
+  
+  # Goods Coverage (falta no vegan, cálculo manual com singletons)
+  singletons <- sum(otu_data == 1)
+  goods_coverage <- 1 - (singletons / sum(otu_data))
+  
+  # Margalef Index
+  S <- length(otu_data[otu_data > 0])  # Número de OTUs (riqueza)
+  N <- sum(otu_data)  # Número total de indivíduos
+  margalef <- (S - 1) / log(N)
+  
+  # Menhinick Index
+  menhinick <- S / sqrt(N)
+  
+  return(c(Berger_Parker = berger_parker, Goods_Coverage = goods_coverage, 
+           Margalef = margalef, Menhinick = menhinick))
+}
+
+# Aplicar a função a todas as amostras
+indices_matrix <- apply(otu_matrix, 1, calculate_indices)
+
+# Converter os resultados para um dataframe
+indices_df <- as.data.frame(t(indices_matrix))
+
+# Verificar o dataframe de índices calculados
+head(indices_df)
+
+# Combinar os novos índices com o objeto alpha.all.2
+alpha.all.2 <- cbind(alpha.all.2, indices_df)
+
+# Verificar o objeto alpha.all.2 atualizado
+head(alpha.all.2)
+
+# Remover a coluna Goods_Coverage de alpha.all.2
+alpha.all.2 <- alpha.all.2[, !colnames(alpha.all.2) %in% "Goods_Coverage"]
+
+# Verificar o resultado
+head(alpha.all.2)
+
+# (Opcional) Salvar o dataframe atualizado
+write.csv(alpha.all.2, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Analises/alpha_all_2.csv", row.names = TRUE)
+
+```
+

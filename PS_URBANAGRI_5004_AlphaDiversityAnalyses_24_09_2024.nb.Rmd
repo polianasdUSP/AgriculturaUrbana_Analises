@@ -1,0 +1,581 @@
+---
+title: "Alpha Diversity Analisys"
+output: html_notebook
+---
+
+
+
+```{r}
+# Carregar as bibliotecas necessárias
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(ggcorrplot)
+library(pheatmap)
+library(grid)
+library(patchwork)
+library(ggpubr)
+library(ggpmisc)
+
+
+```
+
+```{r}
+# Importar o arquivo CSV
+alpha_all_2 <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Analises/alpha_all_2.csv", header = TRUE, sep = ",")
+
+# Selecionar apenas a coluna ACE e o IdVoluntario de ace_diversity
+ace_data <- ace_diversity[, c("IdVoluntario", "ACE")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, ace_data, by.x = "IdVoluntario", by.y = "IdVoluntario", all.x = TRUE)
+
+
+# Transformar os row names de chao1_diversity em uma coluna chamada 'IdVoluntario'
+chao1_diversity$IdVoluntario <- row.names(chao1_diversity)
+
+# Selecionar apenas a coluna Chao1 e o IdVoluntario de chao1_diversity
+chao1_data <- chao1_diversity[, c("IdVoluntario", "Chao1")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, chao1_data, by.x = "IdVoluntario", by.y = "IdVoluntario", all.x = TRUE)
+
+
+# Transformar os row names de chao1_diversity em uma coluna chamada 'IdVoluntario'
+simpson_diversity$IdVoluntario <- row.names(simpson_diversity)
+
+# Selecionar apenas a coluna Chao1 e o IdVoluntario de chao1_diversity
+simpson_data <- simpson_diversity[, c("IdVoluntario", "Simpson")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, simpson_data, by.x = "IdVoluntario", by.y = "IdVoluntario", all.x = TRUE)
+
+
+
+```
+
+
+
+TREPONEMA x ALPHA
+
+```{r}
+# Calcular os p-valores usando o teste de Wilcoxon para a coluna Treponema
+p_value_pielou <- wilcox.test(pielou_evenness ~ Treponema, data = saude_dieta)$p.value
+```
+
+
+```{r}
+p_value_faith <- wilcox.test(faith_pd ~ Treponema, data = saude_dieta)$p.value
+```
+
+
+```{r}
+p_value_observed <- wilcox.test(observed_features ~ Treponema, data = saude_dieta)$p.value
+```
+
+
+```{r}
+p_value_shannon <- wilcox.test(shannon_entropy ~ Treponema, data = saude_dieta)$p.value
+
+```
+
+```{r}
+# Gráfico para pielou_evenness
+
+# Gráfico para pielou_evenness com "Presença de Treponema"
+plot_pielou_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), y = pielou_evenness)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = "black") +
+  labs(title = "Pielou Evenness vs Presença de Treponema", y = "Pielou Evenness", x = "Presença de Treponema") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Presença de Treponema") +
+  annotate("text", x = 1.5, y = max(saude_dieta$pielou_evenness, na.rm = TRUE) * 1.05, 
+           label = paste("p =", round(p_value_pielou, 4)), size = 5)
+
+
+
+print (plot_pielou_trep)
+
+
+
+
+
+```
+
+
+Parasitologico e Treponema
+
+```{r}
+
+# Realizar o teste exato de Fisher diretamente
+resultado_fisher <- fisher.test(table(saude_dieta$Treponema, saude_dieta$ParasitologicoPositivo))
+
+# Exibir o resultado do teste exato de Fisher
+print(resultado_fisher)
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Criar o gráfico de barras diretamente
+grafico_fisher <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c("Ausente", "Presente")), 
+                                                  fill = factor(ParasitologicoPositivo, levels = c("Nao", "Sim")))) +
+  geom_bar(position = "dodge") +
+  labs(title = "Associação entre Treponema e Parasitológico Positivo",
+       subtitle = paste("Teste Exato de Fisher\np-valor =", round(resultado_fisher$p.value, 4),
+                        "\nOdds Ratio =", round(resultado_fisher$estimate, 4),
+                        "\nIC 95%:", round(resultado_fisher$conf.int[1], 4), "-", round(resultado_fisher$conf.int[2], 4)),
+       x = "Presença de Treponema",
+       y = "Frequência") +
+  theme_minimal() +
+  scale_fill_discrete(name = "Parasitológico Positivo")
+
+# Exibir o gráfico
+print(grafico_fisher)
+
+```
+
+DIETA x ALPHA
+
+
+
+
+`
+
+
+```{r}
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.dieta.alpha2 <- saude_dieta %>%
+select("shannon_entropy", Simpson, "pielou_evenness", "observed_features", ACE, Chao1, "faith_pd", residual_carboidrato_total_g, residual_proteina_g, residual_lipidios_g, residual_fibra_alimentar_g, residual_colesterol_mg, residual_acidos_graxos_saturados_g, residual_acidos_graxos_monoinsaturados_g, residual_acidos_graxos_poliinsaturados_g, residual_acidos_graxos_trans_g, residual_calcio_mg, residual_ferro_mg, residual_sodio_mg, residual_magnesio_mg, residual_fosforo_mg, residual_potassio_mg, residual_manganes_mg, residual_zinco_mg, residual_cobre_mg, residual_selenio_mcg, residual_vitamina_A_RAE_mcg, residual_vitamina_D_mcg, residual_vitamina_E_mg, residual_tiamina_mg, residual_riboflavina_mg, residual_niacina_mg, residual_vitamina_B6_mg, residual_vitamina_B12_mcg, residual_vitamina_C_mg, residual_equivalente_de_folato_mcg, residual_sal_de_adicao_g, residual_acucar_de_adicao_g)
+
+# Renomeando as colunas para remover a palavra "residual"
+colnames(metadados.dieta.alpha2) <- gsub("residual_", "", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_g"
+colnames(metadados.dieta.alpha2) <- gsub("_g$", "", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_mg"
+colnames(metadados.dieta.alpha2) <- gsub("_mg$", "", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_mcg"
+colnames(metadados.dieta.alpha2) <- gsub("_mcg$", "", colnames(metadados.dieta.alpha2))
+
+# Renomeando as colunas para remover a palavra "_mcg"
+colnames(metadados.dieta.alpha2) <- gsub("_", " ", colnames(metadados.dieta.alpha2))
+
+# Usando gsub com uma função anônima para alterar a primeira letra de cada palavra para maiúscula
+colnames(metadados.dieta.alpha2) <- gsub("(^|[[:space:]])([a-z])", "\\1\\U\\2", colnames(metadados.dieta.alpha2), perl = TRUE)
+
+
+colnames(metadados.dieta.alpha2)
+```
+
+
+
+
+```{r}
+# Função para calcular os p-valores das correlações
+cor.mtest_shannon <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  return(p.mat)
+}
+
+```
+
+```{r}
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_alpha.diet <- cor(metadados.dieta.alpha2, method = "spearman", use = "pairwise.complete.obs")
+
+# Calcular os p-valores
+p_values_alpha.diet <- cor.mtest_shannon(metadados.dieta.alpha2, conf.level = 0.95)
+
+# Criar uma matriz de asteriscos para significância
+asterisks_alpha.diet <- ifelse(p_values_alpha.diet < 0.001, "***", 
+                            ifelse(p_values_alpha.diet < 0.01, "**", 
+                                   ifelse(p_values_alpha.diet < 0.05, "*", "")))
+```
+
+
+
+
+```{r}
+
+# Gerar o heatmap com pheatmap, ajustando o tamanho das células e removendo a legenda do título
+pheatmap(cor_matrix_alpha.diet, 
+         display_numbers = asterisks_alpha.diet, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c("blue", "white", "red"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = 12,  # Ajuste da altura das células
+         cellwidth = 12,    # Ajuste da largura das células
+         main = "Correlação entre Alpha Diversity e Dietas")
+
+
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- saude_dieta %>%
+  select("shannon_entropy", Simpson, "pielou_evenness", "observed_features", ACE, Chao1, "faith_pd", Age,  Systolic, Diastolic, IMC, WHratio, HOMA, INSULINA, GLICOSE, HbA1c, TGO, TGP, GGT, PCR, TRIGLICERIDES, COLESTEROL, LDL, VLDL, HDL, TNF, IL17A, IFNGamma, IL2, IL4, IL6, IL10)
+
+saude_dieta$WHratio <- saude_dieta$Waist / saude_dieta$Hip
+
+saude_dieta$IMC <- saude_dieta$Weight / (saude_dieta$Height^2)
+
+# Renomeando todas as colunas que possuem ".y"
+colnames(saude_dieta) <- gsub("\\.y$", "", colnames(saude_dieta))
+
+```
+
+
+
+
+```{r}
+# Recalcular a matriz de correlação de Spearman
+cor_matrix_alpha.saude <- cor(metadados.saude.alpha, method = "spearman", use = "pairwise.complete.obs")
+
+# Função para calcular os p-valores das correlações (substitua pela sua função apropriada)
+cor.mtest <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      test <- cor.test(mat[, i], mat[, j], conf.level = conf.level, method = "spearman")
+      p.mat[i, j] <- p.mat[j, i] <- test$p.value
+    }
+  }
+  return(p.mat)
+}
+
+# Calcular os p-valores
+p_values_alpha.saude <- cor.mtest(metadados.saude.alpha)
+
+# Criar a matriz de asteriscos para significância
+asterisks_alpha.saude <- ifelse(p_values_alpha.saude < 0.001, "***", 
+                            ifelse(p_values_alpha.saude < 0.01, "**", 
+                                   ifelse(p_values_alpha.saude < 0.05, "*", "")))
+
+# Ajustar a plotagem do heatmap, com pheatmap
+pheatmap(cor_matrix_alpha.saude, 
+         display_numbers = asterisks_alpha.saude, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c("blue", "white", "red"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = 10,  # Ajuste da altura das células
+         cellwidth = 10,    # Ajuste da largura das células
+         main = "Correlação entre Alpha Diversity e Saúde")
+
+```
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = TRIGLICERIDES, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "TRIGLICERIDES", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = TRIGLICERIDES, y = faith_pd)) +
+
+  geom_point() + 
+
+  labs(x = "TRIGLICERIDES", y = "Faith") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+```
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = TRIGLICERIDES, y = observed_features)) +
+
+  geom_point() + 
+
+  labs(x = "TRIGLICERIDES", y = "Richness") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = LDL, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "LDL", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = COLESTEROL, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "LDL", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+```{r}
+saude_dieta$RazaoWH <- saude_dieta$Waist / saude_dieta$Hip
+# Renomeando a coluna RazaoWH para W2HRatio
+colnames(saude_dieta)[colnames(saude_dieta) == "RazaoWH"] <- "W2HRatio"
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = Hip, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Hip", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = Waist, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Waist", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = W2HRatio, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Waist to Hip Ratio", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = residual_magnesio_mg, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Magnesio", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = residual_acidos_graxos_trans_g, y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Ácidos Graxos Trans", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```
+
+
+```{r}
+
+colnames(saude_dieta)
+#pielou_evenness x triglicerides
+
+# usei esse mesmo código para o pelou, Faith, observed, shannon
+
+ggplot(saude_dieta, aes(x = residual_colesterol_mg , y = shannon_entropy)) +
+
+  geom_point() + 
+
+  labs(x = "Colesterol", y = "Shannon") + 
+
+  theme_minimal() + 
+
+  geom_smooth(method = "lm") +
+
+  stat_poly_eq(aes(label = paste(..p.value.label.., sep = "~~~")),
+
+               formula = y ~ x, 
+
+               parse = TRUE) 
+
+
+```

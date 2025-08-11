@@ -1,0 +1,54 @@
+"0","# Instala e carrega os pacotes necessários
+"
+"2","Mensagens de aviso:
+"
+"2","1: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," unable to open file 'C:\Users\polia\AppData\Local\Temp\Rtmp6HkU0Q\file4a306d0b21dd' for writing
+"
+"2","2: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," opening device failed
+"
+"2","3: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," unable to open file 'C:\Users\polia\AppData\Local\Temp\Rtmp6HkU0Q\file4a302f952795' for writing
+"
+"2","4: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," opening device failed
+"
+"2","5: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," unable to open file 'C:\Users\polia\AppData\Local\Temp\Rtmp6HkU0Q\file4a302b11315b' for writing
+"
+"2","6: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," opening device failed
+"
+"2","7: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," unable to open file 'C:\Users\polia\AppData\Local\Temp\Rtmp6HkU0Q\file4a3032ae5ecb' for writing
+"
+"2","8: "
+"2","In (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  :"
+"2","
+ "
+"2"," opening device failed
+"
+"0","library(dplyr)"
+"0","library(readxl)"

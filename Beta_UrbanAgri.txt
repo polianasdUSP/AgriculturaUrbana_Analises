@@ -1,0 +1,113 @@
+---
+title: "Beta Diversity Analyses"
+output: html_notebook
+---
+
+```{r}
+
+library(vegan)  # Pacote para ecologia e análise de diversidade
+library(ggplot2)  # Para visualização
+
+```
+
+Criar coluna IMC
+```{r}
+
+# Verificar os nomes das colunas
+colnames(metadados.alpha.all)
+
+# Visualizar as primeiras linhas das colunas de interesse
+head(metadados.alpha.all[, c("Weight.y", "Height.y")])
+
+metadados.alpha.all$IMC <- metadados.alpha.all$Weight.y / (metadados.alpha.all$Height.y^2)
+
+
+```
+
+
+```{r}
+# Verificar as dimensões e a estrutura das matrizes de distância
+str(weighted_unifrac)
+str(unweighted_unifrac)
+str(t.my.asvs)
+```
+
+# Realizar PCoA na matriz de distância weighted_unifrac
+```{r}
+
+wunifrac.pcoa <- cmdscale(weighted_unifrac, eig = TRUE, k = 2)  # k = número de dimensões
+
+```
+# Realizar PCoA na matriz de distância unweighted_unifrac
+```{r}
+
+uwunifrac.pcoa <- cmdscale(unweighted_unifrac, eig = TRUE, k = 2)  # k = número de dimensões
+
+```
+
+Plot Weighted
+```{r}
+
+ggplot((merge(wunifrac.pcoa$points, subset(metadados.metabolicos, !is.na(IL4)), by.x = "row.names", by.y = "Sample"))) + 
+  geom_point(aes(x = V1, y = V2, color = IL4), size = 2) + 
+  scale_color_gradient(name = "IL4", low = "green", high = "red") +
+  labs(title = "Weighted Unifrac", x = "V1", y = "V2") +
+  theme_minimal()
+
+
+
+```
+
+Plot Unweighted
+```{r}
+
+
+ggplot((merge(uwunifrac.pcoa$points, subset(metadados.metabolicos, !is.na(IL4)), by.x = "row.names", by.y = "Sample"))) + 
+  geom_point(aes(x = V1, y = V2, color = IL4), size = 2) + 
+  scale_color_gradient(name = "IL4", low = "green", high = "red") +
+  labs(title = "Uweighted Unifrac", x = "V1", y = "V2") +
+  theme_minimal()
+
+```
+
+
+```{r}
+PERMANOVA_IL4Wei <- adonis2(weighted_unifrac_citocinas~metadados_citocinas$IL4)
+PERMANOVA_IL4Wei
+
+```
+Unweighted
+```{r}
+# Selecionar as colunas das citocinas inflamatórias
+citocinas_inflamatorias <- c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2")
+
+# Remover as linhas com NA nas colunas das citocinas inflamatórias
+metadados_citocinas <- metadados.metabolicos[complete.cases(metadados.metabolicos[citocinas_inflamatorias]), ]
+
+# Realizar a PERMANOVA
+PERMANOVA_IL4UnWei <- adonis2(unweighted_unifrac_citocinas~metadados_citocinas$IL4)
+
+PERMANOVA_IL4UnWei
+
+# Ver os resultados
+print(PERMANOVA_IL4UnWei)
+
+```
+
+```{r}
+# Filtrar metadados.metabolicos para remover linhas com NA nas citocinas inflamatórias
+
+metadados_filtrados <- metadados.metabolicos[complete.cases(metadados.metabolicos[, c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2")]), ]
+
+# Ajustar a matriz de distâncias para manter apenas as amostras presentes em metadados_filtrados
+unweighted_unifrac_citocinas <- unweighted_unifrac[rownames(unweighted_unifrac) %in% metadados_filtrados$Sample, 
+                                              colnames(unweighted_unifrac) %in% metadados_filtrados$Sample]
+
+# Executar a PERMANOVA com o dataframe filtrado e a matriz de distâncias ajustada
+resultado_permanova_citocinas <- adonis2(
+  as.dist(unweighted_unifrac_filtrado) ~ IL17A + IFNGamma + TNF + IL10 + IL6 + IL4 + IL2, 
+  data = metadados_filtrados,
+  permutations = 999
+)
+```
+

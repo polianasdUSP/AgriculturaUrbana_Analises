@@ -1,0 +1,5 @@
+"0","protest(X = unweighted_unifrac_glyc_neat[sampleID_neat,sampleID_neat], Y = unweighted_unifrac_glyc_neat[sampleID_glyc, sampleID_glyc])
+"
+"2","Error in protest(X = unweighted_unifrac_glyc_neat[sampleID_neat, sampleID_neat],  : 
+  não foi possível encontrar a função ""protest""
+"

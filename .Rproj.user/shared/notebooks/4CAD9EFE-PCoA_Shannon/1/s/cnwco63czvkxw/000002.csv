@@ -1,0 +1,8 @@
+"0","```r
+# Calcular a variância explicada por cada eixo
+
+
+variance_explained <- eigenvalues / sum(eigenvalues) * 100
+variance_explained
+
+```"

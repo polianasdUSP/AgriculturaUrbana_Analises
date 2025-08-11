@@ -1,0 +1,88 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5zdHIod2VpZ2h0ZWRfdW5pZnJhYy5yYXcpXG5jbGFzcyh3ZWlnaHRlZF91bmlmcmFjLnJhdylcblxuIyBDb252ZXJ0ZSBvIG9iamV0byAnZGlzdCcgZW0gdW1hIG1hdHJpelxud2VpZ2h0ZWRfdW5pZnJhYy5tYXRyaXggPC0gYXMubWF0cml4KHdlaWdodGVkX3VuaWZyYWMucmF3KVxuXG4jIENvbnZlcnRlIGEgbWF0cml6IGVtIHVtIGRhdGFmcmFtZVxud2VpZ2h0ZWRfdW5pZnJhYyA8LSBhcy5kYXRhLmZyYW1lKHdlaWdodGVkX3VuaWZyYWMubWF0cml4KVxuXG4jIFZlcmlmaWNhIG8gcmVzdWx0YWRvXG5wcmludChoZWFkKHdlaWdodGVkX3VuaWZyYWMpKVxuXG4jIFN1YnN0aXR1aSBcIi1cIiBwb3IgXCIuXCIgbm9zIG5vbWVzIGRhcyBsaW5oYXMgZG8gZGF0YWZyYW1lXG5cbnJvd25hbWVzKHdlaWdodGVkX3VuaWZyYWMpIDwtIGdzdWIoXCItXCIsIFwiLlwiLCByb3duYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSlcblxuIyBTdWJzdGl0dWkgXCItXCIgcG9yIFwiLlwiIG5vcyBub21lcyBkYXMgY29sdW5hcyBkbyBkYXRhZnJhbWVcblxuY29sbmFtZXMod2VpZ2h0ZWRfdW5pZnJhYykgPC0gZ3N1YihcIi1cIiwgXCIuXCIsIGNvbG5hbWVzKHdlaWdodGVkX3VuaWZyYWMpKVxuXG4jIEZpbHRyYSBhcyBsaW5oYXMgb25kZSBvcyBub21lcyBkYXMgbGluaGFzIG7Do28gdGVybWluYW0gY29tIFwiLkYwMVwiXG53ZWlnaHRlZF91bmlmcmFjIDwtIHdlaWdodGVkX3VuaWZyYWNbIWdyZXBsKFwiXFxcXC5GMDEkXCIsIHJvd25hbWVzKHdlaWdodGVkX3VuaWZyYWMpKSwgLCBkcm9wID0gRkFMU0VdXG5cbiMgRmlsdHJhIGFzIGNvbHVuYXMgb25kZSBvcyBub21lcyBkYXMgY29sdW5hcyBuw6NvIHRlcm1pbmFtIGNvbSBcIi5GMDFcIlxud2VpZ2h0ZWRfdW5pZnJhYyA8LSB3ZWlnaHRlZF91bmlmcmFjWywgIWdyZXBsKFwiXFxcXC5GMDEkXCIsIGNvbG5hbWVzKHdlaWdodGVkX3VuaWZyYWMpKSwgZHJvcCA9IEZBTFNFXVxuXG4jIEZpbHRyYSBhcyBjb2x1bmFzIG9uZGUgb3Mgbm9tZXMgZGFzIGNvbHVuYXMgdGVybWluYW0gY29tIFwiLkYwMFwiXG53ZWlnaHRlZF91bmlmcmFjIDwtIHdlaWdodGVkX3VuaWZyYWNbLCBncmVwbChcIlxcXFwuRjAwJFwiLCBjb2xuYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSksIGRyb3AgPSBGQUxTRV1cblxuIyBGaWx0cmEgYXMgbGluaGFzIG9uZGUgb3Mgbm9tZXMgZGFzIGxpbmhhcyB0ZXJtaW5hbSBjb20gXCIuRjAwXCJcbndlaWdodGVkX3VuaWZyYWMgPC0gd2VpZ2h0ZWRfdW5pZnJhY1tncmVwbChcIlxcXFwuRjAwJFwiLCByb3duYW1lcyh3ZWlnaHRlZF91bmlmcmFjKSksICwgZHJvcCA9IEZBTFNFXVxuXG53cml0ZS5jc3YoeCA9IHdlaWdodGVkX3VuaWZyYWMsIFxuICAgICAgICAgIGZpbGUgPSBcIkM6L1VzZXJzL3BvbGlhL09uZURyaXZlL0Rlc2t0b3AvRXN0YXRpc3RpY2FSL0FnclVyYmFuYS8xNlNfQWdyaVVyYmFuYS9QbGFuaWxoYXNfVXJiYW5BZ3JpL3dlaWdodGVkX3VuaWZyYWMuY3N2XCIsIHJvdy5uYW1lcyA9IEZBTFNFKVxuXG53cml0ZS5jc3YoeCA9IHVud2VpZ2h0ZWRfdW5pZnJhYywgXG4gICAgICAgICAgZmlsZSA9IFwiQzovVXNlcnMvcG9saWEvT25lRHJpdmUvRGVza3RvcC9Fc3RhdGlzdGljYVIvQWdyVXJiYW5hLzE2U19BZ3JpVXJiYW5hL1BsYW5pbGhhc19VcmJhbkFncmkvdW53ZWlnaHRlZF91bmlmcmFjLmNzdlwiLCByb3cubmFtZXMgPSBGQUxTRSlcblxuYGBgIn0= -->
+
+```r
+
+str(weighted_unifrac.raw)
+class(weighted_unifrac.raw)
+
+# Converte o objeto 'dist' em uma matriz
+weighted_unifrac.matrix <- as.matrix(weighted_unifrac.raw)
+
+# Converte a matriz em um dataframe
+weighted_unifrac <- as.data.frame(weighted_unifrac.matrix)
+
+# Verifica o resultado
+print(head(weighted_unifrac))
+
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+rownames(weighted_unifrac) <- gsub(\"-\", \".\", rownames(weighted_unifrac))
+
+# Substitui \"-\" por \".\" nos nomes das colunas do dataframe
+
+colnames(weighted_unifrac) <- gsub(\"-\", \".\", colnames(weighted_unifrac))
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+weighted_unifrac <- weighted_unifrac[!grepl(\"\\.F01$\", rownames(weighted_unifrac)), , drop = FALSE]
+
+# Filtra as colunas onde os nomes das colunas não terminam com \".F01\"
+weighted_unifrac <- weighted_unifrac[, !grepl(\"\\.F01$\", colnames(weighted_unifrac)), drop = FALSE]
+
+# Filtra as colunas onde os nomes das colunas terminam com \".F00\"
+weighted_unifrac <- weighted_unifrac[, grepl(\"\\.F00$\", colnames(weighted_unifrac)), drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com \".F00\"
+weighted_unifrac <- weighted_unifrac[grepl(\"\\.F00$\", rownames(weighted_unifrac)), , drop = FALSE]
+
+write.csv(x = weighted_unifrac, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/weighted_unifrac.csv\", row.names = FALSE)
+
+write.csv(x = unweighted_unifrac, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/unweighted_unifrac.csv\", row.names = FALSE)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+str(weighted_unifrac.raw)
+class(weighted_unifrac.raw)
+
+# Converte o objeto 'dist' em uma matriz
+weighted_unifrac.matrix <- as.matrix(weighted_unifrac.raw)
+
+# Converte a matriz em um dataframe
+weighted_unifrac <- as.data.frame(weighted_unifrac.matrix)
+
+# Verifica o resultado
+print(head(weighted_unifrac))
+
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+rownames(weighted_unifrac) <- gsub(\"-\", \".\", rownames(weighted_unifrac))
+
+# Substitui \"-\" por \".\" nos nomes das colunas do dataframe
+
+colnames(weighted_unifrac) <- gsub(\"-\", \".\", colnames(weighted_unifrac))
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+weighted_unifrac <- weighted_unifrac[!grepl(\"\\.F01$\", rownames(weighted_unifrac)), , drop = FALSE]
+
+# Filtra as colunas onde os nomes das colunas não terminam com \".F01\"
+weighted_unifrac <- weighted_unifrac[, !grepl(\"\\.F01$\", colnames(weighted_unifrac)), drop = FALSE]
+
+# Filtra as colunas onde os nomes das colunas terminam com \".F00\"
+weighted_unifrac <- weighted_unifrac[, grepl(\"\\.F00$\", colnames(weighted_unifrac)), drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com \".F00\"
+weighted_unifrac <- weighted_unifrac[grepl(\"\\.F00$\", rownames(weighted_unifrac)), , drop = FALSE]
+
+write.csv(x = weighted_unifrac, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/weighted_unifrac.csv\", row.names = FALSE)
+
+write.csv(x = unweighted_unifrac, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/unweighted_unifrac.csv\", row.names = FALSE)
+
+```"

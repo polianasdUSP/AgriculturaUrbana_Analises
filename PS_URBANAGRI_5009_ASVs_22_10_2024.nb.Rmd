@@ -1,0 +1,519 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+library(writexl)
+library(ggplot2)
+library(reshape2)
+
+
+
+```
+
+```{r}
+metadata <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv", 
+                     sep = ";", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+
+
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+```
+
+```{r}
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs
+```
+
+
+
+
+
+
+```{r}
+[!grepl("\\.F01$", colnames(SVs_transformed)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs_transformed), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs_transformed <- SVs_transformed[, (grep("\\.F00$", colnames(SVs_transformed), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs_transformed)
+
+```
+
+```{r}
+# Filtra as ASVs que aparecem em pelo menos 13 amostras (presença > 0)
+SVs_filtered <- SVs[rowSums(SVs > 0) >= 13, ]
+
+# Mostra o resultado
+SVs_filtered
+
+
+SVs_filtered_normalized<-apply(SVs_filtered, 2, function(x) x/sum(x)*100) #convert to percent
+
+# Transformando a abundância para log e unindo com a taxonomia
+SVs_transformed <- as.data.frame(SVs_filtered_normalized) %>%
+  mutate_all(~ log10(. + 0.01)) %>%
+  rownames_to_column(var = "Feature.ID") %>%
+  left_join(taxonomy, by = "Feature.ID")
+
+```
+
+```{r}
+
+
+# Duplicar a coluna Taxon para preservá-la e separar em níveis taxonômicos
+SVs_transformed_with_taxonomy <- SVs_transformed_with_taxonomy %>%
+  mutate(Taxon_original = Taxon.y) %>%  # Preservar a coluna Taxon original
+  separate(Taxon.y, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = "; ", fill = "right", extra = "merge")
+
+
+```
+
+
+
+```{r}
+class(SVs)
+```
+
+
+```{r}
+# Assumindo que já temos as contagens de presença por ASV
+asv_presence <- rowSums(SVs > 0)
+
+# Cria a tabela sem duplicar a coluna Feature.ID
+asv_presence_table <- data.frame(Feature.ID = rownames(SVs), Num_Volunteers = asv_presence)
+
+# Ordena a tabela em ordem decrescente pela coluna Num_Volunteers
+asv_presence_table <- asv_presence_table[order(asv_presence_table$Num_Volunteers, decreasing = TRUE), ]
+
+# Visualiza a tabela
+print(asv_presence_table)
+
+
+```
+
+```{r}
+# Assumindo que já temos a tabela asv_presence_table e a tabela de taxonomia
+
+# Fazer o merge entre as duas tabelas com base na coluna Feature.ID
+asv_presence_with_taxonomy <- merge(asv_presence_table, taxonomy, by = "Feature.ID", all.x = TRUE)
+
+# Ordenar a tabela em ordem decrescente pela coluna Num_Volunteers
+asv_presence_with_taxonomy <- asv_presence_with_taxonomy[order(asv_presence_with_taxonomy$Num_Volunteers, decreasing = TRUE), ]
+
+# Visualizar a tabela resultante
+print(asv_presence_with_taxonomy)
+
+```
+
+```{r}
+
+
+# Salvar a tabela em formato Excel no caminho especificado
+write_xlsx(asv_presence_with_taxonomy, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/asv_presence_with_taxonomy.xlsx")
+
+# Salvar a tabela em formato TSV no caminho especificado
+write.table(asv_presence_with_taxonomy, file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/asv_presence_with_taxonomy.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+
+# Salvar a tabela em formato CSV no caminho especificado
+write.csv(asv_presence_with_taxonomy, file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/asv_presence_with_taxonomy.csv", row.names = FALSE)
+
+
+```
+
+```{r}
+# Selecionar apenas as colunas numéricas e o IdVoluntario
+saude_dieta_filtered <- saude_dieta[, sapply(saude_dieta, is.numeric) | names(saude_dieta) == "IdVoluntario"]
+
+# Visualizar a tabela filtrada
+str(saude_dieta_filtered)
+
+colnames(saude_dieta_filtered)
+
+```
+
+```{r}
+
+
+# Remover as colunas da tabela filtrada
+saude_dieta_filtered <- saude_dieta_filtered[, setdiff(names(saude_dieta_filtered), c("energia1_kJ", "umidade_g", "cinzas_g", "vitamina_A_RE_mcg", 
+                     "residual_energia2_kcal", "residual_umidade_g", "residual_cinzas_g", 
+                     "residual_vitamina_A_RE_mcg", "Treponema", "Weight", "Height", 
+                     "Waist", "Hip", "sindrome_metabolica", "Horas_Dormidas", "pressao_alta", 
+                     "diabetes", "pielou_evenness.x", "faith_pd.x", "observed_features.x", 
+                     "shannon_entropy.x", "ACE", "Chao1", "Simpson","energia2_kcal","carboidrato_total_g", 
+					 "carboidrato_disponivel_g", "proteina_g","lipidios_g", "fibra_alimentar_g","alcool_g",
+					 "colesterol_mg", "acidos_graxos_saturados_g", "acidos_graxos_monoinsaturados_g", 
+					 "acidos_graxos_poliinsaturados_g","acidos_graxos_trans_g", "calcio_mg", "ferro_mg", "sodio_mg", "magnesio_mg", "fosforo_mg","potassio_mg", "manganes_mg", "zinco_mg","cobre_mg", "selenio_mcg", "vitamina_A_RAE_mcg", "vitamina_D_mcg", "vitamina_E_mg", "tiamina_mg", "riboflavina_mg", "vitamina_B6_mg", "vitamina_B12_mcg", "vitamina_C_mg", "equivalente_de_folato_mcg", "sal_de_adicao_g", "acucar_de_adicao_g", "VCM", "HCM", "CHCM", "RDW", "LEUCOCITOS", "NEUTROFILOS", "EOSINOFILOS", "BASOFILOS", "LINFOCITOS", "MONOCITOS", "PLAQUETAS","sindrome_metabolica", "Horas_Dormidas", "pressao_alta","diabetes", "niacina_mg", "ERITROCITOS", "HEMOGLOBINA", "HEMATOCRITO","VCM", "HCM", "CHCM", "LEUCOCITOS", "NEUTROFILOS", "EOSINOFILOS", "BASOFILOS", "LINFOCITOS", "MONOCITOS", "PLAQUETAS"                                
+)
+)]
+
+# Visualizar as colunas restantes
+colnames(saude_dieta_filtered)
+
+```
+
+
+```{r}
+# Garantir que os nomes das linhas estão corretos
+rownames(saude_dieta_filtered) <- saude_dieta_filtered$IdVoluntario
+
+# Remover a coluna IdVoluntario de saude_dieta_filtered, já que não é necessária para a correlação
+saude_dieta_filtered <- saude_dieta_filtered[, -which(names(saude_dieta_filtered) == "IdVoluntario")]
+
+# Identificar IDs em comum entre SVst e saude_dieta_filtered
+ids_comuns <- intersect(rownames(SVs_t), rownames(saude_dieta_filtered))
+
+# Filtrar os dois conjuntos de dados para incluir apenas os IDs em comum
+saude_dieta_filtered <- saude_dieta_filtered[intersect(rownames(SVs_t), rownames(saude_dieta_filtered)), ]
+SVs_t_filtered <- SVs_t[intersect(rownames(SVs_t), rownames(saude_dieta_filtered)), ]
+
+```
+
+
+Filtrar ASVs que tenham em 13 pessoas ou mais (10%)
+
+```{r}
+
+# Calcular o número de voluntários (linhas) onde cada ASV está presente (valor > 0)
+asv_presence_count <- colSums(SVst_ > 0)
+
+# Filtrar ASVs presentes em pelo menos 13 voluntários
+SVs_t_filtered <- as.data.frame(SVst_[, asv_presence_count >= 13])
+
+# Visualizar o resultado
+dim(SVs_t_filtered)  # Ver o número de ASVs restantes
+head(SVs_t_filtered)
+```
+
+
+
+```{r}
+
+
+
+# Agora realizar a análise de correlação, ignorando a primeira coluna de cada objeto
+correlation_matrix <- matrix(NA, ncol = ncol(SVs_t_filtered) - 1, nrow = ncol(saude_dieta_filtered) - 1)
+pvalue_matrix <- matrix(NA, ncol = ncol(SVs_t_filtered) - 1, nrow = ncol(saude_dieta_filtered) - 1)
+
+colnames(correlation_matrix) <- colnames(SVs_t_filtered)[-1]
+rownames(correlation_matrix) <- colnames(saude_dieta_filtered)[-1]
+
+colnames(pvalue_matrix) <- colnames(SVs_t_filtered)[-1]
+rownames(pvalue_matrix) <- colnames(saude_dieta_filtered)[-1]
+
+# Calcular correlações e p-values, ignorando a primeira coluna
+for (i in 2:ncol(saude_dieta_filtered)) {
+  for (j in 2:ncol(SVs_t_filtered)) {
+    correlation_matrix[i - 1, j - 1] <- correlation_only(saude_dieta_filtered[, i], SVs_t_filtered[, j])
+    pvalue_matrix[i - 1, j - 1] <- pvalue_only(saude_dieta_filtered[, i], SVs_t_filtered[, j])
+  }
+}
+
+# Converter para data.frames para facilitar a visualização
+correlation_df <- as.data.frame(correlation_matrix)
+pvalue_df <- as.data.frame(pvalue_matrix)
+
+# Salvar os resultados como CSV
+write.csv(correlation_df, "correlation_results.csv", row.names = TRUE)
+write.csv(pvalue_df, "pvalue_results.csv", row.names = TRUE)
+
+# Exibir no RStudio
+View(correlation_df)
+View(pvalue_df)
+
+```
+
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+# Criar novos objetos para correlação e p-valores com nomes de taxonomia
+correlation_with_taxonomy <- correlation_df
+pvalue_with_taxonomy <- pvalue_df
+
+# Substituir os nomes das colunas de ASV por taxonomia nos novos objetos
+colnames(correlation_with_taxonomy) <- taxonomy$Taxon[match(colnames(correlation_with_taxonomy), taxonomy$Feature.ID)]
+colnames(pvalue_with_taxonomy) <- taxonomy$Taxon[match(colnames(pvalue_with_taxonomy), taxonomy$Feature.ID)]
+
+# Salvar os novos objetos em arquivos CSV
+write.csv(correlation_with_taxonomy, "correlation_with_taxonomy.csv", row.names = TRUE)
+write.csv(pvalue_with_taxonomy, "pvalue_with_taxonomy.csv", row.names = TRUE)
+
+# Exibir os novos objetos no RStudio
+View(correlation_with_taxonomy)
+View(pvalue_with_taxonomy)
+
+
+```
+
+```{r}
+library(dplyr)
+
+# Supondo que 'metadados' seja o nome da planilha com as colunas "Treponema", "Cluster"
+# e que o objeto 'merged_data' tenha a coluna 'Sample'
+
+# Primeiro, selecione apenas as colunas necessárias de 'metadados'
+metadados_selected <- metadata %>%
+  select(Sample.id, Treponema, Cluster, Region, Region_type)
+
+# Agora faça a junção usando 'Sample' de 'merged_data' e 'SampleID' de 'metadados'
+merged_data_updated <- merged_data_long %>%
+  left_join(metadados_selected, by = c("Sample" = "SampleID"))
+
+# Verifique as primeiras linhas para confirmar
+head(merged_data_updated)
+
+```
+
+```{r}
+
+```
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Ordenar as amostras (voluntários) por Cluster
+merged_data_updated <- merged_data_updated %>%
+  arrange(Cluster, Sample)  # Ordena primeiro pelo Cluster e depois pelos voluntários
+
+# Criar o gráfico com a paleta 'Paired', separando os voluntários por Cluster
+ggplot(merged_data_updated, aes(x = Sample, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  labs(x = "Volunteers", y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Paired") +  # Paleta 'Paired' com cores bem diferenciadas
+  facet_wrap(~Cluster, scales = "free_x", ncol = 2)  # Dividir o gráfico por Cluster
+
+```
+
+```{r}
+library(dplyr)
+
+# Remover duplicatas para contar apenas uma vez cada voluntário
+unique_volunteers <- merged_data_updated %>%
+  distinct(Sample_Cluster, .keep_all = TRUE)
+
+# Contar o número de ocorrências de "Cluster 1" e "Cluster 2"
+table(unique_volunteers$Cluster)
+
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Ordenar os voluntários por Cluster e garantir que os 107 primeiros sejam do Cluster 1
+merged_data_updated <- merged_data_updated %>%
+  arrange(Cluster, Sample)
+
+# Criar uma nova variável para distinguir os clusters no eixo X
+merged_data_updated$Sample_Cluster <- paste(merged_data_updated$Cluster, merged_data_updated$Sample, sep = "_")
+
+# Criar o gráfico ajustado
+ggplot(merged_data_updated, aes(x = Sample_Cluster, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  
+  # Remover os títulos dos eixos
+  labs(x = NULL, y = NULL, fill = "Phylum") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Paired") +  # Paleta 'Paired' com cores bem diferenciadas
+  
+  # Adicionar uma linha vertical para marcar a separação após o 107º voluntário (Cluster 1)
+  geom_vline(xintercept = 107.5, linetype = "dashed", color = "black", size = 1) +
+  
+  # Adicionar rótulos para Cluster 1 e Cluster 2
+  annotate("text", x = 107 / 2, y = 1.05, label = "Cluster 1", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = 107 + (23 / 2), y = 1.05, label = "Cluster 2", size = 5, color = "black", hjust = 0.5) +
+  
+  # Ajustar a escala do eixo Y para que os rótulos fiquem visíveis
+  ylim(0, 1.1)
+
+
+```
+
+```{r}
+# Contar quantos são Rural e quantos são Urban na coluna Region_type
+region_counts <- metadados.clean %>%
+  count(Region_type)
+
+# Exibir os resultados
+region_counts
+```
+
+```{r}
+# Selecionar apenas as colunas necessárias de metadados.clean
+metadados_clean_selected <- metadados.clean %>%
+  select(Sample.id, Region_type)
+
+# Juntar com merged_data_updated usando os IDs
+merged_data_updated <- merged_data_updated %>%
+  left_join(metadados_clean_selected, by = c("Sample" = "Sample.id"))
+
+# Verificar as primeiras linhas do novo objeto
+head(merged_data_updated)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Ordenar os voluntários por Region_type (Rural antes de Urban) e garantir que estejam agrupados
+merged_data_updated <- merged_data_updated %>%
+  arrange(Region_type, Sample)
+
+# Criar uma nova variável para distinguir os voluntários no eixo X
+merged_data_updated$Sample_Region <- paste(merged_data_updated$Region_type, merged_data_updated$Sample, sep = "_")
+
+# Definir o número de voluntários em cada grupo
+n_rural <- 71
+n_urban <- 59
+
+# Criar o gráfico com a paleta 'Spectral'
+ggplot(merged_data_updated, aes(x = Sample_Region, y = Proportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  
+  # Remover os títulos dos eixos
+  labs(x = NULL, y = NULL, fill = "Phylum") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Spectral") +  # Paleta 'Spectral' com cores diferenciadas
+  
+  # Adicionar uma linha vertical para marcar a separação após os voluntários do Rural
+  geom_vline(xintercept = n_rural + 0.5, linetype = "dashed", color = "black", size = 1) +
+  
+  # Adicionar rótulos para Rural e Urban
+  annotate("text", x = n_rural / 2, y = 1.05, label = "Rural", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = n_rural + (n_urban / 2), y = 1.05, label = "Urban", size = 5, color = "black", hjust = 0.5) +
+  
+  # Ajustar a escala do eixo Y para que os rótulos fiquem visíveis
+  ylim(0, 1.1)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Ordenar os voluntários por Cluster e garantir que os 107 primeiros sejam do Cluster 1
+merged_data_updated <- merged_data_updated %>%
+  arrange(Cluster, Sample)
+
+# Criar uma nova variável para distinguir os clusters no eixo X
+merged_data_updated$Sample_Cluster <- paste(merged_data_updated$Cluster, merged_data_updated$Sample, sep = "_")
+
+ggplot(merged_data_updated, aes(x = Sample_Cluster, y = Proportion, fill = Family)) +
+  geom_bar(stat = "identity", position = "stack") +  # Gráfico empilhado com proporções
+  theme_minimal() +
+  
+  # Remover os títulos dos eixos
+  labs(x = NULL, y = NULL, fill = "Family") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotacionar os nomes dos voluntários no eixo X
+  scale_fill_brewer(palette = "Paired") +  # Paleta 'Paired' com cores bem diferenciadas
+  
+  # Adicionar uma linha vertical para marcar a separação após o 107º voluntário (Cluster 1)
+  geom_vline(xintercept = 107.5, linetype = "dashed", color = "black", linewidth = 1) +
+  
+  # Adicionar rótulos para Cluster 1 e Cluster 2
+  annotate("text", x = 107 / 2, y = 1.05, label = "Cluster 1", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = 107 + (23 / 2), y = 1.05, label = "Cluster 2", size = 5, color = "black", hjust = 0.5) +
+  
+  # Ajustar a escala do eixo Y para que os rótulos fiquem visíveis
+  ylim(0, 1.1)
+
+```
+```{r}
+# Instale o pacote randomcoloR, se necessário
+if (!requireNamespace("randomcoloR", quietly = TRUE)) {
+  install.packages("randomcoloR")
+}
+
+library(ggplot2)
+library(randomcoloR)
+
+# Gere uma paleta com 60 cores distintas
+num_families <- 60
+color_palette <- distinctColorPalette(num_families)
+
+# Crie o gráfico com a paleta personalizada
+ggplot(merged_data_updated, aes(x = Sample_Cluster, y = Proportion, fill = Family)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  
+  labs(x = NULL, y = NULL, fill = "Family") + 
+  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_manual(values = color_palette) +  # Paleta personalizada com 60 cores
+  
+  geom_vline(xintercept = 107.5, linetype = "dashed", color = "black", linewidth = 1) +
+  
+  annotate("text", x = 107 / 2, y = 1.05, label = "Cluster 1", size = 5, color = "black", hjust = 0.5) +
+  annotate("text", x = 107 + (23 / 2), y = 1.05, label = "Cluster 2", size = 5, color = "black", hjust = 0.5) +
+  
+  ylim(0, 1.1)
+
+```
+
+
+

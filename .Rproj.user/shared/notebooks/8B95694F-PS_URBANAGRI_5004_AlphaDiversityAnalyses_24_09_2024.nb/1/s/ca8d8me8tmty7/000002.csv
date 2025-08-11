@@ -1,0 +1,30 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDYWxjdWxhciBhIGNvcnJlbGHDp8OjbyBkZSBQZWFyc29uIGVudHJlIGFzIHZhcmnDoXZlaXMgc2VsZWNpb25hZGFzXG5jb3JfbWF0cml4X2FscGhhLmRpZXQgPC0gY29yKG1ldGFkYWRvcy5kaWV0YS5hbHBoYTIsIG1ldGhvZCA9IFwic3BlYXJtYW5cIiwgdXNlID0gXCJwYWlyd2lzZS5jb21wbGV0ZS5vYnNcIilcblxuIyBDYWxjdWxhciBvcyBwLXZhbG9yZXNcbnBfdmFsdWVzX2FscGhhLmRpZXQgPC0gY29yLm10ZXN0X3NoYW5ub24obWV0YWRhZG9zLmRpZXRhLmFscGhhMiwgY29uZi5sZXZlbCA9IDAuOTUpXG5cbiMgQ3JpYXIgdW1hIG1hdHJpeiBkZSBhc3RlcmlzY29zIHBhcmEgc2lnbmlmaWPDom5jaWFcbmFzdGVyaXNrc19hbHBoYS5kaWV0IDwtIGlmZWxzZShwX3ZhbHVlc19hbHBoYS5kaWV0IDwgMC4wMDEsIFwiKioqXCIsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmZWxzZShwX3ZhbHVlc19hbHBoYS5kaWV0IDwgMC4wMSwgXCIqKlwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaWZlbHNlKHBfdmFsdWVzX2FscGhhLmRpZXQgPCAwLjA1LCBcIipcIiwgXCJcIikpKVxuYGBgIn0= -->
+
+```r
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_alpha.diet <- cor(metadados.dieta.alpha2, method = \"spearman\", use = \"pairwise.complete.obs\")
+
+# Calcular os p-valores
+p_values_alpha.diet <- cor.mtest_shannon(metadados.dieta.alpha2, conf.level = 0.95)
+
+# Criar uma matriz de asteriscos para significância
+asterisks_alpha.diet <- ifelse(p_values_alpha.diet < 0.001, \"***\", 
+                            ifelse(p_values_alpha.diet < 0.01, \"**\", 
+                                   ifelse(p_values_alpha.diet < 0.05, \"*\", \"\")))
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Calcular a correlação de Pearson entre as variáveis selecionadas
+cor_matrix_alpha.diet <- cor(metadados.dieta.alpha2, method = \"spearman\", use = \"pairwise.complete.obs\")
+
+# Calcular os p-valores
+p_values_alpha.diet <- cor.mtest_shannon(metadados.dieta.alpha2, conf.level = 0.95)
+
+# Criar uma matriz de asteriscos para significância
+asterisks_alpha.diet <- ifelse(p_values_alpha.diet < 0.001, \"***\", 
+                            ifelse(p_values_alpha.diet < 0.01, \"**\", 
+                                   ifelse(p_values_alpha.diet < 0.05, \"*\", \"\")))
+```"

@@ -1,0 +1,40 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIEdlcmFyIG8gaGVhdG1hcCBjb20gcGhlYXRtYXAsIGFqdXN0YW5kbyBvIHRhbWFuaG8gZGFzIGPDqWx1bGFzIGUgcmVtb3ZlbmRvIGEgbGVnZW5kYSBkbyB0w610dWxvXG5waGVhdG1hcChjb3JfbWF0cml4X2FscGhhLmRpZXQsIFxuICAgICAgICAgZGlzcGxheV9udW1iZXJzID0gYXN0ZXJpc2tzX2FscGhhLmRpZXQsICMgTW9zdHJhIG9zIGFzdGVyaXNjb3Mgbm8gbWFwYVxuICAgICAgICAgY29sb3IgPSBjb2xvclJhbXBQYWxldHRlKGMoXCJibHVlXCIsIFwid2hpdGVcIiwgXCJyZWRcIikpKDEwMCksICMgUGFsZXRhIGRlIGNvcmVzIGFqdXN0YWRhXG4gICAgICAgICBicmVha3MgPSBzZXEoLTEsIDEsIGxlbmd0aC5vdXQgPSAxMDEpLCAgIyBBanVzdGEgb3MgYnJlYWtzIHBhcmEgYSBwYWxldGEgZGUgY29yZXNcbiAgICAgICAgIGNsdXN0ZXJfcm93cyA9IEZBTFNFLCBcbiAgICAgICAgIGNsdXN0ZXJfY29scyA9IEZBTFNFLCBcbiAgICAgICAgIGNlbGxoZWlnaHQgPSAxMiwgICMgQWp1c3RlIGRhIGFsdHVyYSBkYXMgY8OpbHVsYXNcbiAgICAgICAgIGNlbGx3aWR0aCA9IDEyLCAgICAjIEFqdXN0ZSBkYSBsYXJndXJhIGRhcyBjw6lsdWxhc1xuICAgICAgICAgbWFpbiA9IFwiQ29ycmVsYcOnw6NvIGVudHJlIEFscGhhIERpdmVyc2l0eSBlIERpZXRhc1wiKVxuXG5cblxuXG5gYGAifQ== -->
+
+```r
+
+# Gerar o heatmap com pheatmap, ajustando o tamanho das células e removendo a legenda do título
+pheatmap(cor_matrix_alpha.diet, 
+         display_numbers = asterisks_alpha.diet, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c(\"blue\", \"white\", \"red\"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = 12,  # Ajuste da altura das células
+         cellwidth = 12,    # Ajuste da largura das células
+         main = \"Correlação entre Alpha Diversity e Dietas\")
+
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+# Gerar o heatmap com pheatmap, ajustando o tamanho das células e removendo a legenda do título
+pheatmap(cor_matrix_alpha.diet, 
+         display_numbers = asterisks_alpha.diet, # Mostra os asteriscos no mapa
+         color = colorRampPalette(c(\"blue\", \"white\", \"red\"))(100), # Paleta de cores ajustada
+         breaks = seq(-1, 1, length.out = 101),  # Ajusta os breaks para a paleta de cores
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE, 
+         cellheight = 12,  # Ajuste da altura das células
+         cellwidth = 12,    # Ajuste da largura das células
+         main = \"Correlação entre Alpha Diversity e Dietas\")
+
+
+
+
+```"

@@ -1,0 +1,38 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5jb2xuYW1lcyhzYXVkZV9kaWV0YSlcblxuIyBTZWxlY2lvbmFyIGFzIGNvbHVuYXMgbnVtw6lyaWNhcyBkZSBpbnRlcmVzc2UgZSByZW5vbWXDoS1sYXMgcGFyYSBtZXRhZGFkb3Nfc2hhbm5vbl9zZWxlY3RlZFxubWV0YWRhZG9zLnNhdWRlLmFscGhhIDwtIHNhdWRlX2RpZXRhICU+JVxuICBzZWxlY3QoXCJzaGFubm9uX2VudHJvcHlcIiwgU2ltcHNvbiwgXCJwaWVsb3VfZXZlbm5lc3NcIiwgXCJvYnNlcnZlZF9mZWF0dXJlc1wiLCBBQ0UsIENoYW8xLCBcImZhaXRoX3BkXCIsIEFnZSwgIFN5c3RvbGljLCBEaWFzdG9saWMsIElNQywgV0hyYXRpbywgSE9NQSwgSU5TVUxJTkEsIEdMSUNPU0UsIEhiQTFjLCBUR08sIFRHUCwgR0dULCBQQ1IsIFRSSUdMSUNFUklERVMsIENPTEVTVEVST0wsIExETCwgVkxETCwgSERMLCBUTkYsIElMMTdBLCBJRk5HYW1tYSwgSUwyLCBJTDQsIElMNiwgSUwxMClcblxuc2F1ZGVfZGlldGEkV0hyYXRpbyA8LSBzYXVkZV9kaWV0YSRXYWlzdCAvIHNhdWRlX2RpZXRhJEhpcFxuXG5zYXVkZV9kaWV0YSRJTUMgPC0gc2F1ZGVfZGlldGEkV2VpZ2h0IC8gKHNhdWRlX2RpZXRhJEhlaWdodF4yKVxuXG4jIFJlbm9tZWFuZG8gdG9kYXMgYXMgY29sdW5hcyBxdWUgcG9zc3VlbSBcIi55XCJcbmNvbG5hbWVzKHNhdWRlX2RpZXRhKSA8LSBnc3ViKFwiXFxcXC55JFwiLCBcIlwiLCBjb2xuYW1lcyhzYXVkZV9kaWV0YSkpXG5cbmBgYCJ9 -->
+
+```r
+
+colnames(saude_dieta)
+
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- saude_dieta %>%
+  select(\"shannon_entropy\", Simpson, \"pielou_evenness\", \"observed_features\", ACE, Chao1, \"faith_pd\", Age,  Systolic, Diastolic, IMC, WHratio, HOMA, INSULINA, GLICOSE, HbA1c, TGO, TGP, GGT, PCR, TRIGLICERIDES, COLESTEROL, LDL, VLDL, HDL, TNF, IL17A, IFNGamma, IL2, IL4, IL6, IL10)
+
+saude_dieta$WHratio <- saude_dieta$Waist / saude_dieta$Hip
+
+saude_dieta$IMC <- saude_dieta$Weight / (saude_dieta$Height^2)
+
+# Renomeando todas as colunas que possuem \".y\"
+colnames(saude_dieta) <- gsub(\"\\.y$\", \"\", colnames(saude_dieta))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+colnames(saude_dieta)
+
+# Selecionar as colunas numéricas de interesse e renomeá-las para metadados_shannon_selected
+metadados.saude.alpha <- saude_dieta %>%
+  select(\"shannon_entropy\", Simpson, \"pielou_evenness\", \"observed_features\", ACE, Chao1, \"faith_pd\", Age,  Systolic, Diastolic, IMC, WHratio, HOMA, INSULINA, GLICOSE, HbA1c, TGO, TGP, GGT, PCR, TRIGLICERIDES, COLESTEROL, LDL, VLDL, HDL, TNF, IL17A, IFNGamma, IL2, IL4, IL6, IL10)
+
+saude_dieta$WHratio <- saude_dieta$Waist / saude_dieta$Hip
+
+saude_dieta$IMC <- saude_dieta$Weight / (saude_dieta$Height^2)
+
+# Renomeando todas as colunas que possuem \".y\"
+colnames(saude_dieta) <- gsub(\"\\.y$\", \"\", colnames(saude_dieta))
+
+```"

@@ -1,0 +1,14 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDYWxjdWxhciBvcyBwLXZhbG9yZXMgdXNhbmRvIG8gdGVzdGUgZGUgV2lsY294b24gcGFyYSBhIGNvbHVuYSBUcmVwb25lbWFcbnBfdmFsdWVfcGllbG91IDwtIHdpbGNveC50ZXN0KHBpZWxvdV9ldmVubmVzcyB+IFRyZXBvbmVtYSwgZGF0YSA9IHNhdWRlX2RpZXRhKSRwLnZhbHVlXG5gYGAifQ== -->
+
+```r
+# Calcular os p-valores usando o teste de Wilcoxon para a coluna Treponema
+p_value_pielou <- wilcox.test(pielou_evenness ~ Treponema, data = saude_dieta)$p.value
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Calcular os p-valores usando o teste de Wilcoxon para a coluna Treponema
+p_value_pielou <- wilcox.test(pielou_evenness ~ Treponema, data = saude_dieta)$p.value
+```"

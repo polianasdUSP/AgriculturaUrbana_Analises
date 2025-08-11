@@ -1,0 +1,146 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+library(writexl)
+library(ggplot2)
+library(reshape2)
+
+```
+
+```{r}
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+
+```
+ 
+```{r}
+
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs[!grepl("\\.F01$", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep("\\.F00$", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+
+
+```{r}
+# Passo 1: Calcular a presença usando a tabela original `SVs`
+num_volunteers <- ncol(SVs)  # Número total de voluntários
+threshold <- 0.10  # 10%
+
+# Calcular a presença de cada ASV em termos de porcentagem
+asv_presence <- rowSums(SVs > 0) / num_volunteers
+
+# Filtrar as ASVs que estão presentes em pelo menos 10% dos voluntários
+asv_to_keep <- asv_presence >= threshold
+
+# Passo 2: Aplique o filtro na tabela log-transformada
+filtered_asv <- SVs_log_df[asv_to_keep, ]
+
+```
+
+```{r}
+# Passo 1: Normalizar os dados em `filtered_asv` para calcular as proporções
+# Aqui vamos usar `apply` para normalizar cada coluna (voluntário) para que as somas sejam iguais a 1
+filtered_asv_normalized <- apply(filtered_asv, 2, function(x) x / sum(x))
+
+# Converter de volta para data frame para facilitar a manipulação
+filtered_asv_normalized_df <- as.data.frame(filtered_asv_normalized)
+
+# Supondo que `taxonomy_df` tenha as colunas `ASV_ID` e `Taxonomy`
+# E que `filtered_asv_normalized_df` tenha os ASVs como linhas com nomes nas linhas
+
+
+head(taxonomy)
+
+# Garantir que o nome da coluna em SVs_log_df seja "Feature.ID" para permitir a junção
+SVs_log_df <- SVs_log_df %>% rownames_to_column(var = "Feature.ID")
+
+colnames(SVs_with_taxonomy)
+
+# Mesclar SVs_log_df com taxonomy para adicionar a informação de taxonomia
+SVs_with_taxonomy <- left_join(SVs_log_df, taxonomy, by = "Feature.ID")
+
+# Visualizar as primeiras linhas para verificar a junção
+head(SVs_with_taxonomy)
+
+
+```
+
+```{r}
+# Duplicar a coluna Taxon para preservá-la e separar em níveis taxonômicos
+SVs_with_taxonomy <- SVs_with_taxonomy %>%
+  mutate(Taxon_original = Taxon) %>%  # Preservar a coluna Taxon original
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = "; ", fill = "right", extra = "merge")
+
+# Verificar as primeiras linhas para confirmar a separação
+head(SVs_with_taxonomy)
+
+```
+```{r}
+# Normalizar apenas as colunas de amostra
+SVs_with_taxonomy_normalized <- SVs_with_taxonomy %>%
+  mutate(across(matches("^S\\d+\\.F00$"), ~ . / sum(.)))  # Normaliza apenas colunas que seguem o padrão de amostras
+
+# Verificar as primeiras linhas para confirmar a normalização
+head(SVs_with_taxonomy_normalized)
+
+
+```
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Transformar para formato longo para visualização por Phylum
+SVs_phylum_long <- SVs_with_taxonomy_normalized %>%
+  pivot_longer(cols = matches("^S\\d+\\.F00$"), names_to = "Sample", values_to = "Proportion") %>%
+  group_by(Sample, Phylum) %>%
+  summarise(TotalProportion = sum(Proportion), .groups = "drop")
+
+# Verificar o resultado
+head(SVs_phylum_long)
+
+
+```
+```{r}
+library(ggplot2)
+
+ggplot(SVs_phylum_long, aes(x = Sample, y = TotalProportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(x = NULL, y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_brewer(palette = "Spectral")
+
+```

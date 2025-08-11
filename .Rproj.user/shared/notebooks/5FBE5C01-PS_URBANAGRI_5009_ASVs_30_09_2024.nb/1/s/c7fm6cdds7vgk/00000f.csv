@@ -1,0 +1,10 @@
+"0","SVsToPlot2<-  
+"
+"2","Houve 50 ou mais avisos (use warnings() para ver os primeiros 50)"
+"2","
+"
+"0","  data.frame(MeanAbundance=rowMeans(SVs)) %>% #find the average abundance of a SV"
+"0","  rownames_to_column(""Feature.ID"") %>%"
+"0","  arrange(desc(MeanAbundance)) %>%"
+"0","  top_n(-30, MeanAbundance) %>%"
+"0","  pull(Feature.ID) #extract only the names from the table"

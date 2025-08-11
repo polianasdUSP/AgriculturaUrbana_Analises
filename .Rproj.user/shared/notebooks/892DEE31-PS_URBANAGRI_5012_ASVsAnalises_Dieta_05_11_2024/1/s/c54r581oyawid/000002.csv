@@ -1,0 +1,58 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmxpYnJhcnkoZ2dwbG90MilcblxuIyBGaWx0cmFyIGFwZW5hcyBjb2x1bmFzIG51bcOpcmljYXMgZGUgbWV0YWRhdGEgZSBtYW50ZXIgU2FtcGxlLmlkXG5udW1lcmljX21ldGFkYXRhX3NhdWRlX2RpZXRhIDwtIG1ldGFkYXRhX0FTVnNfU2F1ZGVfZGlldGEgJT4lXG4gIHNlbGVjdChTYW1wbGUuaWQsIHdoZXJlKGlzLm51bWVyaWMpKVxuXG4jIFByZXBhcmFyIGRhZG9zIHBhcmEgbyBoZWF0bWFwIHVzYW5kbyBTVnNfbG9uZyBlIGNvbWJpbmFuZG8gY29tIGNvbHVuYXMgbnVtw6lyaWNhcyBkZSBtZXRhZGF0YVxuaGVhdG1hcF9kYXRhX1NhdWRlX0RpZXRhIDwtIFNWc19sb25nICU+JVxuICBsZWZ0X2pvaW4obnVtZXJpY19tZXRhZGF0YV9zYXVkZV9kaWV0YSwgYnkgPSBcIlNhbXBsZS5pZFwiKSAlPiVcbiAgbGVmdF9qb2luKHRheG9ub215LCBieSA9IFwiRmVhdHVyZS5JRFwiKSBcblxuIyBQbG90YXIgbyBoZWF0bWFwXG5oZWF0bWFwX0FTVl9TYXVkZV9EaWV0YSA8LSBnZ3Bsb3QobnVtZXJpY19tZXRhZGF0YV9zYXVkZV9kaWV0YSwgYWVzKHggPSBTYW1wbGUuaWQsIHkgPSBGZWF0dXJlLklELCBmaWxsID0gTm9ybUFidW5kYW5jZSkpICtcbiAgZ2VvbV90aWxlKCkgK1xuICB0aGVtZV9taW5pbWFsKCkgK1xuICB0aGVtZShheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChhbmdsZSA9IDQ1LCBoanVzdCA9IDEpKSArXG4gIHNjYWxlX2ZpbGxfdmlyaWRpc19jKG5hbWUgPSBcIk5vcm1BYnVuZGFuY2VcIikgK1xuICBsYWJzKHRpdGxlID0gXCJIZWF0bWFwIGRlIEFidW5kw6JuY2lhIE5vcm1hbGl6YWRhIGRhcyBBU1ZzXCIsIHggPSBcIlNhbXBsZSBJRFwiLCB5ID0gXCJGZWF0dXJlLklEXCIpXG5cbiMgU2FsdmFyIG8gZ3LDoWZpY28gY29tbyBQREZcbmdnc2F2ZShcImhlYXRtYXBfbGFyZ2VyLnBkZlwiLCBoZWlnaHQgPSAxMCwgd2lkdGggPSAyMCwgZGV2aWNlID0gXCJwZGZcIilcblxuY29sbmFtZXMoaGVhdG1hcF9kYXRhX1NhdWRlX0RpZXRhKVxuYGBgIn0= -->
+
+```r
+library(dplyr)
+library(ggplot2)
+
+# Filtrar apenas colunas numéricas de metadata e manter Sample.id
+numeric_metadata_saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, where(is.numeric))
+
+# Preparar dados para o heatmap usando SVs_long e combinando com colunas numéricas de metadata
+heatmap_data_Saude_Dieta <- SVs_long %>%
+  left_join(numeric_metadata_saude_dieta, by = \"Sample.id\") %>%
+  left_join(taxonomy, by = \"Feature.ID\") 
+
+# Plotar o heatmap
+heatmap_ASV_Saude_Dieta <- ggplot(numeric_metadata_saude_dieta, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = \"NormAbundance\") +
+  labs(title = \"Heatmap de Abundância Normalizada das ASVs\", x = \"Sample ID\", y = \"Feature.ID\")
+
+# Salvar o gráfico como PDF
+ggsave(\"heatmap_larger.pdf\", height = 10, width = 20, device = \"pdf\")
+
+colnames(heatmap_data_Saude_Dieta)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(dplyr)
+library(ggplot2)
+
+# Filtrar apenas colunas numéricas de metadata e manter Sample.id
+numeric_metadata_saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, where(is.numeric))
+
+# Preparar dados para o heatmap usando SVs_long e combinando com colunas numéricas de metadata
+heatmap_data_Saude_Dieta <- SVs_long %>%
+  left_join(numeric_metadata_saude_dieta, by = \"Sample.id\") %>%
+  left_join(taxonomy, by = \"Feature.ID\") 
+
+# Plotar o heatmap
+heatmap_ASV_Saude_Dieta <- ggplot(numeric_metadata_saude_dieta, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = \"NormAbundance\") +
+  labs(title = \"Heatmap de Abundância Normalizada das ASVs\", x = \"Sample ID\", y = \"Feature.ID\")
+
+# Salvar o gráfico como PDF
+ggsave(\"heatmap_larger.pdf\", height = 10, width = 20, device = \"pdf\")
+
+colnames(heatmap_data_Saude_Dieta)
+```"

@@ -1,0 +1,7 @@
+"0","ggplot((merge(merge(unwunifrac.pcoa$points, data.frame(holder$clustering), by = ""row.names""), subset(metadados, !is.na(Region)), by.x = ""Row.names"", by.y = ""Sample.id""))) + 
+    geom_point(aes(x = V1, y = V2, color = paste(holder.clustering,Region), shape = as.character(Treponema)), size = 2) +
+    labs(title = ""UnWeighted Unifrac"", x = ""V1"", y = ""V2"") +
+    theme_minimal()
+"
+"2","Erro: objeto 'holder' não encontrado
+"

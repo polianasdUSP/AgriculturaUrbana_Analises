@@ -1,0 +1,5 @@
+"0","recall.raw <- read_excel(""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Planilha_UNICA_R24H_Projeto_Agricultura (3).xlsx"")
+"
+"2","Aviso:"
+"2"," Expecting date in B1304 / R1304C2: got '20/04/2023'
+"

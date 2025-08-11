@@ -1,0 +1,30 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3BtaXNjKVxuXG5gYGAifQ== -->
+
+```r
+library(ggpmisc)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(ggpmisc)
+
+```"
+"1","Carregando pacotes exigidos: ggpp
+Registered S3 methods overwritten by 'ggpp':
+  method                  from   
+  heightDetails.titleGrob ggplot2
+  widthDetails.titleGrob  ggplot2
+
+Anexando pacote: ‘ggpp’
+
+Os seguintes objetos são mascarados por ‘package:ggpubr’:
+
+    as_npc, as_npcx, as_npcy
+
+O seguinte objeto é mascarado por ‘package:ggplot2’:
+
+    annotate
+"

@@ -1,0 +1,18 @@
+"0","```r
+# Verificar os primeiros registros do dataframe shannon
+
+head(shannon_df)
+
+str(shannon_df)
+
+# Filtrar os IDs que terminam com .F00 e remover aqueles que terminam com .F01
+
+shannon_filtered <- shannon_df %>%
+  filter(grepl(\"\\-F00$\", Sample.id) & !grepl(\"\\-F01$\", Sample.id))
+
+# Substituir -F00 por .F00 nos IDs
+
+shannon_filtered$Sample.id <- gsub(\"-F00$\", \".F00\", shannon_filtered$Sample.id)
+
+
+```"

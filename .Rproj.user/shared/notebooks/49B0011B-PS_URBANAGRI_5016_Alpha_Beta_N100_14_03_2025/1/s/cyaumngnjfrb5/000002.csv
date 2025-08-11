@@ -1,0 +1,634 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBMb29wIHBvciB2YXJpw6F2ZWxcbmZvciAodiBpbiB2YXJzKSB7XG4gIGNhdChcIlxcbiMjIyBQRVJNQU5PVkEgZm9yOlwiLCB2LCBcIiMjI1xcblwiKVxuICBcbiAgIyBSZW1vdmVyIE5BcyBzw7MgZGEgdmFyacOhdmVsIGUgbWFudGVyIElEcyBxdWUgZXN0w6NvIG5hIG1hdHJpelxuICBpZHMgPC0gcm93bmFtZXMobWV0YWRhdGFbIWlzLm5hKG1ldGFkYXRhW1t2XV0pLCBdKVxuICBpZHMgPC0gaW50ZXJzZWN0KGlkcywgcm93bmFtZXMod2VpZ2h0ZWQudW5pZnJhYykpXG4gIFxuICAjIFJvZGFyIFBFUk1BTk9WQSBkaXJldG9cbiAgcmVzdWx0X3dlaWdodGVkX3Blcm1hbm92YSA8LSBhZG9uaXMyKHdlaWdodGVkLnVuaWZyYWNbaWRzLCBpZHNdIH4gbWV0YWRhdGFbaWRzLCB2XSwgcGVybXV0YXRpb25zID0gOTk5KVxuICBwcmludChyZXN1bHRfd2VpZ2h0ZWRfcGVybWFub3ZhKVxufVxuXG5gYGAifQ== -->
+
+```r
+# Loop por variável
+for (v in vars) {
+  cat(\"\n### PERMANOVA for:\", v, \"###\n\")
+  
+  # Remover NAs só da variável e manter IDs que estão na matriz
+  ids <- rownames(metadata[!is.na(metadata[[v]]), ])
+  ids <- intersect(ids, rownames(weighted.unifrac))
+  
+  # Rodar PERMANOVA direto
+  result_weighted_permanova <- adonis2(weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+  print(result_weighted_permanova)
+}
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Loop por variável
+for (v in vars) {
+  cat(\"\n### PERMANOVA for:\", v, \"###\n\")
+  
+  # Remover NAs só da variável e manter IDs que estão na matriz
+  ids <- rownames(metadata[!is.na(metadata[[v]]), ])
+  ids <- intersect(ids, rownames(weighted.unifrac))
+  
+  # Rodar PERMANOVA direto
+  result_weighted_permanova <- adonis2(weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+  print(result_weighted_permanova)
+}
+
+```"
+"1","
+### PERMANOVA for: Region_type ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0802 0.01664 1.8102  0.106
+Residual 107   4.7393 0.98336              
+Total    108   4.8195 1.00000              
+
+### PERMANOVA for: Region ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs    R2      F Pr(>F)  
+Model      4   0.2747 0.057 1.5716  0.061 .
+Residual 104   4.5448 0.943                
+Total    108   4.8195 1.000                
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: IL17A ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.01089 0.00349 0.2624  0.938
+Residual 75  3.11208 0.99651              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: IFNGamma ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.02533 0.00811 0.6134   0.75
+Residual 75  3.09764 0.99189              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: TNF ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.03473 0.01112 0.8435   0.46
+Residual 75  3.08824 0.98888              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: IL10 ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.01902 0.00609 0.4597  0.862
+Residual 75  3.10395 0.99391              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: IL6 ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model    57  2.45725 0.78683 1.2304   0.16
+Residual 19  0.66572 0.21317              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: IL4 ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.03854 0.01234 0.9371  0.424
+Residual 75  3.08443 0.98766              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: IL2 ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.01799 0.00576 0.4346  0.887
+Residual 75  3.10498 0.99424              
+Total    76  3.12297 1.00000              
+
+### PERMANOVA for: Age ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2    F Pr(>F)
+Model      1   0.0596 0.01237 1.34  0.203
+Residual 107   4.7599 0.98763            
+Total    108   4.8195 1.00000            
+
+### PERMANOVA for: Sex ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2     F Pr(>F)  
+Model      1   0.0882 0.01829 1.994  0.085 .
+Residual 107   4.7313 0.98171               
+Total    108   4.8195 1.00000               
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: Raca ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      4   0.2019 0.04189 1.1368  0.276
+Residual 104   4.6176 0.95811              
+Total    108   4.8195 1.00000              
+
+### PERMANOVA for: Fuma ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0282 0.00588 0.6272  0.692
+Residual 106   4.7705 0.99412              
+Total    107   4.7987 1.00000              
+
+### PERMANOVA for: Alcool ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0731 0.01524 1.6405  0.128
+Residual 106   4.7256 0.98476              
+Total    107   4.7987 1.00000              
+
+### PERMANOVA for: Medicamentos ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0351 0.00732 0.7821  0.558
+Residual 106   4.7635 0.99268              
+Total    107   4.7987 1.00000              
+
+### PERMANOVA for: Doenca ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model    18  0.70729 0.30916 0.6215  0.952
+Residual 25  1.58049 0.69084              
+Total    43  2.28778 1.00000              
+
+### PERMANOVA for: Antibiotico ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0661 0.01377 1.4804  0.162
+Residual 106   4.7326 0.98623              
+Total    107   4.7987 1.00000              
+
+### PERMANOVA for: Systolic ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2     F Pr(>F)
+Model      1   0.0313 0.00668 0.693  0.616
+Residual 103   4.6508 0.99332             
+Total    104   4.6821 1.00000             
+
+### PERMANOVA for: Diastolic ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0299 0.00639 0.6622  0.647
+Residual 103   4.6521 0.99361              
+Total    104   4.6821 1.00000              
+
+### PERMANOVA for: Weight ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs     R2     F Pr(>F)  
+Model      1   0.1064 0.0223 2.395  0.059 .
+Residual 105   4.6627 0.9777               
+Total    106   4.7691 1.0000               
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: Height ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0237 0.00496 0.5233  0.785
+Residual 105   4.7454 0.99504              
+Total    106   4.7691 1.00000              
+
+### PERMANOVA for: IMC ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)  
+Model      1   0.0857 0.01797 1.9217   0.09 .
+Residual 105   4.6834 0.98203                
+Total    106   4.7691 1.00000                
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: W.H ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs     R2      F Pr(>F)
+Model     1   0.0343 0.0105 0.7538  0.527
+Residual 71   3.2296 0.9895              
+Total    72   3.2639 1.0000              
+
+### PERMANOVA for: Parasitologico ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      7   0.3312 0.06945 1.0556  0.372
+Residual  99   4.4379 0.93055              
+Total    106   4.7691 1.00000              
+
+### PERMANOVA for: ERITROCITOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2     F Pr(>F)
+Model      1   0.0562 0.01229 1.232  0.253
+Residual  99   4.5121 0.98771             
+Total    100   4.5683 1.00000             
+
+### PERMANOVA for: HEMOGLOBINA ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0489 0.01071 1.0723  0.303
+Residual  99   4.5193 0.98929              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: HEMATOCRITO ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0689 0.01509 1.5169   0.16
+Residual  99   4.4993 0.98491              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: VCM ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0255 0.00558 0.5558  0.751
+Residual  99   4.5428 0.99442              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: HCM ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0225 0.00493 0.4908  0.808
+Residual  99   4.5457 0.99507              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: CHCM ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs     R2      F Pr(>F)
+Model      1   0.0430 0.0094 0.9398  0.382
+Residual  99   4.5253 0.9906              
+Total    100   4.5683 1.0000              
+
+### PERMANOVA for: RDW ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2     F Pr(>F)
+Model      1   0.0282 0.00616 0.614  0.661
+Residual  99   4.5401 0.99384             
+Total    100   4.5683 1.00000             
+
+### PERMANOVA for: LEUCOCITOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0322 0.00704 0.7021  0.599
+Residual  99   4.5361 0.99296              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: NEUTROFILOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs     R2      F Pr(>F)
+Model      1   0.0133 0.0029 0.2882  0.971
+Residual  99   4.5550 0.9971              
+Total    100   4.5683 1.0000              
+
+### PERMANOVA for: EOSINOFILOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0456 0.00998 0.9975  0.368
+Residual  99   4.5227 0.99002              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: BASOFILOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs    R2     F Pr(>F)
+Model      1   0.0777 0.017 1.712  0.126
+Residual  99   4.4906 0.983             
+Total    100   4.5683 1.000             
+
+### PERMANOVA for: LINFOCITOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)  
+Model      1   0.0921 0.02016 2.0371  0.091 .
+Residual  99   4.4762 0.97984                
+Total    100   4.5683 1.00000                
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: MONOCITOS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2     F Pr(>F)  
+Model      1   0.1025 0.02244 2.273   0.05 *
+Residual  99   4.4657 0.97756               
+Total    100   4.5683 1.00000               
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: PLAQUETAS ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2     F Pr(>F)
+Model      1   0.0216 0.00473 0.471  0.851
+Residual  99   4.5466 0.99527             
+Total    100   4.5683 1.00000             
+
+### PERMANOVA for: UREIA ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)  
+Model      1   0.0997 0.02183 2.2099  0.058 .
+Residual  99   4.4685 0.97817                
+Total    100   4.5683 1.00000                
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+### PERMANOVA for: CREATININA ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0223 0.00489 0.4861  0.666
+Residual  99   4.5459 0.99511              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: HbA1c ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model     23   1.0127 0.22168 0.9535  0.555
+Residual  77   3.5556 0.77832              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: COLESTEROL ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0743 0.01626 1.6366  0.112
+Residual  99   4.4940 0.98374              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: LDL ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1   0.0747 0.01764 1.6884  0.128
+Residual 94   4.1579 0.98236              
+Total    95   4.2326 1.00000              
+
+### PERMANOVA for: HDL ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1   0.0443 0.01046 0.9933  0.392
+Residual 94   4.1883 0.98954              
+Total    95   4.2326 1.00000              
+
+### PERMANOVA for: VLDL ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs     R2      F Pr(>F)
+Model    28   1.1657 0.2754 0.9095  0.672
+Residual 67   3.0669 0.7246              
+Total    95   4.2326 1.0000              
+
+### PERMANOVA for: TRIGLICERIDES ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0697 0.01526 1.5342  0.155
+Residual  99   4.4986 0.98474              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: TGO ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0536 0.01173 1.1747  0.296
+Residual  99   4.5147 0.98827              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: TGP ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0244 0.00533 0.5306  0.731
+Residual  99   4.5439 0.99467              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: GGT ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+          Df SumOfSqs      R2      F Pr(>F)
+Model      1   0.0626 0.01369 1.3746   0.19
+Residual  99   4.5057 0.98631              
+Total    100   4.5683 1.00000              
+
+### PERMANOVA for: GLICOSE ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1   0.0464 0.01025 1.0042  0.336
+Residual 97   4.4786 0.98975              
+Total    98   4.5250 1.00000              
+
+### PERMANOVA for: INSULINA ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.03377 0.01121 0.8162  0.525
+Residual 72  2.97882 0.98879              
+Total    73  3.01259 1.00000              
+
+### PERMANOVA for: HOMA.IR ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2      F Pr(>F)
+Model     1  0.03225 0.01083 0.7772  0.522
+Residual 71  2.94572 0.98917              
+Total    72  2.97796 1.00000              
+
+### PERMANOVA for: PCR ###
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
+
+adonis2(formula = weighted.unifrac[ids, ids] ~ metadata[ids, v], permutations = 999)
+         Df SumOfSqs      R2     F Pr(>F)
+Model    57  2.50307 0.83087 1.379  0.102
+Residual 16  0.50953 0.16913             
+Total    73  3.01259 1.00000             
+"

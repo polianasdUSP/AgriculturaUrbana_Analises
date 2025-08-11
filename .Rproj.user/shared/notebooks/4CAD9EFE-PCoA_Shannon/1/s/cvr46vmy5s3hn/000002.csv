@@ -1,0 +1,6 @@
+"0","```r
+# Extrair os autovalores
+
+eigenvalues <- pcoa_result$eig
+
+```"

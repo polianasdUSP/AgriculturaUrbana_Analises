@@ -1,0 +1,34 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHYXJhbnRpciBxdWUgb3MgSURzIGRlIFNWcyBlc3RlamFtIG5hcyBsaW5oYXNcblNWc190IDwtIGFzLmRhdGEuZnJhbWUodChTVnNfZmlsdHJhZG8pKVxuXG4jIEFkaWNpb25hciBjb2x1bmEgY29tIElEc1xuU1ZzX3QkU2FtcGxlLmlkIDwtIHJvd25hbWVzKFNWc190KVxuXG4jIEp1bnRhciBjb20gbWV0YWRhZG9zXG5TVnNfbWV0YSA8LSBtZXJnZShTVnNfdCwgbWV0YWRhZG9zLnNhdWRlLmFscGhhWywgYyhcIlNhbXBsZS5pZFwiLCBcIlZBSV9ncm91cFwiLCBcIlR5R19ncm91cFwiKV0sIGJ5ID0gXCJTYW1wbGUuaWRcIilcblxuIyBSZW1vdmVyIE5Bc1xuU1ZzX21ldGEgPC0gU1ZzX21ldGEgJT4lIGZpbHRlcighaXMubmEoVkFJX2dyb3VwKSAmICFpcy5uYShUeUdfZ3JvdXApKVxuXG5gYGAifQ== -->
+
+```r
+# Garantir que os IDs de SVs estejam nas linhas
+SVs_t <- as.data.frame(t(SVs_filtrado))
+
+# Adicionar coluna com IDs
+SVs_t$Sample.id <- rownames(SVs_t)
+
+# Juntar com metadados
+SVs_meta <- merge(SVs_t, metadados.saude.alpha[, c(\"Sample.id\", \"VAI_group\", \"TyG_group\")], by = \"Sample.id\")
+
+# Remover NAs
+SVs_meta <- SVs_meta %>% filter(!is.na(VAI_group) & !is.na(TyG_group))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Garantir que os IDs de SVs estejam nas linhas
+SVs_t <- as.data.frame(t(SVs_filtrado))
+
+# Adicionar coluna com IDs
+SVs_t$Sample.id <- rownames(SVs_t)
+
+# Juntar com metadados
+SVs_meta <- merge(SVs_t, metadados.saude.alpha[, c(\"Sample.id\", \"VAI_group\", \"TyG_group\")], by = \"Sample.id\")
+
+# Remover NAs
+SVs_meta <- SVs_meta %>% filter(!is.na(VAI_group) & !is.na(TyG_group))
+
+```"

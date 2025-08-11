@@ -1,0 +1,139 @@
+---
+title: "regular expression"
+output: html_notebook
+---
+
+
+
+```{r}
+data <- read.table ("C:/Users/polia/Downloads/_n110MappingFileOralParaQiime - n110MappingFileCompleto_Qiime.csv", header = T, sep = ",", comment.char = "")
+
+```
+
+```{r}
+data <- read.table ("_n110MappingFileOralParaQiime - n110MappingFileCompleto_Qiime.csv", header = T, sep = ",", comment.char = "")
+
+```
+"global regular expression print"
+```{r}
+#grep()
+#grepl()
+#grepRaw()
+
+?grep 
+
+#Acha todas as linhas que começam com A. ^A
+
+grep (x= data$X.SampleID, pattern = "^A")
+      
+
+```
+
+```{r}
+
+#Acha todas as linhas que começam com C
+grep (x= data$X.SampleID, pattern = "^C")
+
+```
+
+```{r}
+
+#Procura todas as linhas que tem tb
+
+
+grep (x= data$X.SampleID, pattern = "tb")
+
+```
+
+```{r}
+
+#Acha todos que terminam com 1
+
+grep (x= data$X.SampleID, pattern = "1$")
+```
+
+```{r}
+#Acha todas que começam com S, tem 1 caractere ou + e termina com 1
+
+grep (x= data$X.SampleID, pattern = "^S.+1$")
+```
+
+```{r}
+#mostra qual tem e qual não tem nas linhas (nas celulas), TRUE ou FALSE
+
+grepl (x= data$X.SampleID, pattern = "^S.+1$")
+```
+```{r}
+
+grepl (x= data$X.SampleID, pattern = "^A")
+
+```
+```{r}
+
+data$X.SampleID [grepl (x=data$X.SampleID, pattern = "^A")]
+
+```
+
+```{r}
+data$X.SampleID [grepl (x=data$X.SampleID, pattern = "^C.+1$")]
+```
+
+
+```{r}
+?subset
+
+subset (data, Age ==23)
+```
+
+```{r}
+
+#mostra linhas onde Age <= 23
+
+subset (data, Age <=23)
+```
+```{r}
+data$Age =="23"
+```
+```{r}
+subset (data, Age <=23 & Sex =="M")
+
+```
+
+```{r}
+
+data$Age <=23
+
+```
+```{r}
+data$Sex == "M"
+```
+
+```{r}
+grep (x= data$X.SampleID, pattern = "1$")
+```
+
+
+```{r}
+grep (x= data$X.SampleID, pattern = "1$|R$")
+
+```
+
+```{r}
+
+data$X.SampleID [grepl (x=data$X.SampleID, pattern = "1$|R$")]
+
+```
+
+```{r}
+data$X.SampleID [grepl (x=data$X.SampleID, pattern = "R$")]
+```
+
+```{r}
+data$X.SampleID [grepl (x=data$X.SampleID, pattern = "1$")]
+```
+
+```{r}
+data$X.SampleID [grepl (x=data$X.SampleID, pattern = "1$"), ]
+
+```
+

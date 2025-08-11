@@ -1,0 +1,5 @@
+"0","summary_dieta <- summary (as.dataframe(metadados.dieta.all))
+"
+"2","Error in as.dataframe(metadados.dieta.all) : 
+  não foi possível encontrar a função ""as.dataframe""
+"

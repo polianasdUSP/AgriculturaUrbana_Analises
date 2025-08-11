@@ -1,0 +1,50 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHcsOhZmljbyBwYXJhIHBpZWxvdV9ldmVubmVzc1xuXG4jIEdyw6FmaWNvIHBhcmEgcGllbG91X2V2ZW5uZXNzIGNvbSBcIlByZXNlbsOnYSBkZSBUcmVwb25lbWFcIlxucGxvdF9waWVsb3VfdHJlcCA8LSBnZ3Bsb3Qoc2F1ZGVfZGlldGEsIGFlcyh4ID0gZmFjdG9yKFRyZXBvbmVtYSwgbGV2ZWxzID0gYygwLCAxKSwgbGFiZWxzID0gYyhcIkF1c2VudGVcIiwgXCJQcmVzZW50ZVwiKSksIHkgPSBwaWVsb3VfZXZlbm5lc3MpKSArXG4gIGdlb21fYm94cGxvdChhZXMoZmlsbCA9IGZhY3RvcihUcmVwb25lbWEsIGxldmVscyA9IGMoMCwgMSksIGxhYmVscyA9IGMoXCJBdXNlbnRlXCIsIFwiUHJlc2VudGVcIikpKSwgcG9zaXRpb24gPSBwb3NpdGlvbl9kb2RnZSh3aWR0aCA9IDAuOCksIG91dGxpZXIuc2hhcGUgPSBOQSkgK1xuICBnZW9tX2ppdHRlcih3aWR0aCA9IDAuMSwgc2l6ZSA9IDIsIGFscGhhID0gMC43LCBjb2xvciA9IFwiYmxhY2tcIikgK1xuICBsYWJzKHRpdGxlID0gXCJQaWVsb3UgRXZlbm5lc3MgdnMgUHJlc2Vuw6dhIGRlIFRyZXBvbmVtYVwiLCB5ID0gXCJQaWVsb3UgRXZlbm5lc3NcIiwgeCA9IFwiUHJlc2Vuw6dhIGRlIFRyZXBvbmVtYVwiKSArXG4gIHRoZW1lX21pbmltYWwoKSArXG4gIHNjYWxlX2ZpbGxfZGlzY3JldGUobmFtZSA9IFwiUHJlc2Vuw6dhIGRlIFRyZXBvbmVtYVwiKSArXG4gIGFubm90YXRlKFwidGV4dFwiLCB4ID0gMS41LCB5ID0gbWF4KHNhdWRlX2RpZXRhJHBpZWxvdV9ldmVubmVzcywgbmEucm0gPSBUUlVFKSAqIDEuMDUsIFxuICAgICAgICAgICBsYWJlbCA9IHBhc3RlKFwicCA9XCIsIHJvdW5kKHBfdmFsdWVfcGllbG91LCA0KSksIHNpemUgPSA1KVxuXG5cblxucHJpbnQgKHBsb3RfcGllbG91X3RyZXApXG5cblxuXG5cblxuYGBgIn0= -->
+
+```r
+# Gráfico para pielou_evenness
+
+# Gráfico para pielou_evenness com \"Presença de Treponema\"
+plot_pielou_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c(\"Ausente\", \"Presente\")), y = pielou_evenness)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c(\"Ausente\", \"Presente\"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = \"black\") +
+  labs(title = \"Pielou Evenness vs Presença de Treponema\", y = \"Pielou Evenness\", x = \"Presença de Treponema\") +
+  theme_minimal() +
+  scale_fill_discrete(name = \"Presença de Treponema\") +
+  annotate(\"text\", x = 1.5, y = max(saude_dieta$pielou_evenness, na.rm = TRUE) * 1.05, 
+           label = paste(\"p =\", round(p_value_pielou, 4)), size = 5)
+
+
+
+print (plot_pielou_trep)
+
+
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Gráfico para pielou_evenness
+
+# Gráfico para pielou_evenness com \"Presença de Treponema\"
+plot_pielou_trep <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c(\"Ausente\", \"Presente\")), y = pielou_evenness)) +
+  geom_boxplot(aes(fill = factor(Treponema, levels = c(0, 1), labels = c(\"Ausente\", \"Presente\"))), position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7, color = \"black\") +
+  labs(title = \"Pielou Evenness vs Presença de Treponema\", y = \"Pielou Evenness\", x = \"Presença de Treponema\") +
+  theme_minimal() +
+  scale_fill_discrete(name = \"Presença de Treponema\") +
+  annotate(\"text\", x = 1.5, y = max(saude_dieta$pielou_evenness, na.rm = TRUE) * 1.05, 
+           label = paste(\"p =\", round(p_value_pielou, 4)), size = 5)
+
+
+
+print (plot_pielou_trep)
+
+
+
+
+
+```"

@@ -1,0 +1,30 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KG1lcmdlZF9icmF5LCBhZXMoeCA9IEF4aXMuMSwgeSA9IEF4aXMuMiwgY29sb3IgPSBSZWdpb24pKSArXG4gIGdlb21fcG9pbnQoc2l6ZSA9IDMpICtcbiAgc2NhbGVfY29sb3JfdmlyaWRpc19kKG9wdGlvbiA9IFwiQ1wiLCBuYW1lID0gXCJSZWdpb25cIikgK1xuICBsYWJzKHRpdGxlID0gXCJQQ29BIOKAlCBCcmF5LUN1cnRpc1wiLFxuICAgICAgIHggPSBwYXN0ZTAoXCJQQ29BMSAoXCIsIGV4cGxfdmFyX2JyYXlbMV0sIFwiJSlcIiksXG4gICAgICAgeSA9IHBhc3RlMChcIlBDb0EyIChcIiwgZXhwbF92YXJfYnJheVsyXSwgXCIlKVwiKSkgK1xuICB0aGVtZV9taW5pbWFsKClcblxuYGBgIn0= -->
+
+```r
+ggplot(merged_bray, aes(x = Axis.1, y = Axis.2, color = Region)) +
+  geom_point(size = 3) +
+  scale_color_viridis_d(option = \"C\", name = \"Region\") +
+  labs(title = \"PCoA — Bray-Curtis\",
+       x = paste0(\"PCoA1 (\", expl_var_bray[1], \"%)\"),
+       y = paste0(\"PCoA2 (\", expl_var_bray[2], \"%)\")) +
+  theme_minimal()
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+ggplot(merged_bray, aes(x = Axis.1, y = Axis.2, color = Region)) +
+  geom_point(size = 3) +
+  scale_color_viridis_d(option = \"C\", name = \"Region\") +
+  labs(title = \"PCoA — Bray-Curtis\",
+       x = paste0(\"PCoA1 (\", expl_var_bray[1], \"%)\"),
+       y = paste0(\"PCoA2 (\", expl_var_bray[2], \"%)\")) +
+  theme_minimal()
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/AF6D5EA6-PS_URBANAGRI_5016_Alpha_Beta_N100_14_03_2025/1/4E7A587F21ebe5f4/cnxu9euouk8jm_t/f9540fc451af45c1b0153d7c76b42ca5.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

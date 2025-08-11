@@ -1,0 +1,348 @@
+---
+title: "Organização e Limpeza dos Metadados"
+output: html_notebook
+---
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+ 
+Intalando pacotes necessários
+```{r}
+install.packages(c("remotes", "devtools", "Rcpp"))
+
+
+library(remotes)
+library(devtools)
+library(Rcpp)
+
+
+BiocManager::install(c("Biostrings", "rhdf5", "phyloseq", "S4Vectors", "TreeSummarizedExperiment"))
+
+
+library(Biostrings)
+library(rhdf5)
+library(phyloseq)
+library(S4Vectors)
+library(TreeSummarizedExperiment)
+
+devtools::install_github("jbisanz/qiime2R")
+
+install.packages(c("ggrepel", "gridExtra", "viridis", "ggpubr", "tidyverse", "vegan", "dplyr", "ggmisc", "ggplot2", "readr"))
+install.packages("ggpmisc")
+
+library(qiime2R)
+library(ggrepel)
+library(gridExtra)
+library(viridis)
+library(ggpubr)
+library(tidyverse)
+library(dplyr)
+library(ggpmisc)
+library(ggplot2)
+library(readr)
+
+
+
+
+```
+
+Importar metadados
+```{r}
+# Carregar o arquivo TSV usando read_tsv
+metadados.raw <- read_tsv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01.tsv")
+
+
+# Visualizar as primeiras linhas do dataframe
+head(metadados)
+
+str(metadados)
+
+
+# Renomear a coluna "Parasitologico +" para "ParasitologicoPositivo"
+
+metadados.raw <- metadados.raw %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+
+```
+Importar Alpha-diversity
+Alpha-diversity indexes data:
+
+```{r}
+alpha.shannon.raw <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/diversity_analysis/shannon_diversity.qza")$data
+
+
+
+alpha.evenness.raw <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/evenness_vector.qza")$data
+
+
+alpha.pd.raw <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/faith_pd_vector.qza")$data
+
+#we need to fix the alpha.pd rownames and colnames as they are nameless for some reason
+rownames(alpha.pd.raw) <- alpha.pd.raw$V1
+
+alpha.pd.raw <- subset(alpha.pd, select = -V1)
+
+colnames(alpha.pd.raw) <- "faith_pd"
+
+###
+
+alpha.richness.raw <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/observed_features_vector.qza")$data
+```
+
+Distancias
+
+```{r}
+unweighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/unweighted_unifrac_distance_matrix.qza")$data)
+
+weighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/weighted_unifrac_distance_matrix.qza")$data)
+
+
+
+```
+```{r}
+ASV.table.raw<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+
+head(ASV.table.raw)
+
+# transform counts in props
+my.asvs <- data.frame(apply(X = ASV.table.raw, MARGIN = 2, FUN = function(x)x/sum(x)))
+
+t.my.asvs <- t(my.asvs)
+
+```
+
+
+
+#Merge all alpha diversity indexes 
+```{r}
+
+alpha.evenness.pd <- merge(alpha.evenness.raw, alpha.pd.raw, by = "row.names")
+
+#colocar nome na coluna faith
+colnames(alpha.evenness.pd)[ncol(alpha.evenness.pd)] <- "faith"
+# Deletar a coluna 'faith_pd'
+alpha.evenness.pd <- alpha.evenness.pd %>% select(-faith_pd)
+#colocar nome na coluna faith_pd
+colnames(alpha.evenness.pd)[ncol(alpha.evenness.pd)] <- "faith_pd"
+
+alpha.richness.shannon <- merge(alpha.richness.raw, alpha.shannon.raw, by = "row.names")
+
+alpha.all <- merge(alpha.evenness.pd, alpha.richness.shannon, by = "Row.names")
+
+```
+
+
+#mudar os Sample.ids de -F00 para .F00
+# Verifique se a coluna 'Sample.id' existe no data frame
+
+```{r}
+
+alpha.all$Row.names <- gsub("-", ".", alpha.all$Row.names)
+  
+
+#TIRAR de alpha.all todos os ids de Row.names que tejam finalizados por .F01
+ # Remover IDs que terminam com .F01
+alpha.all <- alpha.all[!grepl("\\.F01$", alpha.all$Row.names), ]
+
+#Deixar só ids que terminam com .F00
+alpha.all <- alpha.all[grepl("\\.F00$", alpha.all$Row.names), ] 
+
+```
+
+Limpar alpha.shannon (que é dataframe, ou seja, nao tem coluna com sample.id)
+```{r}
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+rownames(alpha.shannon.raw) <- gsub("-", ".", rownames(alpha.shannon.raw))
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+alpha.shannon <- alpha.shannon.raw[!grepl("\\.F01$", rownames(alpha.shannon.raw)), , drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+alpha.shannon <- alpha.shannon.raw[grepl("\\.F00$", rownames(alpha.shannon.raw)), , drop = FALSE]
+
+
+```
+
+
+Limpar alpha.pd (que é dataframe, ou seja, nao tem coluna com sample.id)
+```{r}
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+rownames(alpha.pd.raw) <- gsub("-", ".", rownames(alpha.pd.raw))
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+alpha.pd <- alpha.pd.raw[!grepl("\\.F01$", rownames(alpha.pd.raw)), , drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+alpha.pd <- alpha.pd.raw[grepl("\\.F00$", rownames(alpha.pd.raw)), , drop = FALSE]
+
+
+```
+
+Limpar alpha.evenness (que é dataframe, ou seja, nao tem coluna com sample.id)
+```{r}
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+rownames(alpha.evenness.raw) <- gsub("-", ".", rownames(alpha.evenness.raw))
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+alpha.evenness <- alpha.evenness.raw[!grepl("\\.F01$", rownames(alpha.evenness.raw)), , drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+alpha.evenness <- alpha.evenness.raw[grepl("\\.F00$", rownames(alpha.evenness.raw)), , drop = FALSE]
+
+
+```
+
+Limpar alpha.richness (que é dataframe, ou seja, nao tem coluna com sample.id)
+```{r}
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+rownames(alpha.richness.raw) <- gsub("-", ".", rownames(alpha.richness.raw))
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+alpha.richness <- alpha.richness.raw[!grepl("\\.F01$", rownames(alpha.richness.raw)), , drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+alpha.richness <- alpha.richness.raw[grepl("\\.F00$", rownames(alpha.richness.raw)), , drop = FALSE]
+
+
+```
+
+Limpar unweighted.unifrac(que foi lido como dist)
+
+```{r}
+
+str(unweighted_unifrac.raw)
+class(unweighted_unifrac.raw)
+
+
+# Converte unifract objects 'dist' em um data.frame 
+# remove controls
+# filter out glycerol samples
+
+#unweighted
+unweighted_unifrac <- data.frame(as.matrix(unweighted_unifrac.raw))
+
+rownames(unweighted_unifrac) <- colnames(unweighted_unifrac)
+
+unweighted_unifrac <- unweighted_unifrac[ grepl(x = rownames(unweighted_unifrac), pattern =  "\\.F00$" ), grepl(x = colnames(unweighted_unifrac), pattern =  "\\.F00$" )]
+
+#weighted
+weighted_unifrac <- data.frame(as.matrix(weighted_unifrac.raw))
+
+rownames(weighted_unifrac) <- colnames(weighted_unifrac)
+
+weighted_unifrac <- weighted_unifrac[ grepl(x = rownames(weighted_unifrac), pattern =  "\\.F00$" ), grepl(x = colnames(weighted_unifrac), pattern =  "\\.F00$" )]
+
+
+
+```
+
+Limpar weighted.unifrac(que foi lido como dist)
+
+```{r}
+
+str(weighted_unifrac.raw)
+class(weighted_unifrac.raw)
+
+# Converte o objeto 'dist' em uma matriz
+weighted_unifrac.matrix <- as.matrix(weighted_unifrac.raw)
+
+# Converte a matriz em um dataframe
+weighted_unifrac <- as.data.frame(weighted_unifrac.matrix)
+
+# Verifica o resultado
+print(head(weighted_unifrac))
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+rownames(weighted_unifrac) <- gsub("-", ".", rownames(weighted_unifrac))
+
+# Substitui "-" por "." nos nomes das colunas do dataframe
+
+colnames(weighted_unifrac) <- gsub("-", ".", colnames(weighted_unifrac))
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+weighted_unifrac <- weighted_unifrac[!grepl("\\.F01$", rownames(weighted_unifrac)), , drop = FALSE]
+
+# Filtra as colunas onde os nomes das colunas não terminam com ".F01"
+weighted_unifrac <- weighted_unifrac[, !grepl("\\.F01$", colnames(weighted_unifrac)), drop = FALSE]
+
+# Filtra as colunas onde os nomes das colunas terminam com ".F00"
+weighted_unifrac <- weighted_unifrac[, grepl("\\.F00$", colnames(weighted_unifrac)), drop = FALSE]
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+weighted_unifrac <- weighted_unifrac[grepl("\\.F00$", rownames(weighted_unifrac)), , drop = FALSE]
+
+```
+
+Filtrar t.my.asvs
+```{r}
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+rownames(t.my.asvs) <- gsub("-", ".", rownames(t.my.asvs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+t.my.asvs <- t.my.asvs[!grepl("\\.F01$", rownames(t.my.asvs)), , drop = FALSE]
+
+
+# Filtra as linhas onde os nomes das linhas terminam com ".F00"
+t.my.asvs <- t.my.asvs[grepl("\\.F00$", rownames(t.my.asvs)), , drop = FALSE]
+
+```
+
+Juntar metadado com shannon
+```{r}
+
+metadados.shannon <- merge(metadados, alpha.shannon, by.x = "Sample.id", by.y = "row.names")
+
+```
+
+```{r}
+
+metadados.alpha.all <- merge(metadados, alpha.all, by.x = "Sample.id", by.y = "Row.names")
+
+```
+
+Mudar o nome das colunas de Parasitológico + para ParasitologicoPositivo
+
+```{r}
+# Renomear a coluna "Parasitologico +" para "ParasitologicoPositivo"
+metadados.alpha.all <- metadados.alpha.all %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+metadados.raw <- metadados.raw %>%
+  rename(ParasitologicoPositivo = `Parasitologico +`)
+
+# Verifica as primeiras linhas para confirmação
+print(head(metadados.raw))
+```
+Para tirar ? do fim do nome
+```{r}
+# Supondo que o nome do seu dataframe seja df, por exemplo:
+
+colnames(metadados.metabolicos) <- gsub("\\?$", "", colnames(metadados.metabolicos))
+```
+
+Para tirar .x e .y do fim do nome:
+
+```{r}
+# Supondo que o nome do seu dataframe seja df, por exemplo:
+colnames(metadados.metabolicos) <- gsub("\\.x$|\\.y$", "", colnames(metadados.metabolicos))
+```
+
+#remover colunas
+```{r}
+metadados.metabolicos <- metadados.metabolicos[, !colnames(metadados.metabolicos) %in% c("PC1", "PC2")]
+
+```
+

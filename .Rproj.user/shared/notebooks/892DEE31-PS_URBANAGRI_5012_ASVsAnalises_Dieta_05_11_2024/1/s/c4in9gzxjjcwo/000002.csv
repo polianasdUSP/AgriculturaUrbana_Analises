@@ -1,0 +1,52 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBJbnN0YWxlIG9zIHBhY290ZXMsIHNlIG5lY2Vzc8OhcmlvXG5pbnN0YWxsLnBhY2thZ2VzKGMoXCJEVFwiLCBcImh0bWx3aWRnZXRzXCIsIFwid3JpdGV4bFwiLCBcInJtYXJrZG93blwiKSlcblxuIyBDYXJyZWd1ZSBvcyBwYWNvdGVzXG5saWJyYXJ5KERUKVxubGlicmFyeShodG1sd2lkZ2V0cylcbmxpYnJhcnkod3JpdGV4bClcbmxpYnJhcnkocm1hcmtkb3duKVxuXG5cbiMgTW9zdHJhciBhIHRhYmVsYSBpbnRlcmF0aXZhIGNvbSBgRFRgXG5UYWJlbGFfY29yX1RheG9ucyA8LSBkYXRhdGFibGUoZm9ybWF0dGVkX3RhYmxlLCBvcHRpb25zID0gbGlzdChwYWdlTGVuZ3RoID0gMTApLCBjYXB0aW9uID0gJ0NvcnJlbGHDp8O1ZXMgU2lnbmlmaWNhdGl2YXMgZW50cmUgVGF4b24gZSBQYXLDom1ldHJvcyBkZSBEaWV0YScpXG5cbiMgU2FsdmFyIGEgdGFiZWxhIGludGVyYXRpdmEgZW0gSFRNTFxuRFQ6OnNhdmVXaWRnZXQoXG4gIFRhYmVsYV9jb3JfVGF4b25zLFxuICBmaWxlID0gXCJDOi9Vc2Vycy9wb2xpYS9PbmVEcml2ZS9EZXNrdG9wL0VzdGF0aXN0aWNhUi9BZ3JVcmJhbmEvMTZTX0FncmlVcmJhbmEvUGxhbmlsaGFzL2NvcnJlbGFjb2VzX3NpZ25pZmljYXRpdmFzX1RheG9ucy5odG1sXCIsXG4gIHNlbGZjb250YWluZWQgPSBUUlVFXG4pXG5cblxuYGBgIn0= -->
+
+```r
+# Instale os pacotes, se necessário
+install.packages(c(\"DT\", \"htmlwidgets\", \"writexl\", \"rmarkdown\"))
+
+# Carregue os pacotes
+library(DT)
+library(htmlwidgets)
+library(writexl)
+library(rmarkdown)
+
+
+# Mostrar a tabela interativa com `DT`
+Tabela_cor_Taxons <- datatable(formatted_table, options = list(pageLength = 10), caption = 'Correlações Significativas entre Taxon e Parâmetros de Dieta')
+
+# Salvar a tabela interativa em HTML
+DT::saveWidget(
+  Tabela_cor_Taxons,
+  file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/correlacoes_significativas_Taxons.html\",
+  selfcontained = TRUE
+)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Instale os pacotes, se necessário
+install.packages(c(\"DT\", \"htmlwidgets\", \"writexl\", \"rmarkdown\"))
+
+# Carregue os pacotes
+library(DT)
+library(htmlwidgets)
+library(writexl)
+library(rmarkdown)
+
+
+# Mostrar a tabela interativa com `DT`
+Tabela_cor_Taxons <- datatable(formatted_table, options = list(pageLength = 10), caption = 'Correlações Significativas entre Taxon e Parâmetros de Dieta')
+
+# Salvar a tabela interativa em HTML
+DT::saveWidget(
+  Tabela_cor_Taxons,
+  file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/correlacoes_significativas_Taxons.html\",
+  selfcontained = TRUE
+)
+
+
+```"

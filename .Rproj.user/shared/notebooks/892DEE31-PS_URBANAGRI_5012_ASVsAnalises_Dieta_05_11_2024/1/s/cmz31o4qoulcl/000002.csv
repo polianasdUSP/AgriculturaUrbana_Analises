@@ -1,0 +1,36 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcblxuIyBKdW50YXIgbyBvYmpldG8gdGF4b25vbXkgYW8gbWV0YWRhdGFfQVNWcyB1c2FuZG8gYSBjb2x1bmEgRmVhdHVyZS5JRFxubWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YTwtIG1ldGFkYXRhX0FTVnNfU2F1ZGVfZGlldGEgJT4lXG4gIGxlZnRfam9pbih0YXhvbm9teSAlPiUgc2VsZWN0KEZlYXR1cmUuSUQsIFRheG9uLCBDb25maWRlbmNlKSwgYnkgPSBcIkZlYXR1cmUuSURcIilcblxuIyBSZW9yZ2FuaXphciBwYXJhIHF1ZSBUYXhvbiBzZWphIGEgc2VndW5kYSBjb2x1bmEgZSBDb25maWRlbmNlIGEgdGVyY2VpcmFcbm1ldGFkYXRhX0FTVnNfU2F1ZGVfZGlldGEgPC0gbWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YSAlPiVcbiAgc2VsZWN0KEZlYXR1cmUuSUQsIFRheG9uLCBDb25maWRlbmNlLCBldmVyeXRoaW5nKCkpXG5cbiMgVmlzdWFsaXphciBvIHJlc3VsdGFkb1xubWV0YWRhdGFfQVNWc19TYXVkZV9kaWV0YVxuXG5gYGAifQ== -->
+
+```r
+library(dplyr)
+
+# Juntar o objeto taxonomy ao metadata_ASVs usando a coluna Feature.ID
+metadata_ASVs_Saude_dieta<- metadata_ASVs_Saude_dieta %>%
+  left_join(taxonomy %>% select(Feature.ID, Taxon, Confidence), by = \"Feature.ID\")
+
+# Reorganizar para que Taxon seja a segunda coluna e Confidence a terceira
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Feature.ID, Taxon, Confidence, everything())
+
+# Visualizar o resultado
+metadata_ASVs_Saude_dieta
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(dplyr)
+
+# Juntar o objeto taxonomy ao metadata_ASVs usando a coluna Feature.ID
+metadata_ASVs_Saude_dieta<- metadata_ASVs_Saude_dieta %>%
+  left_join(taxonomy %>% select(Feature.ID, Taxon, Confidence), by = \"Feature.ID\")
+
+# Reorganizar para que Taxon seja a segunda coluna e Confidence a terceira
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Feature.ID, Taxon, Confidence, everything())
+
+# Visualizar o resultado
+metadata_ASVs_Saude_dieta
+
+```"

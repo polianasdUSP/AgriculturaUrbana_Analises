@@ -1,0 +1,72 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBJbXBvcnRhciBvIGFycXVpdm8gQ1NWXG5hbHBoYV9hbGxfMiA8LSByZWFkLmNzdihcIkM6L1VzZXJzL3BvbGlhL09uZURyaXZlL0Rlc2t0b3AvRXN0YXRpc3RpY2FSL0FnclVyYmFuYS8xNlNfQWdyaVVyYmFuYS9BbmFsaXNlcy9hbHBoYV9hbGxfMi5jc3ZcIiwgaGVhZGVyID0gVFJVRSwgc2VwID0gXCIsXCIpXG5cbiMgU2VsZWNpb25hciBhcGVuYXMgYSBjb2x1bmEgQUNFIGUgbyBJZFZvbHVudGFyaW8gZGUgYWNlX2RpdmVyc2l0eVxuYWNlX2RhdGEgPC0gYWNlX2RpdmVyc2l0eVssIGMoXCJJZFZvbHVudGFyaW9cIiwgXCJBQ0VcIildXG5cbiMgSnVudGFyIG9zIGRhZG9zIGNvbSBiYXNlIGVtIElkVm9sdW50YXJpb1xuc2F1ZGVfZGlldGEgPC0gbWVyZ2Uoc2F1ZGVfZGlldGEsIGFjZV9kYXRhLCBieS54ID0gXCJJZFZvbHVudGFyaW9cIiwgYnkueSA9IFwiSWRWb2x1bnRhcmlvXCIsIGFsbC54ID0gVFJVRSlcblxuXG4jIFRyYW5zZm9ybWFyIG9zIHJvdyBuYW1lcyBkZSBjaGFvMV9kaXZlcnNpdHkgZW0gdW1hIGNvbHVuYSBjaGFtYWRhICdJZFZvbHVudGFyaW8nXG5jaGFvMV9kaXZlcnNpdHkkSWRWb2x1bnRhcmlvIDwtIHJvdy5uYW1lcyhjaGFvMV9kaXZlcnNpdHkpXG5cbiMgU2VsZWNpb25hciBhcGVuYXMgYSBjb2x1bmEgQ2hhbzEgZSBvIElkVm9sdW50YXJpbyBkZSBjaGFvMV9kaXZlcnNpdHlcbmNoYW8xX2RhdGEgPC0gY2hhbzFfZGl2ZXJzaXR5WywgYyhcIklkVm9sdW50YXJpb1wiLCBcIkNoYW8xXCIpXVxuXG4jIEp1bnRhciBvcyBkYWRvcyBjb20gYmFzZSBlbSBJZFZvbHVudGFyaW9cbnNhdWRlX2RpZXRhIDwtIG1lcmdlKHNhdWRlX2RpZXRhLCBjaGFvMV9kYXRhLCBieS54ID0gXCJJZFZvbHVudGFyaW9cIiwgYnkueSA9IFwiSWRWb2x1bnRhcmlvXCIsIGFsbC54ID0gVFJVRSlcblxuXG4jIFRyYW5zZm9ybWFyIG9zIHJvdyBuYW1lcyBkZSBjaGFvMV9kaXZlcnNpdHkgZW0gdW1hIGNvbHVuYSBjaGFtYWRhICdJZFZvbHVudGFyaW8nXG5zaW1wc29uX2RpdmVyc2l0eSRJZFZvbHVudGFyaW8gPC0gcm93Lm5hbWVzKHNpbXBzb25fZGl2ZXJzaXR5KVxuXG4jIFNlbGVjaW9uYXIgYXBlbmFzIGEgY29sdW5hIENoYW8xIGUgbyBJZFZvbHVudGFyaW8gZGUgY2hhbzFfZGl2ZXJzaXR5XG5zaW1wc29uX2RhdGEgPC0gc2ltcHNvbl9kaXZlcnNpdHlbLCBjKFwiSWRWb2x1bnRhcmlvXCIsIFwiU2ltcHNvblwiKV1cblxuIyBKdW50YXIgb3MgZGFkb3MgY29tIGJhc2UgZW0gSWRWb2x1bnRhcmlvXG5zYXVkZV9kaWV0YSA8LSBtZXJnZShzYXVkZV9kaWV0YSwgc2ltcHNvbl9kYXRhLCBieS54ID0gXCJJZFZvbHVudGFyaW9cIiwgYnkueSA9IFwiSWRWb2x1bnRhcmlvXCIsIGFsbC54ID0gVFJVRSlcblxuXG5cbmBgYCJ9 -->
+
+```r
+# Importar o arquivo CSV
+alpha_all_2 <- read.csv(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Analises/alpha_all_2.csv\", header = TRUE, sep = \",\")
+
+# Selecionar apenas a coluna ACE e o IdVoluntario de ace_diversity
+ace_data <- ace_diversity[, c(\"IdVoluntario\", \"ACE\")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, ace_data, by.x = \"IdVoluntario\", by.y = \"IdVoluntario\", all.x = TRUE)
+
+
+# Transformar os row names de chao1_diversity em uma coluna chamada 'IdVoluntario'
+chao1_diversity$IdVoluntario <- row.names(chao1_diversity)
+
+# Selecionar apenas a coluna Chao1 e o IdVoluntario de chao1_diversity
+chao1_data <- chao1_diversity[, c(\"IdVoluntario\", \"Chao1\")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, chao1_data, by.x = \"IdVoluntario\", by.y = \"IdVoluntario\", all.x = TRUE)
+
+
+# Transformar os row names de chao1_diversity em uma coluna chamada 'IdVoluntario'
+simpson_diversity$IdVoluntario <- row.names(simpson_diversity)
+
+# Selecionar apenas a coluna Chao1 e o IdVoluntario de chao1_diversity
+simpson_data <- simpson_diversity[, c(\"IdVoluntario\", \"Simpson\")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, simpson_data, by.x = \"IdVoluntario\", by.y = \"IdVoluntario\", all.x = TRUE)
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Importar o arquivo CSV
+alpha_all_2 <- read.csv(\"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Analises/alpha_all_2.csv\", header = TRUE, sep = \",\")
+
+# Selecionar apenas a coluna ACE e o IdVoluntario de ace_diversity
+ace_data <- ace_diversity[, c(\"IdVoluntario\", \"ACE\")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, ace_data, by.x = \"IdVoluntario\", by.y = \"IdVoluntario\", all.x = TRUE)
+
+
+# Transformar os row names de chao1_diversity em uma coluna chamada 'IdVoluntario'
+chao1_diversity$IdVoluntario <- row.names(chao1_diversity)
+
+# Selecionar apenas a coluna Chao1 e o IdVoluntario de chao1_diversity
+chao1_data <- chao1_diversity[, c(\"IdVoluntario\", \"Chao1\")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, chao1_data, by.x = \"IdVoluntario\", by.y = \"IdVoluntario\", all.x = TRUE)
+
+
+# Transformar os row names de chao1_diversity em uma coluna chamada 'IdVoluntario'
+simpson_diversity$IdVoluntario <- row.names(simpson_diversity)
+
+# Selecionar apenas a coluna Chao1 e o IdVoluntario de chao1_diversity
+simpson_data <- simpson_diversity[, c(\"IdVoluntario\", \"Simpson\")]
+
+# Juntar os dados com base em IdVoluntario
+saude_dieta <- merge(saude_dieta, simpson_data, by.x = \"IdVoluntario\", by.y = \"IdVoluntario\", all.x = TRUE)
+
+
+
+```"

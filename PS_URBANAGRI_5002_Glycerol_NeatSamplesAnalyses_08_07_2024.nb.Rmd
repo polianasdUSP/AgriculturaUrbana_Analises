@@ -1,0 +1,172 @@
+---
+title: "Extra Analysis: Is it the same to use Glycerol or Neat Samples"
+output: html_notebook
+---
+
+
+Limpar unifrac matrices para conter somente amostras de vols que tem glicerol e neat 
+```{r}
+
+#get target samples
+voluntarios_ID <- colnames(as.matrix(weighted_unifrac.raw))[grepl(x = colnames(as.matrix(weighted_unifrac.raw)), "F01$")]
+
+voluntarios_ID <- gsub(x = voluntarios_ID, pattern = "-F01", replacement = "")
+
+sampleID_neat <- paste0(voluntarios_ID, ".F00")
+sampleID_glyc <- paste0(voluntarios_ID, ".F01")
+
+# Combinar ambos os conjuntos de códigos (.F00 e .F01)
+sampelID_combined <- c(sampleID_neat, sampleID_glyc)
+
+
+# criar objetos with unifrac distances for the right samples
+#unweighted
+unweighted_unifrac_glyc_neat <- data.frame(unweighted_unifrac.raw)
+
+rownames(unweighted_unifrac_glyc_neat) <- colnames(unweighted_unifrac_glyc_neat)
+
+unweighted_unifrac_glyc_neat <- unweighted_unifrac_glyc_neat[sampelID_combined, sampelID_combined]
+
+
+#weighted
+weighted_unifrac_glyc_neat <- data.frame(weighted_unifrac.raw)
+
+rownames(weighted_unifrac_glyc_neat) <- colnames(weighted_unifrac_glyc_neat)
+
+weighted_unifrac_glyc_neat <- weighted_unifrac_glyc_neat[sampelID_combined, sampelID_combined]
+
+
+```
+
+
+
+Usando RColorBrewer
+fazer PCoA
+```{r}
+# Carregar os pacotes necessários
+library(ape)
+library(RColorBrewer)
+library(ggplot2)
+
+# Calcular a PCoA usando a função pcoa do pacote ape
+pcoa_result.unw <- pcoa(as.dist(unweighted_unifrac_glyc_neat))
+pcoa_result.wei <- pcoa(as.dist(weighted_unifrac_glyc_neat))
+
+#merge metadata with pcoa results
+pcoa_result.unw$vectors <- merge(x = pcoa_result.unw$vectors, y = metadados, by.x = "row.names", by.y = "Sample.id")
+
+pcoa_result.wei$vectors <- merge(x = pcoa_result.wei$vectors, y = metadados, by.x = "row.names", by.y = "Sample.id")
+
+
+#plotar
+
+ggplot(data = pcoa_result.unw$vectors) + geom_point(aes(x = Axis.1, y = Axis.2))
+
+ggplot(data = pcoa_result.unw$vectors) + geom_point(aes(x = Axis.1, y = Axis.2, colour = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^S.+(F.+)$", replacement = "\\1")))
+```
+
+
+```{r}
+#unweighted
+ggplot(data = pcoa_result.unw$vectors) + 
+    geom_point(
+        aes(x = Axis.1, y = Axis.2, 
+            shape = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^S.+(F.+)$", replacement = "\\1"), 
+            color = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+            size = 12)) + 
+    geom_path(
+        aes(x = Axis.1, y = Axis.2, 
+        group = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+        color = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"))
+    
+)
+```
+
+
+```{r}
+#weighted
+ggplot(data = pcoa_result.wei$vectors) + 
+    geom_point(
+        aes(x = Axis.1, y = Axis.2, 
+            shape = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^S.+\\.(F.+)$", replacement = "\\1"), 
+            color = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+            size = 12)) + 
+    geom_path(
+        aes(x = Axis.1, y = Axis.2, 
+        group = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+        color = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"))
+    
+)
+
+
+
+
+
+
+
+```
+```{r}
+```{r}
+#unweighted
+ ggplot(data = pcoa_result.unw$vectors) + 
+     geom_point(
+         aes(x = Axis.1, y = Axis.2, 
+             shape = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^S.+(F.+)$", replacement = "\\1"), 
+             color = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+             size = 12)) + 
+     geom_path(
+         aes(x = Axis.1, y = Axis.2, 
+             group = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+             color = gsub(x = rownames(pcoa_result.unw$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"))
+         
+     ) +
+     labs(color = "subject ID", shape = "storage")
+```
+
+```{r}
+
+#weighted
+
+ ggplot(data = pcoa_result.wei$vectors) + 
+     geom_point(
+         aes(x = Axis.1, y = Axis.2, 
+             shape = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^S.+(F.+)$", replacement = "\\1"), 
+             color = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+             size = 12)) + 
+     geom_path(
+         aes(x = Axis.1, y = Axis.2, 
+             group = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"), 
+             color = gsub(x = rownames(pcoa_result.wei$vectors), pattern = "^(S.+)F.+$", replacement = "\\1"))
+         
+     ) +
+     labs(color = "subject ID", shape = "storage")
+     
+```
+
+running procrustes tests
+```{r}
+#procrustes
+print("procrustes test for unwweighted unifrac distances")
+protest(X = unweighted_unifrac_glyc_neat[sampleID_neat,sampleID_neat], Y = unweighted_unifrac_glyc_neat[sampleID_glyc, sampleID_glyc])
+```
+
+
+```{r}
+print("procrustes test for wweighted unifrac distances")
+protest(X = weighted_unifrac_glyc_neat[sampleID_neat,sampleID_neat], Y = weighted_unifrac_glyc_neat[sampleID_glyc, sampleID_glyc])
+
+
+
+```
+
+
+```{r}
+# Plotar a PCoA para .F00
+
+```
+
+
+
+```{r}
+
+

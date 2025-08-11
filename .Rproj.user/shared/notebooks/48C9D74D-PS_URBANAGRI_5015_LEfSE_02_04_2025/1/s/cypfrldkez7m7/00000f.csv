@@ -1,0 +1,18 @@
+"0","# Remover amostras com NA em TyG_group"
+"0","phylo_genus_tyg_clean <- subset_samples(phylo_genus, !is.na(TyG_group))"
+"2","Found more than one class ""phylo"" in cache; using the first, from namespace 'phyloseq'
+"
+"2","Also defined by ‘tidytree’
+"
+"2","Found more than one class ""phylo"" in cache; using the first, from namespace 'phyloseq'
+"
+"2","Also defined by ‘tidytree’
+"
+"2","Found more than one class ""phylo"" in cache; using the first, from namespace 'phyloseq'
+"
+"2","Also defined by ‘tidytree’
+"
+"2","Found more than one class ""phylo"" in cache; using the first, from namespace 'phyloseq'
+"
+"2","Also defined by ‘tidytree’
+"

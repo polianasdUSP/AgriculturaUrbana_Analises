@@ -1,0 +1,50 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI0ZpbHRyYXIgU1ZzXG5cbiMgU3Vic3RpdHVpIFwiLVwiIHBvciBcIi5cIiBub3Mgbm9tZXMgZGFzIGxpbmhhcyBkbyBkYXRhZnJhbWVcblxuY29sbmFtZXMoU1ZzKSA8LSBnc3ViKFwiLVwiLCBcIi5cIiwgY29sbmFtZXMoU1ZzKSlcblxuXG4jIEZpbHRyYSBhcyBsaW5oYXMgb25kZSBvcyBub21lcyBkYXMgbGluaGFzIG7Do28gdGVybWluYW0gY29tIFwiLkYwMVwiXG5TVnMgPC0gU1ZzWyFncmVwbChcIlxcXFwuRjAxJFwiLCBjb2xuYW1lcyhTVnMpKSwgLCBkcm9wID0gRkFMU0VdXG5cblxuIyBTZWxlY2lvbmFyIGNvbHVuYXMgY3Vqb3Mgbm9tZXMgdGVybWluYW0gY29tIFwiLkYwMFwiXG5jb2x1bmFzX2YwMCA8LSBncmVwKFwiXFxcXC5GMDAkXCIsIGNvbG5hbWVzKFNWcyksIHZhbHVlID0gVFJVRSlcblxuIyBGaWx0cmFyIG8gZGF0YWZyYW1lIHBhcmEgbWFudGVyIGFwZW5hcyBlc3NhcyBjb2x1bmFzXG5TVnMgPC0gU1ZzWywgKGdyZXAoXCJcXFxcLkYwMCRcIiwgY29sbmFtZXMoU1ZzKSwgdmFsdWUgPSBUUlVFKSldXG5cbiMgVmVyaWZpY2FyIG8gcmVzdWx0YWRvXG5jb2xuYW1lcyhTVnMpXG5cbmBgYCJ9 -->
+
+```r
+#Filtrar SVs
+
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub(\"-\", \".\", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+SVs <- SVs[!grepl(\"\\.F01$\", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com \".F00\"
+colunas_f00 <- grep(\"\\.F00$\", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep(\"\\.F00$\", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+#Filtrar SVs
+
+# Substitui \"-\" por \".\" nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub(\"-\", \".\", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com \".F01\"
+SVs <- SVs[!grepl(\"\\.F01$\", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com \".F00\"
+colunas_f00 <- grep(\"\\.F00$\", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep(\"\\.F00$\", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```"

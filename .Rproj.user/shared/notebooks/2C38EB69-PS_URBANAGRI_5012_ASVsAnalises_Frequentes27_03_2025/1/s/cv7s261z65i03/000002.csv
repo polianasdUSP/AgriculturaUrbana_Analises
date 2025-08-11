@@ -1,0 +1,31 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXJhciBvIGhlYXRtYXAgY29tIGFzIHRvcCA1MCBBU1ZzXG5waGVhdG1hcChTVnNfbWF0cml4X3RvcCwgXG4gICAgICAgICBjbHVzdGVyaW5nX21ldGhvZCA9IFwid2FyZC5EMlwiLFxuICAgICAgICAgY2x1c3RlcmluZ19kaXN0YW5jZV9yb3dzID0gXCJldWNsaWRlYW5cIixcbiAgICAgICAgIGNsdXN0ZXJpbmdfZGlzdGFuY2VfY29scyA9IFwiZXVjbGlkZWFuXCIsXG4gICAgICAgICBzY2FsZSA9IFwicm93XCIsXG4gICAgICAgICBtYWluID0gXCJIZWF0bWFwIGRhcyA1MCBBU1ZzIE1haXMgQWJ1bmRhbnRlcyAoTm9ybWFsaXphZG8gZSBMb2ctdHJhbnNmb3JtYWRvKVwiLFxuICAgICAgICAgY29sb3IgPSBjb2xvcl9wYWxldHRlKVxuXG5gYGAifQ== -->
+
+```r
+# Gerar o heatmap com as top 50 ASVs
+pheatmap(SVs_matrix_top, 
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         scale = \"row\",
+         main = \"Heatmap das 50 ASVs Mais Abundantes (Normalizado e Log-transformado)\",
+         color = color_palette)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Gerar o heatmap com as top 50 ASVs
+pheatmap(SVs_matrix_top, 
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         scale = \"row\",
+         main = \"Heatmap das 50 ASVs Mais Abundantes (Normalizado e Log-transformado)\",
+         color = color_palette)
+
+```"
+"1","Error in (function (filename = \"Rplot%03d.png\", width = 480, height = 480,  : 
+  não é possível iniciar dispositivo png()
+"

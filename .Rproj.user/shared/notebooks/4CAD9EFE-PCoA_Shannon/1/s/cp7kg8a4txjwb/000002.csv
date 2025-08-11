@@ -1,0 +1,15 @@
+"0","```r
+
+
+ggplot(pcoa_df, aes(x = Axis1, y = Axis2, color = shannon_entropy)) +
+  geom_point(size = 4) +  # Aumentar o tamanho dos pontos
+  geom_text(aes(label = Sample.id), vjust = -1, size = 3) +  # Adicionar os IDs como labels
+  scale_color_gradientn(colors = c(\"blue\", \"cyan\", \"green\", \"yellow\", \"red\")) +  # Usar uma paleta de cores com maior contraste
+  labs(title = \"PCoA Analysis\", 
+       x = paste(\"PCoA Axis 1 (\", round(variance_explained[1], 2), \"%)\", sep=\"\"), 
+       y = paste(\"PCoA Axis 2 (\", round(variance_explained[2], 2), \"%)\", sep=\"\"), 
+       color = \"Shannon Entropy\") +
+  theme_minimal() +
+  theme(text = element_text(size = 12))  # Aumentar o tamanho do texto
+
+```"

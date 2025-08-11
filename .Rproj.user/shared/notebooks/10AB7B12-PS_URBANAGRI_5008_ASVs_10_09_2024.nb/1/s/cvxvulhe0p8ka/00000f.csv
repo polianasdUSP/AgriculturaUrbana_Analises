@@ -1,0 +1,13 @@
+"0","library(corrplot)
+"
+"2","corrplot 0.92 loaded
+"
+"2","
+Anexando pacote: ‘corrplot’
+
+"
+"2","O seguinte objeto é mascarado _por_ ‘.GlobalEnv’:
+
+    cor.mtest
+
+"

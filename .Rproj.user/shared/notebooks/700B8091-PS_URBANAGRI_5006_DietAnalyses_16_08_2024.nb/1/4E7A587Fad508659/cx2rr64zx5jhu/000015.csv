@@ -1,0 +1,623 @@
+"0","tbca.raw <- read_excel(""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/Dieta/Dados_composição_TBCA_Hoffmann11022022v6.xlsx"")
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5658 / R5658C11: got '70,4'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5658 / R5658C14: got '26,4'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5658 / R5658C15: got '2,18'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5658 / R5658C19: got '84,1'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5658 / R5658C20: got '0,43'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5658 / R5658C21: got '0,4'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5658 / R5658C22: got '0,38'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Y5658 / R5658C25: got '0,86'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AE5658 / R5658C31: got '1,51'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AF5658 / R5658C32: got '0,08'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AH5658 / R5658C34: got '7,53'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AI5658 / R5658C35: got '7,53'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AJ5658 / R5658C36: got '0,13'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AK5658 / R5658C37: got '0,09'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AL5658 / R5658C38: got '0,04'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AM5658 / R5658C39: got '0,18'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AN5658 / R5658C40: got '11,7'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AO5658 / R5658C41: got '0,81'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AP5658 / R5658C42: got '0,67'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AR5658 / R5658C44: got '8,25'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5659 / R5659C11: got '67,7'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5659 / R5659C14: got '24,4'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5659 / R5659C15: got '7,02'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5659 / R5659C18: got '0,92'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5659 / R5659C19: got '77,6'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5659 / R5659C20: got '1,19'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5659 / R5659C21: got '1,54'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5659 / R5659C22: got '3,34'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Y5659 / R5659C25: got '0,68'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AA5659 / R5659C27: got '27,4'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AE5659 / R5659C31: got '1,39'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AF5659 / R5659C32: got '0,09'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AH5659 / R5659C34: got '6,54'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AI5659 / R5659C35: got '6,54'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AJ5659 / R5659C36: got '0,11'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AK5659 / R5659C37: got '0,15'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AL5659 / R5659C38: got '0,03'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AM5659 / R5659C39: got '0,15'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AN5659 / R5659C40: got '9,71'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AO5659 / R5659C41: got '0,7'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AP5659 / R5659C42: got '0,62'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AR5659 / R5659C44: got '7,61'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5660 / R5660C14: got '27,8'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5660 / R5660C15: got '3,69'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5660 / R5660C18: got '1,49'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5660 / R5660C19: got '46,9'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5660 / R5660C20: got '0,54'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5660 / R5660C21: got '0,06'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5660 / R5660C22: got '0,88'
+"
+"2","Aviso:"
+"2"," Expecting numeric in W5660 / R5660C23: got '0,03'
+"
+"2","Aviso:"
+"2"," Expecting numeric in X5660 / R5660C24: got '17,7'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Z5660 / R5660C26: got '86,6'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AA5660 / R5660C27: got '34,2'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AE5660 / R5660C31: got '0,86'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AF5660 / R5660C32: got '0,08'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AL5660 / R5660C38: got '0,04'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AM5660 / R5660C39: got '0,06'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AN5660 / R5660C40: got '3,3'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AO5660 / R5660C41: got '0,16'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AP5660 / R5660C42: got '1,75'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5661 / R5661C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5661 / R5661C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in I5662 / R5662C9: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in J5662 / R5662C10: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5662 / R5662C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in L5662 / R5662C12: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in M5662 / R5662C13: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5662 / R5662C14: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5662 / R5662C15: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in P5662 / R5662C16: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Q5662 / R5662C17: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5662 / R5662C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5662 / R5662C19: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5662 / R5662C20: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5662 / R5662C21: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5662 / R5662C22: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in W5662 / R5662C23: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5663 / R5663C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5663 / R5663C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5664 / R5664C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5664 / R5664C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in I5665 / R5665C9: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in J5665 / R5665C10: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5665 / R5665C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in L5665 / R5665C12: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in M5665 / R5665C13: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5665 / R5665C14: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5665 / R5665C15: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in P5665 / R5665C16: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Q5665 / R5665C17: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5665 / R5665C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5665 / R5665C19: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5665 / R5665C20: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5665 / R5665C21: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5665 / R5665C22: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in W5665 / R5665C23: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Z5665 / R5665C26: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in I5666 / R5666C9: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in J5666 / R5666C10: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5666 / R5666C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in L5666 / R5666C12: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in M5666 / R5666C13: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5666 / R5666C14: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5666 / R5666C15: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in P5666 / R5666C16: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Q5666 / R5666C17: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5666 / R5666C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5666 / R5666C19: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5666 / R5666C20: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5666 / R5666C21: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5666 / R5666C22: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in W5666 / R5666C23: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AS5666 / R5666C45: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AT5666 / R5666C46: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5667 / R5667C20: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5667 / R5667C21: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5667 / R5667C22: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AG5667 / R5667C33: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AJ5667 / R5667C36: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AK5667 / R5667C37: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AL5667 / R5667C38: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AM5667 / R5667C39: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AN5667 / R5667C40: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AO5667 / R5667C41: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AP5667 / R5667C42: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AR5667 / R5667C44: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5668 / R5668C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5668 / R5668C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5669 / R5669C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5669 / R5669C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5670 / R5670C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5670 / R5670C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5671 / R5671C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5671 / R5671C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in I5672 / R5672C9: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in J5672 / R5672C10: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5672 / R5672C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in L5672 / R5672C12: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in M5672 / R5672C13: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5672 / R5672C14: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5672 / R5672C15: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in P5672 / R5672C16: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Q5672 / R5672C17: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5672 / R5672C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5672 / R5672C19: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5672 / R5672C20: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5672 / R5672C21: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5672 / R5672C22: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in W5672 / R5672C23: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5673 / R5673C11: got '94,2'
+"
+"2","Aviso:"
+"2"," Expecting numeric in L5673 / R5673C12: got '4,87'
+"
+"2","Aviso:"
+"2"," Expecting numeric in M5673 / R5673C13: got '3,89'
+"
+"2","Aviso:"
+"2"," Expecting numeric in N5673 / R5673C14: got '0,55'
+"
+"2","Aviso:"
+"2"," Expecting numeric in O5673 / R5673C15: got '0,12'
+"
+"2","Aviso:"
+"2"," Expecting numeric in P5673 / R5673C16: got '1,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Q5673 / R5673C17: got '0,0'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5673 / R5673C18: got '0,21'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5673 / R5673C19: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in T5673 / R5673C20: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in U5673 / R5673C21: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in V5673 / R5673C22: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in W5673 / R5673C23: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in X5673 / R5673C24: got '11,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Y5673 / R5673C25: got '0,66'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Z5673 / R5673C26: got '0,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AA5673 / R5673C27: got '5,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AB5673 / R5673C28: got '9,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AC5673 / R5673C29: got '87,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AD5673 / R5673C30: got '0,43'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AE5673 / R5673C31: got '0,11'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AF5673 / R5673C32: got '53,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AG5673 / R5673C33: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AH5673 / R5673C34: got '169,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AI5673 / R5673C35: got '64,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AJ5673 / R5673C36: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AK5673 / R5673C37: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AL5673 / R5673C38: got '2,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AM5673 / R5673C39: got '0,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AN5673 / R5673C40: got '0,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AO5673 / R5673C41: got '167,00'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AP5673 / R5673C42: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AQ5673 / R5673C43: got '38,20'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AR5673 / R5673C44: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in I5674 / R5674C9: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in K5674 / R5674C11: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in M5674 / R5674C13: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in Q5674 / R5674C17: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in R5674 / R5674C18: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in S5674 / R5674C19: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AA5674 / R5674C27: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AB5674 / R5674C28: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AD5674 / R5674C30: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AE5674 / R5674C31: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AF5674 / R5674C32: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AG5674 / R5674C33: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AH5674 / R5674C34: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AI5674 / R5674C35: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AK5674 / R5674C37: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AL5674 / R5674C38: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AM5674 / R5674C39: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AN5674 / R5674C40: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AO5674 / R5674C41: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AP5674 / R5674C42: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AQ5674 / R5674C43: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AR5674 / R5674C44: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AS5674 / R5674C45: got 'NA'
+"
+"2","Aviso:"
+"2"," Expecting numeric in AT5674 / R5674C46: got 'NA'
+"

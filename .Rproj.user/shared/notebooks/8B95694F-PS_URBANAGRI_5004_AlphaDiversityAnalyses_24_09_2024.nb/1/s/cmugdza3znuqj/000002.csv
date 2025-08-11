@@ -1,0 +1,46 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3Bsb3QyKVxuXG4jIENyaWFyIG8gZ3LDoWZpY28gZGUgYmFycmFzIGRpcmV0YW1lbnRlXG5ncmFmaWNvX2Zpc2hlciA8LSBnZ3Bsb3Qoc2F1ZGVfZGlldGEsIGFlcyh4ID0gZmFjdG9yKFRyZXBvbmVtYSwgbGV2ZWxzID0gYygwLCAxKSwgbGFiZWxzID0gYyhcIkF1c2VudGVcIiwgXCJQcmVzZW50ZVwiKSksIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsID0gZmFjdG9yKFBhcmFzaXRvbG9naWNvUG9zaXRpdm8sIGxldmVscyA9IGMoXCJOYW9cIiwgXCJTaW1cIikpKSkgK1xuICBnZW9tX2Jhcihwb3NpdGlvbiA9IFwiZG9kZ2VcIikgK1xuICBsYWJzKHRpdGxlID0gXCJBc3NvY2lhw6fDo28gZW50cmUgVHJlcG9uZW1hIGUgUGFyYXNpdG9sw7NnaWNvIFBvc2l0aXZvXCIsXG4gICAgICAgc3VidGl0bGUgPSBwYXN0ZShcIlRlc3RlIEV4YXRvIGRlIEZpc2hlclxcbnAtdmFsb3IgPVwiLCByb3VuZChyZXN1bHRhZG9fZmlzaGVyJHAudmFsdWUsIDQpLFxuICAgICAgICAgICAgICAgICAgICAgICAgXCJcXG5PZGRzIFJhdGlvID1cIiwgcm91bmQocmVzdWx0YWRvX2Zpc2hlciRlc3RpbWF0ZSwgNCksXG4gICAgICAgICAgICAgICAgICAgICAgICBcIlxcbklDIDk1JTpcIiwgcm91bmQocmVzdWx0YWRvX2Zpc2hlciRjb25mLmludFsxXSwgNCksIFwiLVwiLCByb3VuZChyZXN1bHRhZG9fZmlzaGVyJGNvbmYuaW50WzJdLCA0KSksXG4gICAgICAgeCA9IFwiUHJlc2Vuw6dhIGRlIFRyZXBvbmVtYVwiLFxuICAgICAgIHkgPSBcIkZyZXF1w6puY2lhXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpICtcbiAgc2NhbGVfZmlsbF9kaXNjcmV0ZShuYW1lID0gXCJQYXJhc2l0b2zDs2dpY28gUG9zaXRpdm9cIilcblxuIyBFeGliaXIgbyBncsOhZmljb1xucHJpbnQoZ3JhZmljb19maXNoZXIpXG5cbmBgYCJ9 -->
+
+```r
+library(ggplot2)
+
+# Criar o gráfico de barras diretamente
+grafico_fisher <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c(\"Ausente\", \"Presente\")), 
+                                                  fill = factor(ParasitologicoPositivo, levels = c(\"Nao\", \"Sim\")))) +
+  geom_bar(position = \"dodge\") +
+  labs(title = \"Associação entre Treponema e Parasitológico Positivo\",
+       subtitle = paste(\"Teste Exato de Fisher\np-valor =\", round(resultado_fisher$p.value, 4),
+                        \"\nOdds Ratio =\", round(resultado_fisher$estimate, 4),
+                        \"\nIC 95%:\", round(resultado_fisher$conf.int[1], 4), \"-\", round(resultado_fisher$conf.int[2], 4)),
+       x = \"Presença de Treponema\",
+       y = \"Frequência\") +
+  theme_minimal() +
+  scale_fill_discrete(name = \"Parasitológico Positivo\")
+
+# Exibir o gráfico
+print(grafico_fisher)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(ggplot2)
+
+# Criar o gráfico de barras diretamente
+grafico_fisher <- ggplot(saude_dieta, aes(x = factor(Treponema, levels = c(0, 1), labels = c(\"Ausente\", \"Presente\")), 
+                                                  fill = factor(ParasitologicoPositivo, levels = c(\"Nao\", \"Sim\")))) +
+  geom_bar(position = \"dodge\") +
+  labs(title = \"Associação entre Treponema e Parasitológico Positivo\",
+       subtitle = paste(\"Teste Exato de Fisher\np-valor =\", round(resultado_fisher$p.value, 4),
+                        \"\nOdds Ratio =\", round(resultado_fisher$estimate, 4),
+                        \"\nIC 95%:\", round(resultado_fisher$conf.int[1], 4), \"-\", round(resultado_fisher$conf.int[2], 4)),
+       x = \"Presença de Treponema\",
+       y = \"Frequência\") +
+  theme_minimal() +
+  scale_fill_discrete(name = \"Parasitológico Positivo\")
+
+# Exibir o gráfico
+print(grafico_fisher)
+
+```"

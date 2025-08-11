@@ -1,0 +1,24 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5cilcblxuYXN2c190YXhfc2lnbmlmIDwtIGFzdnNfdGF4X3NpZ25pZiAlPiVcbiAgc2VwYXJhdGUoVGF4b24sIGludG8gPSBjKFwiRG9tYWluXCIsIFwiUGh5bHVtXCIsIFwiQ2xhc3NcIiwgXCJPcmRlclwiLCBcIkZhbWlseVwiLCBcIkdlbnVzXCIsIFwiU3BlY2llc1wiKSxcbiAgICAgICAgICAgc2VwID0gXCI7XCIsIGZpbGwgPSBcInJpZ2h0XCIsIHJlbW92ZSA9IEZBTFNFLCBleHRyYSA9IFwiZHJvcFwiKSAlPiVcbiAgbXV0YXRlKGFjcm9zcyhEb21haW46U3BlY2llcywgfiBnc3ViKFwiXlthLXpdX18qXCIsIFwiXCIsIC4pKSkgICMgUmVtb3ZlIHByZWZpeG9zIHRpcG8gXCJnX19cIlxuXG5gYGAifQ== -->
+
+```r
+library(tidyr)
+
+asvs_tax_signif <- asvs_tax_signif %>%
+  separate(Taxon, into = c(\"Domain\", \"Phylum\", \"Class\", \"Order\", \"Family\", \"Genus\", \"Species\"),
+           sep = \";\", fill = \"right\", remove = FALSE, extra = \"drop\") %>%
+  mutate(across(Domain:Species, ~ gsub(\"^[a-z]__*\", \"\", .)))  # Remove prefixos tipo \"g__\"
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(tidyr)
+
+asvs_tax_signif <- asvs_tax_signif %>%
+  separate(Taxon, into = c(\"Domain\", \"Phylum\", \"Class\", \"Order\", \"Family\", \"Genus\", \"Species\"),
+           sep = \";\", fill = \"right\", remove = FALSE, extra = \"drop\") %>%
+  mutate(across(Domain:Species, ~ gsub(\"^[a-z]__*\", \"\", .)))  # Remove prefixos tipo \"g__\"
+
+```"

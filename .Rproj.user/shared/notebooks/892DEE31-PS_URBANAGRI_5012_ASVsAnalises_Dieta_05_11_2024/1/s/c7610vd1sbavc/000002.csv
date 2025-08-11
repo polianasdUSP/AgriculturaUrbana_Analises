@@ -1,0 +1,40 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cbiMgUGxvdGFyIG8gaGVhdG1hcFxuZ2dwbG90KG51bWVyaWNfbWV0YWRhdGFfc2F1ZGVfZGlldGEsIGFlcyh4ID0gU2FtcGxlLmlkLCB5ID0gRmVhdHVyZS5JRCwgZmlsbCA9IE5vcm1BYnVuZGFuY2UpKSArXG4gIGdlb21fdGlsZSgpICtcbiAgdGhlbWVfbWluaW1hbCgpICtcbiAgdGhlbWUoYXhpcy50ZXh0LnggPSBlbGVtZW50X3RleHQoYW5nbGUgPSA0NSwgaGp1c3QgPSAxKSkgK1xuICBzY2FsZV9maWxsX3ZpcmlkaXNfYyhuYW1lID0gXCJOb3JtQWJ1bmRhbmNlXCIpICtcbiAgbGFicyh0aXRsZSA9IFwiSGVhdG1hcCBkZSBBYnVuZMOibmNpYSBOb3JtYWxpemFkYSBkYXMgQVNWc1wiLCB4ID0gXCJTYW1wbGUgSURcIiwgeSA9IFwiQVNWIChGZWF0dXJlLklEIGUgVGF4b25vbWlhKVwiKVxuXG4jIFNhbHZhciBvIGdyw6FmaWNvIGNvbW8gUERGXG5nZ3NhdmUoXCJoZWF0bWFwLnBkZlwiLCBoZWlnaHQgPSA0LCB3aWR0aCA9IDExLCBkZXZpY2UgPSBcInBkZlwiKVxuXG5cblxuYGBgIn0= -->
+
+```r
+
+
+# Plotar o heatmap
+ggplot(numeric_metadata_saude_dieta, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = \"NormAbundance\") +
+  labs(title = \"Heatmap de Abundância Normalizada das ASVs\", x = \"Sample ID\", y = \"ASV (Feature.ID e Taxonomia)\")
+
+# Salvar o gráfico como PDF
+ggsave(\"heatmap.pdf\", height = 4, width = 11, device = \"pdf\")
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+
+# Plotar o heatmap
+ggplot(numeric_metadata_saude_dieta, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = \"NormAbundance\") +
+  labs(title = \"Heatmap de Abundância Normalizada das ASVs\", x = \"Sample ID\", y = \"ASV (Feature.ID e Taxonomia)\")
+
+# Salvar o gráfico como PDF
+ggsave(\"heatmap.pdf\", height = 4, width = 11, device = \"pdf\")
+
+
+
+```"

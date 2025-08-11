@@ -1,0 +1,18 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2NyaWFyIG9iamV0byBwaHlsb3NlcVxucGh5c2VxX29iaiA8LSBwaHlsb3NlcShvdHVfdGFibGUpXG5cblxuYGBgIn0= -->
+
+```r
+#criar objeto phyloseq
+physeq_obj <- phyloseq(otu_table)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+#criar objeto phyloseq
+physeq_obj <- phyloseq(otu_table)
+
+
+```"

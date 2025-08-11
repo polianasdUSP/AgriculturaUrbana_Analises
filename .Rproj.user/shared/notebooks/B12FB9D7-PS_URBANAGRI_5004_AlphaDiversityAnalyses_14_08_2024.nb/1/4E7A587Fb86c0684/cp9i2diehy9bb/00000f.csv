@@ -1,0 +1,18 @@
+"0","library(ggpmisc)
+"
+"2","Carregando pacotes exigidos: ggpp
+"
+"2","
+Anexando pacote: ‘ggpp’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:ggpubr’:
+
+    as_npc, as_npcx, as_npcy
+
+"
+"2","O seguinte objeto é mascarado por ‘package:ggplot2’:
+
+    annotate
+
+"

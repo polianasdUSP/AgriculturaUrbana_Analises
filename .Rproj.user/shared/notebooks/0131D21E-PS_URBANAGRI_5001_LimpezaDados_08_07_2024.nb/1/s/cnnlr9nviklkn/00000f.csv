@@ -1,0 +1,226 @@
+"0","library(Biostrings)
+"
+"2","Carregando pacotes exigidos: BiocGenerics
+"
+"2","
+Anexando pacote: ‘BiocGenerics’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind, colnames, dirname,
+    do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin,
+    pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, table, tapply,
+    union, unique, unsplit, which.max, which.min
+
+"
+"2","Carregando pacotes exigidos: S4Vectors
+"
+"2","Carregando pacotes exigidos: stats4
+"
+"2","
+Anexando pacote: ‘S4Vectors’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:utils’:
+
+    findMatches
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:base’:
+
+    expand.grid, I, unname
+
+"
+"2","Carregando pacotes exigidos: IRanges
+"
+"2","
+Anexando pacote: ‘IRanges’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:grDevices’:
+
+    windows
+
+"
+"2","Carregando pacotes exigidos: XVector
+"
+"2","Carregando pacotes exigidos: GenomeInfoDb
+"
+"2","
+Anexando pacote: ‘Biostrings’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:base’:
+
+    strsplit
+
+"
+"0","library(Biostrings)"
+"0","library(rhdf5)"
+"0","library(phyloseq)"
+"2","Registered S3 method overwritten by 'data.table':
+  method           from
+  print.data.table     
+"
+"2","
+Anexando pacote: ‘phyloseq’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:IRanges’:
+
+    distance
+
+"
+"0","library(S4Vectors)"
+"0","library(TreeSummarizedExperiment)"
+"2","Carregando pacotes exigidos: SingleCellExperiment
+"
+"2","Carregando pacotes exigidos: SummarizedExperiment
+"
+"2","Carregando pacotes exigidos: MatrixGenerics
+"
+"2","Carregando pacotes exigidos: matrixStats
+"
+"2","Aviso: pacote ‘matrixStats’ foi compilado no R versão 4.4.3"
+"2","
+Anexando pacote: ‘MatrixGenerics’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse, colCounts, colCummaxs,
+    colCummins, colCumprods, colCumsums, colDiffs, colIQRDiffs, colIQRs, colLogSumExps,
+    colMadDiffs, colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds, colSums2,
+    colTabulates, colVarDiffs, colVars, colWeightedMads, colWeightedMeans,
+    colWeightedMedians, colWeightedSds, colWeightedVars, rowAlls, rowAnyNAs, rowAnys,
+    rowAvgsPerColSet, rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps, rowMadDiffs, rowMads,
+    rowMaxs, rowMeans2, rowMedians, rowMins, rowOrderStats, rowProds, rowQuantiles,
+    rowRanges, rowRanks, rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians, rowWeightedSds, rowWeightedVars
+
+"
+"2","Carregando pacotes exigidos: GenomicRanges
+"
+"2","Carregando pacotes exigidos: Biobase
+"
+"2","Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with 'browseVignettes()'. To cite
+    Bioconductor, see 'citation(""Biobase"")', and for packages 'citation(""pkgname"")'.
+
+"
+"2","
+Anexando pacote: ‘Biobase’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:MatrixGenerics’:
+
+    rowMedians
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+"
+"2","O seguinte objeto é mascarado por ‘package:phyloseq’:
+
+    sampleNames
+
+"
+"0","library(phyloseq)"
+"0","library(S4Vectors)"
+"0","library(TreeSummarizedExperiment)"
+"0","library(qiime2R)"
+"0","library(ggrepel)"
+"2","Carregando pacotes exigidos: ggplot2
+"
+"2","Learn more about the underlying theory at https://ggplot2-book.org/
+"
+"0","library(gridExtra)"
+"2","
+Anexando pacote: ‘gridExtra’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:Biobase’:
+
+    combine
+
+"
+"2","O seguinte objeto é mascarado por ‘package:BiocGenerics’:
+
+    combine
+
+"
+"0","library(viridis)"
+"2","Carregando pacotes exigidos: viridisLite
+"
+"0","library(ggpubr)"
+"2","
+Anexando pacote: ‘ggpubr’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:qiime2R’:
+
+    mean_sd
+
+"
+"0","library(tidyverse)"
+"2","Aviso: pacote ‘readr’ foi compilado no R versão 4.4.3"
+"2","── [1mAttaching core tidyverse packages[22m ────────────────────────────────────────────── tidyverse 2.0.0 ──
+[32m✔[39m [34mdplyr    [39m 1.1.4     [32m✔[39m [34mreadr    [39m 2.1.5
+[32m✔[39m [34mforcats  [39m 1.0.0     [32m✔[39m [34mstringr  [39m 1.5.1
+[32m✔[39m [34mlubridate[39m 1.9.4     [32m✔[39m [34mtibble   [39m 3.2.1
+[32m✔[39m [34mpurrr    [39m 1.0.4     [32m✔[39m [34mtidyr    [39m 1.3.1"
+"2","── [1mConflicts[22m ──────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+[31m✖[39m [34mlubridate[39m::[32m%within%()[39m masks [34mIRanges[39m::%within%()
+[31m✖[39m [34mdplyr[39m::[32mcollapse()[39m     masks [34mBiostrings[39m::collapse(), [34mIRanges[39m::collapse()
+[31m✖[39m [34mdplyr[39m::[32mcombine()[39m      masks [34mgridExtra[39m::combine(), [34mBiobase[39m::combine(), [34mBiocGenerics[39m::combine()
+[31m✖[39m [34mpurrr[39m::[32mcompact()[39m      masks [34mXVector[39m::compact()
+[31m✖[39m [34mdplyr[39m::[32mcount()[39m        masks [34mmatrixStats[39m::count()
+[31m✖[39m [34mdplyr[39m::[32mdesc()[39m         masks [34mIRanges[39m::desc()
+[31m✖[39m [34mtidyr[39m::[32mexpand()[39m       masks [34mS4Vectors[39m::expand()
+[31m✖[39m [34mdplyr[39m::[32mfilter()[39m       masks [34mstats[39m::filter()
+[31m✖[39m [34mdplyr[39m::[32mfirst()[39m        masks [34mS4Vectors[39m::first()
+[31m✖[39m [34mdplyr[39m::[32mlag()[39m          masks [34mstats[39m::lag()
+[31m✖[39m [34mggplot2[39m::[32mPosition()[39m   masks [34mBiocGenerics[39m::Position(), [34mbase[39m::Position()
+[31m✖[39m [34mpurrr[39m::[32mreduce()[39m       masks [34mGenomicRanges[39m::reduce(), [34mIRanges[39m::reduce()
+[31m✖[39m [34mdplyr[39m::[32mrename()[39m       masks [34mS4Vectors[39m::rename()
+[31m✖[39m [34mlubridate[39m::[32msecond()[39m   masks [34mS4Vectors[39m::second()
+[31m✖[39m [34mlubridate[39m::[32msecond<-()[39m masks [34mS4Vectors[39m::second<-()
+[31m✖[39m [34mdplyr[39m::[32mslice()[39m        masks [34mXVector[39m::slice(), [34mIRanges[39m::slice()
+[36mℹ[39m Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors"
+"0","library(dplyr)"
+"0","library(ggpmisc)"
+"2","Carregando pacotes exigidos: ggpp
+"
+"2","Registered S3 methods overwritten by 'ggpp':
+  method                  from   
+  heightDetails.titleGrob ggplot2
+  widthDetails.titleGrob  ggplot2
+"
+"2","
+Anexando pacote: ‘ggpp’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:ggpubr’:
+
+    as_npc, as_npcx, as_npcy
+
+"
+"2","O seguinte objeto é mascarado por ‘package:ggplot2’:
+
+    annotate
+
+"
+"0","library(ggplot2)"
+"0","library(readr)"

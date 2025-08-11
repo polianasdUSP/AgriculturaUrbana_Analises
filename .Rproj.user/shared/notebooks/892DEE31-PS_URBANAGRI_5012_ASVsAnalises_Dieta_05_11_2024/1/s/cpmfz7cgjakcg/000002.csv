@@ -1,0 +1,56 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGaWx0cmFyIGNvcnJlbGHDp8O1ZXMgbWFpcyBmb3J0ZXMgZG8gb2JqZXRvIGNvbSB0YXhvbm9taWFcbmNvcl9sb25nX2ZpbHRlcmVkIDwtIGNvcl9zaWduaWZpY2FudF9zYXVkZV9kaWV0YV93aXRoX3RheG9ub215ICU+JVxuICBkcGx5cjo6ZmlsdGVyKHBfdmFsdWUgPD0gMC4wNSwgYWJzKGNvcnJlbGF0aW9uKSA+IDAuMykgICMgRGVmaW5lIHVtIGxpbWl0ZSBkZSAwLjMgcGFyYSBhIGZvcsOnYSBkYSBjb3JyZWxhw6fDo29cblxuXG4jIE5vdm8gSGVhdG1hcCBjb20gdmlzdWFsaXphw6fDo28gYXByaW1vcmFkYVxuaGVhdG1hcF9maWx0ZXJlZCA8LSBnZ3Bsb3QoY29yX2xvbmdfZmlsdGVyZWQsIGFlcyh4ID0gcGFyYW1ldGVyLCB5ID0gVGF4b24sIGZpbGwgPSBjb3JyZWxhdGlvbikpICtcbiAgZ2VvbV90aWxlKGNvbG9yID0gXCJ3aGl0ZVwiKSArXG4gIHNjYWxlX2ZpbGxfZ3JhZGllbnQyKGxvdyA9IFwiYmx1ZVwiLCBtaWQgPSBcIndoaXRlXCIsIGhpZ2ggPSBcInJlZFwiLCBtaWRwb2ludCA9IDAsIFxuICAgICAgICAgICAgICAgICAgICAgICBuYW1lID0gXCJDb3JyZWxhw6fDo29cIikgK1xuICB0aGVtZV9taW5pbWFsKCkgK1xuICB0aGVtZShcbiAgICBheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChhbmdsZSA9IDQ1LCBoanVzdCA9IDEsIHNpemUgPSA4KSxcbiAgICBheGlzLnRleHQueSA9IGVsZW1lbnRfdGV4dChzaXplID0gNiksXG4gICAgYXhpcy50aXRsZS54ID0gZWxlbWVudF9ibGFuaygpLFxuICAgIGF4aXMudGl0bGUueSA9IGVsZW1lbnRfYmxhbmsoKVxuICApICtcbiAgbGFicyh0aXRsZSA9IFwiSGVhdG1hcCBkZSBDb3JyZWxhw6fDtWVzIFNpZ25pZmljYXRpdmFzIChGaWx0cmFkYXMpXCIsXG4gICAgICAgc3VidGl0bGUgPSBcIkNvcnJlbGHDp8O1ZXMgY29tIHAtdmFsb3Ig4omkIDAsMDUgZSB8Y29ycmVsYcOnw6NvfCA+IDAuM1wiKVxuXG4jIEV4aWJpciBvIGhlYXRtYXBcbnByaW50KGhlYXRtYXBfZmlsdGVyZWQpXG5cbmBgYCJ9 -->
+
+```r
+# Filtrar correlações mais fortes do objeto com taxonomia
+cor_long_filtered <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::filter(p_value <= 0.05, abs(correlation) > 0.3)  # Define um limite de 0.3 para a força da correlação
+
+
+# Novo Heatmap com visualização aprimorada
+heatmap_filtered <- ggplot(cor_long_filtered, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas (Filtradas)\",
+       subtitle = \"Correlações com p-valor ≤ 0,05 e |correlação| > 0.3\")
+
+# Exibir o heatmap
+print(heatmap_filtered)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Filtrar correlações mais fortes do objeto com taxonomia
+cor_long_filtered <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::filter(p_value <= 0.05, abs(correlation) > 0.3)  # Define um limite de 0.3 para a força da correlação
+
+
+# Novo Heatmap com visualização aprimorada
+heatmap_filtered <- ggplot(cor_long_filtered, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas (Filtradas)\",
+       subtitle = \"Correlações com p-valor ≤ 0,05 e |correlação| > 0.3\")
+
+# Exibir o heatmap
+print(heatmap_filtered)
+
+```"

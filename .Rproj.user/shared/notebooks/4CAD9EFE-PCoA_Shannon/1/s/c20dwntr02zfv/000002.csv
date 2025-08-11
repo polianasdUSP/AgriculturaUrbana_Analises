@@ -1,0 +1,41 @@
+"0","```r
+
+# Remover valores NA
+
+dados <- na.omit(dados)
+
+# Inspecionar os dados para valores extremos
+
+summary(dados)
+
+# Normalizar os dados (exceto a coluna shannon_entropy)
+
+# Normalizar os dados (exceto as colunas Sample e shannon_entropy)
+
+dados_normalizados <- scale(dados[, !(names(dados) %in% c(\"Sample.id\", \"shannon_entropy\"))])
+
+
+
+# Calcular a matriz de distâncias usando a distância euclidiana
+
+dist_matrix <- dist(dados_normalizados, method = \"euclidean\")
+
+# Realizar a análise PCoA
+
+pcoa_result <- cmdscale(dist_matrix, eig = TRUE, k = 2)
+
+
+
+# Criar um dataframe com os resultados e adicionar as colunas Sample e shannon_entropy
+
+if(nrow(dados) == nrow(pcoa_result$points)) {
+  pcoa_df <- data.frame(Sample.id = dados$Sample.id, 
+                        Axis1 = pcoa_result$points[, 1], 
+                        Axis2 = pcoa_result$points[, 2],
+                        shannon_entropy = dados$shannon_entropy)
+} else {
+  stop(\"O número de linhas em 'dados' e 'pcoa_result$points' não correspondem.\")
+}
+
+
+```"

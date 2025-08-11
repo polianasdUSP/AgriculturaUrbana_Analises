@@ -1,0 +1,48 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3Bsb3QyKVxuXG4jIENyaWFyIG8gaGVhdG1hcFxuaGVhdG1hcF9zYXVkZV9kaWV0YSA8LSBnZ3Bsb3QoY29yX3NpZ25pZmljYW50X3NhdWRlX2RpZXRhLCBhZXMoeCA9IHBhcmFtZXRlciwgeSA9IEZlYXR1cmUuSURfMSwgZmlsbCA9IGNvcnJlbGF0aW9uKSkgK1xuICBnZW9tX3RpbGUoY29sb3IgPSBcIndoaXRlXCIpICtcbiAgc2NhbGVfZmlsbF9ncmFkaWVudDIobG93ID0gXCJibHVlXCIsIG1pZCA9IFwid2hpdGVcIiwgaGlnaCA9IFwicmVkXCIsIG1pZHBvaW50ID0gMCwgXG4gICAgICAgICAgICAgICAgICAgICAgIG5hbWUgPSBcIkNvcnJlbGHDp8Ojb1wiKSArXG4gIHRoZW1lX21pbmltYWwoKSArXG4gIHRoZW1lKFxuICAgIGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNDUsIGhqdXN0ID0gMSksXG4gICAgYXhpcy50aXRsZS54ID0gZWxlbWVudF9ibGFuaygpLFxuICAgIGF4aXMudGl0bGUueSA9IGVsZW1lbnRfYmxhbmsoKVxuICApICtcbiAgbGFicyh0aXRsZSA9IFwiSGVhdG1hcCBkZSBDb3JyZWxhw6fDtWVzIFNpZ25pZmljYXRpdmFzXCIsXG4gICAgICAgc3VidGl0bGUgPSBcIkFwZW5hcyBjb3JyZWxhw6fDtWVzIGNvbSBwLXZhbG9yIOKJpCAwLDA1XCIpXG5cbiMgRXhpYmlyIG8gaGVhdG1hcFxucHJpbnQoaGVhdG1hcF9zYXVkZV9kaWV0YSlcblxuYGBgIn0= -->
+
+```r
+library(ggplot2)
+
+# Criar o heatmap
+heatmap_saude_dieta <- ggplot(cor_significant_saude_dieta, aes(x = parameter, y = Feature.ID_1, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas\",
+       subtitle = \"Apenas correlações com p-valor ≤ 0,05\")
+
+# Exibir o heatmap
+print(heatmap_saude_dieta)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(ggplot2)
+
+# Criar o heatmap
+heatmap_saude_dieta <- ggplot(cor_significant_saude_dieta, aes(x = parameter, y = Feature.ID_1, fill = correlation)) +
+  geom_tile(color = \"white\") +
+  scale_fill_gradient2(low = \"blue\", mid = \"white\", high = \"red\", midpoint = 0, 
+                       name = \"Correlação\") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = \"Heatmap de Correlações Significativas\",
+       subtitle = \"Apenas correlações com p-valor ≤ 0,05\")
+
+# Exibir o heatmap
+print(heatmap_saude_dieta)
+
+```"

@@ -1,0 +1,28 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBBbHRlcmFyIG9zIHZhbG9yZXMgXCJuw6NvXCIgcGFyYSBcIm5hb1wiIG5hIGNvbHVuYSBcIkVkdWxjb3JhbnRlP1wiIGRvIG9iamV0byBtZXRhZGFkb3MucmF3XG5tZXRhZGFkb3MkYEVkdWxjb3JhbnRlLmAgPC0gZ3N1YihcIm7Do29cIiwgXCJuYW9cIiwgbWV0YWRhZG9zJGBFZHVsY29yYW50ZS5gKVxuXG4jIFJlbm9tZWFyIGEgY29sdW5hIHJlbW92ZW5kbyBvIFwiP1wiIGRvIHTDrXR1bG9cbmNvbG5hbWVzKG1ldGFkYWRvcylbY29sbmFtZXMobWV0YWRhZG9zKSA9PSBcIkVkdWxjb3JhbnRlLlwiXSA8LSBcIkVkdWxjb3JhbnRlXCJcblxud3JpdGUuY3N2KHggPSBtZXRhZGFkb3MsIFxuICAgICAgICAgIGZpbGUgPSBcIkM6L1VzZXJzL3BvbGlhL09uZURyaXZlL0Rlc2t0b3AvRXN0YXRpc3RpY2FSL0FnclVyYmFuYS8xNlNfQWdyaVVyYmFuYS9QbGFuaWxoYXNfVXJiYW5BZ3JpL21ldGFkYWRvcy5jc3ZcIiwgcm93Lm5hbWVzID0gRkFMU0UpXG5cbmBgYCJ9 -->
+
+```r
+# Alterar os valores \"não\" para \"nao\" na coluna \"Edulcorante?\" do objeto metadados.raw
+metadados$`Edulcorante.` <- gsub(\"não\", \"nao\", metadados$`Edulcorante.`)
+
+# Renomear a coluna removendo o \"?\" do título
+colnames(metadados)[colnames(metadados) == \"Edulcorante.\"] <- \"Edulcorante\"
+
+write.csv(x = metadados, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.csv\", row.names = FALSE)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Alterar os valores \"não\" para \"nao\" na coluna \"Edulcorante?\" do objeto metadados.raw
+metadados$`Edulcorante.` <- gsub(\"não\", \"nao\", metadados$`Edulcorante.`)
+
+# Renomear a coluna removendo o \"?\" do título
+colnames(metadados)[colnames(metadados) == \"Edulcorante.\"] <- \"Edulcorante\"
+
+write.csv(x = metadados, 
+          file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.csv\", row.names = FALSE)
+
+```"

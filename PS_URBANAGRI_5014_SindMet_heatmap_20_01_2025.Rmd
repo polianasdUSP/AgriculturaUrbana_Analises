@@ -1,0 +1,216 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+
+
+# Carregar pacotes necessários
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna, se necessário
+  pivot_longer(-Volunteer_ID, names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = as.factor(Value)) # Converter para fator
+
+# Carregar pacotes necessários
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna
+  pivot_longer(-Volunteer_ID, names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = factor(Value, levels = c("1", "0", NA), labels = c("Altered", "Normal", "Missing")))
+
+## Carregar pacotes necessários
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna, se necessário
+  pivot_longer(-Volunteer_ID, names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = as.factor(Value)) # Converter para fator
+
+# Criar o heatmap com ggplot2
+ggplot(venn_binary_long, aes(x = Parameter, y = Volunteer_ID, fill = Value)) +
+  geom_tile(color = "white" ) + # Criar os quadrados
+  scale_fill_manual(
+    values = c("1" = "blue", "0" = "red", "NA" = "gray"),
+    labels = c("Altered", "Normal", "Missing"),
+    na.value = "gray" # Definir a cor para NA
+  ) +
+  labs(
+    title = "Visualização de Parâmetros por Voluntário",
+    x = "Parâmetro",
+    y = "Voluntário",
+    fill = "Status"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 6) # Ajusta o tamanho do texto para muitos voluntários
+  )
+
+
+```
+```{r}
+# Carregar pacotes necessários
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna
+  mutate(Sum = rowSums(across(where(is.numeric)), na.rm = TRUE)) %>% # Calcular soma dos valores numéricos
+  arrange(Sum, Volunteer_ID) %>%                # Organizar voluntários pela soma e ID
+  select(-Sum) %>%                              # Remover coluna de soma após organizar
+  pivot_longer(-Volunteer_ID, names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = as.factor(Value)) # Converter para fator
+
+# Criar o heatmap com ggplot2
+ggplot(venn_binary_long, aes(x = Parameter, y = Volunteer_ID, fill = Value)) +
+  geom_tile(color = "white", height = 0.8, width = 1.2) + # Ajustar altura e largura dos retângulos
+  scale_fill_manual(
+    values = c("1" = "red", "0" = "blue", "NA" = "gray"),
+    labels = c("Altered", "Normal", "Missing"),
+    na.value = "gray" # Definir a cor para NA
+  ) +
+  labs(
+    title = "Visualização de Parâmetros por Voluntário",
+    x = "Parâmetro",
+    y = "Voluntário",
+    fill = "Status"
+  ) +
+  coord_fixed(ratio = 0.5) + # Ajustar proporção (retângulos mais altos e menos largos)
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_blank(), # Remover rótulos do eixo Y para muitos voluntários
+    axis.ticks.y = element_blank() # Remover ticks do eixo Y
+  )
+
+```
+```{r}
+# Carregar pacotes necessários
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna
+  mutate(
+    Num_Altered = rowSums(across(where(is.numeric)) == 1, na.rm = TRUE) # Contar número de valores alterados (1)
+  ) %>%
+  arrange(Num_Altered, Volunteer_ID) %>% # Ordenar por número de alterados e ID do voluntário
+  pivot_longer(-c(Volunteer_ID, Num_Altered), names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = as.factor(Value)) # Converter para fator
+
+# Criar o heatmap com ggplot2
+ggplot(venn_binary_long, aes(x = Parameter, y = Volunteer_ID, fill = Value)) +
+  geom_tile(color = "white", height = 0.9, width = 4) + # Aumentar largura dos retângulos
+  scale_fill_manual(
+    values = c("1" = "red", "0" = "blue", "NA" = "gray"),
+    labels = c("Altered", "Normal", "Missing"),
+    na.value = "gray" # Definir a cor para NA
+  ) +
+  labs(
+    title = "Visualização de Parâmetros por Voluntário",
+    x = "Parâmetro",
+    y = "Voluntário",
+    fill = "Status"
+  ) +
+  coord_fixed(ratio = 0.3) + # Reduzir proporção para "alargar" o gráfico
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_blank(), # Remover rótulos do eixo Y para muitos voluntários
+    axis.ticks.y = element_blank(), # Remover ticks do eixo Y
+    plot.title = element_text(hjust = 0.5) # Centralizar o título
+  )
+
+```
+
+```{r}
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna
+  mutate(
+    Proportion_Missing = rowMeans(is.na(across(-Volunteer_ID))) # Calcular proporção de missing
+  ) %>%
+  arrange(Proportion_Missing, Volunteer_ID) %>% # Ordenar: menos missing primeiro, mais missing depois
+  pivot_longer(-c(Volunteer_ID, Proportion_Missing), names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = as.factor(Value)) # Converter para fator
+
+# Criar o heatmap com ggplot2
+ggplot(venn_binary_long, aes(x = Parameter, y = Volunteer_ID, fill = Value)) +
+  geom_tile(color = "white") + # Ajustar proporção das células
+  scale_fill_manual(
+    values = c("1" = "blue", "0" = "red", "NA" = "gray"),
+    labels = c("Altered", "Normal", "Missing"),
+    na.value = "gray" # Definir a cor para NA
+  ) +
+  labs(
+    title = "Visualização de Parâmetros por Voluntário",
+    x = "Parâmetro",
+    y = "Voluntário",
+    fill = "Status"
+  ) +
+  coord_fixed(ratio = 0.5) + # Proporção ajustada para retângulos mais largos
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10), # Melhorar visibilidade do texto
+    axis.text.y = element_blank(), # Remover texto do eixo Y
+    axis.ticks.y = element_blank(), # Remover ticks do eixo Y
+    plot.title = element_text(hjust = 0.5) # Centralizar o título
+  )
+
+```
+
+```{r}
+# Transformar o objeto `venn_binary` para formato long
+venn_binary_long <- venn_binary %>%
+  rownames_to_column(var = "Volunteer_ID") %>%  # Adicionar IDs como coluna
+  mutate(
+    Proportion_Missing = rowMeans(is.na(across(-Volunteer_ID))) # Calcular proporção de missing
+  ) %>%
+  arrange(Proportion_Missing, Volunteer_ID) %>% # Ordenar: menos missing primeiro, mais missing depois
+  pivot_longer(-c(Volunteer_ID, Proportion_Missing), names_to = "Parameter", values_to = "Value") %>%
+  mutate(Value = as.factor(Value)) # Converter para fator
+
+# Criar o heatmap com ggplot2
+ggplot(venn_binary_long, aes(x = Parameter, y = Volunteer_ID, fill = Value)) +
+  geom_tile(color = "white", width = 0.9, height = 1.2) + # Ajustar proporção das células
+  scale_fill_manual(
+    values = c("1" = "blue", "0" = "red", "NA" = "gray"),
+    labels = c("Altered", "Normal", "Missing"),
+    na.value = "gray" # Definir a cor para NA
+  ) +
+  labs(
+    title = "Visualização de Parâmetros por Voluntário",
+    x = "Parâmetro",
+    y = "Voluntário",
+    fill = "Status"
+  ) +
+  coord_fixed(ratio = 0.5) + # Proporção ajustada para retângulos mais largos
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10), # Melhorar visibilidade do texto
+    axis.text.y = element_blank(), # Remover texto do eixo Y
+    axis.ticks.y = element_blank(), # Remover ticks do eixo Y
+    plot.title = element_text(hjust = 0.5) # Centralizar o título
+  )
+
+```
+

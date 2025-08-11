@@ -1,0 +1,46 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5yb3duYW1lcyh0YXhvbm9teSkgPC0gdGF4b25vbXkkRmVhdHVyZS5JRCAgIyBEZWZpbmUgb3Mgbm9tZXMgZGFzIGxpbmhhcyBjb21vIElEcyBkYXMgQVNWc1xudGF4b25vbXkgPC0gdGF4b25vbXlbLCAtMV0gICMgUmVtb3ZlIGEgY29sdW5hIG9yaWdpbmFsIFwiRmVhdHVyZS5JRFwiXG5cblxuXG5cbiMgQ3JpYXIgb3MgY29tcG9uZW50ZXMgZG8gcGh5bG9zZXFcbm90dV90YWJsZV9wcyA8LSBvdHVfdGFibGUob3R1X3RhYmxlLCB0YXhhX2FyZV9yb3dzID0gVFJVRSlcbnRheF90YWJsZV9wcyA8LSB0YXhfdGFibGUoYXMubWF0cml4KHRheG9ub215KSlcblxuc2FtcGxlX2RhdGFfcHMgPC0gc2FtcGxlX2RhdGEobWV0YWRhdGEpXG5waHlfdHJlZV9wcyA8LSBwaHlfdHJlZSh0cmVlKVxuXG5waHlzZXFfb2JqIDwtIHBoeWxvc2VxKG90dV90YWJsZV9wcywgXG4gICAgICAgICAgICAgICAgICAgICAgICB0YXhfdGFibGVfcHMsIFxuICAgICAgICAgICAgICAgICAgICAgICAgcGh5X3RyZWVfcHMpXG5cbmBgYCJ9 -->
+
+```r
+
+rownames(taxonomy) <- taxonomy$Feature.ID  # Define os nomes das linhas como IDs das ASVs
+taxonomy <- taxonomy[, -1]  # Remove a coluna original \"Feature.ID\"
+
+
+
+
+# Criar os componentes do phyloseq
+otu_table_ps <- otu_table(otu_table, taxa_are_rows = TRUE)
+tax_table_ps <- tax_table(as.matrix(taxonomy))
+
+sample_data_ps <- sample_data(metadata)
+phy_tree_ps <- phy_tree(tree)
+
+physeq_obj <- phyloseq(otu_table_ps, 
+                        tax_table_ps, 
+                        phy_tree_ps)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+rownames(taxonomy) <- taxonomy$Feature.ID  # Define os nomes das linhas como IDs das ASVs
+taxonomy <- taxonomy[, -1]  # Remove a coluna original \"Feature.ID\"
+
+
+
+
+# Criar os componentes do phyloseq
+otu_table_ps <- otu_table(otu_table, taxa_are_rows = TRUE)
+tax_table_ps <- tax_table(as.matrix(taxonomy))
+
+sample_data_ps <- sample_data(metadata)
+phy_tree_ps <- phy_tree(tree)
+
+physeq_obj <- phyloseq(otu_table_ps, 
+                        tax_table_ps, 
+                        phy_tree_ps)
+
+```"

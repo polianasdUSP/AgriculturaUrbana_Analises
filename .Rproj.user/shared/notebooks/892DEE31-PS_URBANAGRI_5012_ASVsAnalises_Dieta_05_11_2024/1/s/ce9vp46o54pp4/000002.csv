@@ -1,0 +1,176 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmxpYnJhcnkodGlkeXIpXG5saWJyYXJ5KHBoZWF0bWFwKVxuXG5jYWxjX2Nvcl9wIDwtIGZ1bmN0aW9uKHgsIHkpIHtcbiAgaWYgKGFsbChpcy5uYSh4KSkgfHwgYWxsKGlzLm5hKHkpKSkge1xuICAgIHJldHVybihsaXN0KGNvcnJlbGF0aW9uID0gTkEsIHBfdmFsdWUgPSBOQSkpXG4gIH0gZWxzZSB7XG4gICAgdGVzdCA8LSBjb3IudGVzdCh4LCB5LCB1c2UgPSBcImNvbXBsZXRlLm9ic1wiLCBtZXRob2QgPSBcInBlYXJzb25cIilcbiAgICByZXR1cm4obGlzdChjb3JyZWxhdGlvbiA9IHRlc3QkZXN0aW1hdGUsIHBfdmFsdWUgPSB0ZXN0JHAudmFsdWUpKVxuICB9XG59XG5cbiNBcGxpY2FyIGEgZnVuw6fDo28gY2FsY19jb3JfcCBwYXJhIHRvZGFzIGFzIHZhcmnDoXZlaXNcbiNBcXVpIGVzdMOhIG8gY8OzZGlnbyBjb21wbGV0byBxdWUgY2FsY3VsYSBjb3JyZWxhw6fDo28gZSBwLXZhbG9yIHBhcmEgY2FkYSB2YXJpw6F2ZWw6XG5cbiMgQ8OzZGlnbyBjb21wbGV0byBjb20gcGFyw6JtZXRyb3MgYWRpY2lvbmFpc1xuY29yX3Jlc3VsdHNfc2F1ZGVfZGlldGEgPC0gbnVtZXJpY19tZXRhZGF0YV9zYXVkZV9kaWV0YSAlPiVcbiAgZHBseXI6Omdyb3VwX2J5KEZlYXR1cmUuSUQpICU+JVxuICBkcGx5cjo6c3VtbWFyaXplKFxuICAgIGNvcl9jYXJib2lkcmF0b190b3RhbCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9jYXJib2lkcmF0b190b3RhbF9nKSksXG4gICAgY29yX3Byb3RlaW5hID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX3Byb3RlaW5hX2cpKSxcbiAgICBjb3JfbGlwaWRpb3MgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfbGlwaWRpb3NfZykpLFxuICAgIGNvcl9maWJyYV9hbGltZW50YXIgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfZmlicmFfYWxpbWVudGFyX2cpKSxcbiAgICBjb3JfY29sZXN0ZXJvbCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9jb2xlc3Rlcm9sX21nKSksXG4gICAgY29yX2FjaWRvc19ncmF4b3Nfc2F0dXJhZG9zID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX2FjaWRvc19ncmF4b3Nfc2F0dXJhZG9zX2cpKSxcbiAgICBjb3JfYWNpZG9zX2dyYXhvc19tb25vaW5zYXR1cmFkb3MgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfYWNpZG9zX2dyYXhvc19tb25vaW5zYXR1cmFkb3NfZykpLFxuICAgIGNvcl9hY2lkb3NfZ3JheG9zX3BvbGlpbnNhdHVyYWRvcyA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9hY2lkb3NfZ3JheG9zX3BvbGlpbnNhdHVyYWRvc19nKSksXG4gICAgY29yX2FjaWRvc19ncmF4b3NfdHJhbnMgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfYWNpZG9zX2dyYXhvc190cmFuc19nKSksXG4gICAgY29yX2NhbGNpbyA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9jYWxjaW9fbWcpKSxcbiAgICBjb3JfZmVycm8gPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfZmVycm9fbWcpKSxcbiAgICBjb3Jfc29kaW8gPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfc29kaW9fbWcpKSxcbiAgICBjb3JfbWFnbmVzaW8gPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfbWFnbmVzaW9fbWcpKSxcbiAgICBjb3JfZm9zZm9ybyA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9mb3Nmb3JvX21nKSksXG4gICAgY29yX3BvdGFzc2lvID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX3BvdGFzc2lvX21nKSksXG4gICAgY29yX21hbmdhbmVzID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX21hbmdhbmVzX21nKSksXG4gICAgY29yX3ppbmNvID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX3ppbmNvX21nKSksXG4gICAgY29yX2NvYnJlID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX2NvYnJlX21nKSksXG4gICAgY29yX3NlbGVuaW8gPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfc2VsZW5pb19tY2cpKSxcbiAgICBjb3Jfdml0YW1pbmFfQV9SRSA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF92aXRhbWluYV9BX1JFX21jZykpLFxuICAgIGNvcl92aXRhbWluYV9BX1JBRSA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF92aXRhbWluYV9BX1JBRV9tY2cpKSxcbiAgICBjb3Jfdml0YW1pbmFfRCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF92aXRhbWluYV9EX21jZykpLFxuICAgIGNvcl92aXRhbWluYV9FID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX3ZpdGFtaW5hX0VfbWcpKSxcbiAgICBjb3JfdGlhbWluYSA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF90aWFtaW5hX21nKSksXG4gICAgY29yX3JpYm9mbGF2aW5hID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX3JpYm9mbGF2aW5hX21nKSksXG4gICAgY29yX25pYWNpbmEgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfbmlhY2luYV9tZykpLFxuICAgIGNvcl92aXRhbWluYV9CNiA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF92aXRhbWluYV9CNl9tZykpLFxuICAgIGNvcl92aXRhbWluYV9CMTIgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgcmVzaWR1YWxfdml0YW1pbmFfQjEyX21jZykpLFxuICAgIGNvcl92aXRhbWluYV9DID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX3ZpdGFtaW5hX0NfbWcpKSxcbiAgICBjb3JfZXF1aXZhbGVudGVfZGVfZm9sYXRvID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIHJlc2lkdWFsX2VxdWl2YWxlbnRlX2RlX2ZvbGF0b19tY2cpKSxcbiAgICBjb3Jfc2FsX2RlX2FkaWNhbyA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9zYWxfZGVfYWRpY2FvX2cpKSxcbiAgICBjb3JfYWN1Y2FyX2RlX2FkaWNhbyA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCByZXNpZHVhbF9hY3VjYXJfZGVfYWRpY2FvX2cpKSxcbiAgICBjb3JfSUwxN0EgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgSUwxN0EpKSxcbiAgICBjb3JfSUZOR2FtbWEgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgSUZOR2FtbWEpKSxcbiAgICBjb3JfVE5GID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIFRORikpLFxuICAgIGNvcl9JTDEwID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIElMMTApKSxcbiAgICBjb3JfSUw2ID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIElMNikpLFxuICAgIGNvcl9JTDQgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgSUw0KSksXG4gICAgY29yX0lMMiA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBJTDIpKSxcbiAgICBjb3JfQWdlID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIEFnZSkpLFxuICAgIGNvcl9TeXN0b2xpYyA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBTeXN0b2xpYykpLFxuICAgIGNvcl9EaWFzdG9saWMgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgRGlhc3RvbGljKSksXG4gICAgY29yX1dlaWdodCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBXZWlnaHQpKSxcbiAgICBjb3JfSGVpZ2h0ID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIEhlaWdodCkpLFxuICAgIGNvcl9XYWlzdCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBXYWlzdCkpLFxuICAgIGNvcl9IaXAgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgSGlwKSksXG4gICAgY29yX0hiQTFjID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIEhiQTFjKSksXG4gICAgY29yX0NPTEVTVEVST0wgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgQ09MRVNURVJPTCkpLFxuICAgIGNvcl9MREwgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgTERMKSksXG4gICAgY29yX0hETCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBIREwpKSxcbiAgICBjb3JfVkxETCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBWTERMKSksXG4gICAgY29yX1RSSUdMSUNFUklERVMgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgVFJJR0xJQ0VSSURFUykpLFxuICAgIGNvcl9UR08gPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgVEdPKSksXG4gICAgY29yX1RHUCA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBUR1ApKSxcbiAgICBjb3JfR0dUID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIEdHVCkpLFxuICAgIGNvcl9HTElDT1NFID0gbGlzdChjYWxjX2Nvcl9wKE5vcm1BYnVuZGFuY2UsIEdMSUNPU0UpKSxcbiAgICBjb3JfSU5TVUxJTkEgPSBsaXN0KGNhbGNfY29yX3AoTm9ybUFidW5kYW5jZSwgSU5TVUxJTkEpKSxcbiAgICBjb3JfSE9NQSA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBIT01BKSksXG4gICAgY29yX1BDUiA9IGxpc3QoY2FsY19jb3JfcChOb3JtQWJ1bmRhbmNlLCBQQ1IpKVxuICApICU+JVxuICBkcGx5cjo6dW5ncm91cCgpICU+JVxuICB0aWR5cjo6dW5uZXN0X3dpZGVyKGV2ZXJ5dGhpbmcoKSwgbmFtZXNfc2VwID0gXCJfXCIpXG5cbmBgYCJ9 -->
+
+```r
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+
+calc_cor_p <- function(x, y) {
+  if (all(is.na(x)) || all(is.na(y))) {
+    return(list(correlation = NA, p_value = NA))
+  } else {
+    test <- cor.test(x, y, use = \"complete.obs\", method = \"pearson\")
+    return(list(correlation = test$estimate, p_value = test$p.value))
+  }
+}
+
+#Aplicar a função calc_cor_p para todas as variáveis
+#Aqui está o código completo que calcula correlação e p-valor para cada variável:
+
+# Código completo com parâmetros adicionais
+cor_results_saude_dieta <- numeric_metadata_saude_dieta %>%
+  dplyr::group_by(Feature.ID) %>%
+  dplyr::summarize(
+    cor_carboidrato_total = list(calc_cor_p(NormAbundance, residual_carboidrato_total_g)),
+    cor_proteina = list(calc_cor_p(NormAbundance, residual_proteina_g)),
+    cor_lipidios = list(calc_cor_p(NormAbundance, residual_lipidios_g)),
+    cor_fibra_alimentar = list(calc_cor_p(NormAbundance, residual_fibra_alimentar_g)),
+    cor_colesterol = list(calc_cor_p(NormAbundance, residual_colesterol_mg)),
+    cor_acidos_graxos_saturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_saturados_g)),
+    cor_acidos_graxos_monoinsaturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_monoinsaturados_g)),
+    cor_acidos_graxos_poliinsaturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_poliinsaturados_g)),
+    cor_acidos_graxos_trans = list(calc_cor_p(NormAbundance, residual_acidos_graxos_trans_g)),
+    cor_calcio = list(calc_cor_p(NormAbundance, residual_calcio_mg)),
+    cor_ferro = list(calc_cor_p(NormAbundance, residual_ferro_mg)),
+    cor_sodio = list(calc_cor_p(NormAbundance, residual_sodio_mg)),
+    cor_magnesio = list(calc_cor_p(NormAbundance, residual_magnesio_mg)),
+    cor_fosforo = list(calc_cor_p(NormAbundance, residual_fosforo_mg)),
+    cor_potassio = list(calc_cor_p(NormAbundance, residual_potassio_mg)),
+    cor_manganes = list(calc_cor_p(NormAbundance, residual_manganes_mg)),
+    cor_zinco = list(calc_cor_p(NormAbundance, residual_zinco_mg)),
+    cor_cobre = list(calc_cor_p(NormAbundance, residual_cobre_mg)),
+    cor_selenio = list(calc_cor_p(NormAbundance, residual_selenio_mcg)),
+    cor_vitamina_A_RE = list(calc_cor_p(NormAbundance, residual_vitamina_A_RE_mcg)),
+    cor_vitamina_A_RAE = list(calc_cor_p(NormAbundance, residual_vitamina_A_RAE_mcg)),
+    cor_vitamina_D = list(calc_cor_p(NormAbundance, residual_vitamina_D_mcg)),
+    cor_vitamina_E = list(calc_cor_p(NormAbundance, residual_vitamina_E_mg)),
+    cor_tiamina = list(calc_cor_p(NormAbundance, residual_tiamina_mg)),
+    cor_riboflavina = list(calc_cor_p(NormAbundance, residual_riboflavina_mg)),
+    cor_niacina = list(calc_cor_p(NormAbundance, residual_niacina_mg)),
+    cor_vitamina_B6 = list(calc_cor_p(NormAbundance, residual_vitamina_B6_mg)),
+    cor_vitamina_B12 = list(calc_cor_p(NormAbundance, residual_vitamina_B12_mcg)),
+    cor_vitamina_C = list(calc_cor_p(NormAbundance, residual_vitamina_C_mg)),
+    cor_equivalente_de_folato = list(calc_cor_p(NormAbundance, residual_equivalente_de_folato_mcg)),
+    cor_sal_de_adicao = list(calc_cor_p(NormAbundance, residual_sal_de_adicao_g)),
+    cor_acucar_de_adicao = list(calc_cor_p(NormAbundance, residual_acucar_de_adicao_g)),
+    cor_IL17A = list(calc_cor_p(NormAbundance, IL17A)),
+    cor_IFNGamma = list(calc_cor_p(NormAbundance, IFNGamma)),
+    cor_TNF = list(calc_cor_p(NormAbundance, TNF)),
+    cor_IL10 = list(calc_cor_p(NormAbundance, IL10)),
+    cor_IL6 = list(calc_cor_p(NormAbundance, IL6)),
+    cor_IL4 = list(calc_cor_p(NormAbundance, IL4)),
+    cor_IL2 = list(calc_cor_p(NormAbundance, IL2)),
+    cor_Age = list(calc_cor_p(NormAbundance, Age)),
+    cor_Systolic = list(calc_cor_p(NormAbundance, Systolic)),
+    cor_Diastolic = list(calc_cor_p(NormAbundance, Diastolic)),
+    cor_Weight = list(calc_cor_p(NormAbundance, Weight)),
+    cor_Height = list(calc_cor_p(NormAbundance, Height)),
+    cor_Waist = list(calc_cor_p(NormAbundance, Waist)),
+    cor_Hip = list(calc_cor_p(NormAbundance, Hip)),
+    cor_HbA1c = list(calc_cor_p(NormAbundance, HbA1c)),
+    cor_COLESTEROL = list(calc_cor_p(NormAbundance, COLESTEROL)),
+    cor_LDL = list(calc_cor_p(NormAbundance, LDL)),
+    cor_HDL = list(calc_cor_p(NormAbundance, HDL)),
+    cor_VLDL = list(calc_cor_p(NormAbundance, VLDL)),
+    cor_TRIGLICERIDES = list(calc_cor_p(NormAbundance, TRIGLICERIDES)),
+    cor_TGO = list(calc_cor_p(NormAbundance, TGO)),
+    cor_TGP = list(calc_cor_p(NormAbundance, TGP)),
+    cor_GGT = list(calc_cor_p(NormAbundance, GGT)),
+    cor_GLICOSE = list(calc_cor_p(NormAbundance, GLICOSE)),
+    cor_INSULINA = list(calc_cor_p(NormAbundance, INSULINA)),
+    cor_HOMA = list(calc_cor_p(NormAbundance, HOMA)),
+    cor_PCR = list(calc_cor_p(NormAbundance, PCR))
+  ) %>%
+  dplyr::ungroup() %>%
+  tidyr::unnest_wider(everything(), names_sep = \"_\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+
+calc_cor_p <- function(x, y) {
+  if (all(is.na(x)) || all(is.na(y))) {
+    return(list(correlation = NA, p_value = NA))
+  } else {
+    test <- cor.test(x, y, use = \"complete.obs\", method = \"pearson\")
+    return(list(correlation = test$estimate, p_value = test$p.value))
+  }
+}
+
+#Aplicar a função calc_cor_p para todas as variáveis
+#Aqui está o código completo que calcula correlação e p-valor para cada variável:
+
+# Código completo com parâmetros adicionais
+cor_results_saude_dieta <- numeric_metadata_saude_dieta %>%
+  dplyr::group_by(Feature.ID) %>%
+  dplyr::summarize(
+    cor_carboidrato_total = list(calc_cor_p(NormAbundance, residual_carboidrato_total_g)),
+    cor_proteina = list(calc_cor_p(NormAbundance, residual_proteina_g)),
+    cor_lipidios = list(calc_cor_p(NormAbundance, residual_lipidios_g)),
+    cor_fibra_alimentar = list(calc_cor_p(NormAbundance, residual_fibra_alimentar_g)),
+    cor_colesterol = list(calc_cor_p(NormAbundance, residual_colesterol_mg)),
+    cor_acidos_graxos_saturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_saturados_g)),
+    cor_acidos_graxos_monoinsaturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_monoinsaturados_g)),
+    cor_acidos_graxos_poliinsaturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_poliinsaturados_g)),
+    cor_acidos_graxos_trans = list(calc_cor_p(NormAbundance, residual_acidos_graxos_trans_g)),
+    cor_calcio = list(calc_cor_p(NormAbundance, residual_calcio_mg)),
+    cor_ferro = list(calc_cor_p(NormAbundance, residual_ferro_mg)),
+    cor_sodio = list(calc_cor_p(NormAbundance, residual_sodio_mg)),
+    cor_magnesio = list(calc_cor_p(NormAbundance, residual_magnesio_mg)),
+    cor_fosforo = list(calc_cor_p(NormAbundance, residual_fosforo_mg)),
+    cor_potassio = list(calc_cor_p(NormAbundance, residual_potassio_mg)),
+    cor_manganes = list(calc_cor_p(NormAbundance, residual_manganes_mg)),
+    cor_zinco = list(calc_cor_p(NormAbundance, residual_zinco_mg)),
+    cor_cobre = list(calc_cor_p(NormAbundance, residual_cobre_mg)),
+    cor_selenio = list(calc_cor_p(NormAbundance, residual_selenio_mcg)),
+    cor_vitamina_A_RE = list(calc_cor_p(NormAbundance, residual_vitamina_A_RE_mcg)),
+    cor_vitamina_A_RAE = list(calc_cor_p(NormAbundance, residual_vitamina_A_RAE_mcg)),
+    cor_vitamina_D = list(calc_cor_p(NormAbundance, residual_vitamina_D_mcg)),
+    cor_vitamina_E = list(calc_cor_p(NormAbundance, residual_vitamina_E_mg)),
+    cor_tiamina = list(calc_cor_p(NormAbundance, residual_tiamina_mg)),
+    cor_riboflavina = list(calc_cor_p(NormAbundance, residual_riboflavina_mg)),
+    cor_niacina = list(calc_cor_p(NormAbundance, residual_niacina_mg)),
+    cor_vitamina_B6 = list(calc_cor_p(NormAbundance, residual_vitamina_B6_mg)),
+    cor_vitamina_B12 = list(calc_cor_p(NormAbundance, residual_vitamina_B12_mcg)),
+    cor_vitamina_C = list(calc_cor_p(NormAbundance, residual_vitamina_C_mg)),
+    cor_equivalente_de_folato = list(calc_cor_p(NormAbundance, residual_equivalente_de_folato_mcg)),
+    cor_sal_de_adicao = list(calc_cor_p(NormAbundance, residual_sal_de_adicao_g)),
+    cor_acucar_de_adicao = list(calc_cor_p(NormAbundance, residual_acucar_de_adicao_g)),
+    cor_IL17A = list(calc_cor_p(NormAbundance, IL17A)),
+    cor_IFNGamma = list(calc_cor_p(NormAbundance, IFNGamma)),
+    cor_TNF = list(calc_cor_p(NormAbundance, TNF)),
+    cor_IL10 = list(calc_cor_p(NormAbundance, IL10)),
+    cor_IL6 = list(calc_cor_p(NormAbundance, IL6)),
+    cor_IL4 = list(calc_cor_p(NormAbundance, IL4)),
+    cor_IL2 = list(calc_cor_p(NormAbundance, IL2)),
+    cor_Age = list(calc_cor_p(NormAbundance, Age)),
+    cor_Systolic = list(calc_cor_p(NormAbundance, Systolic)),
+    cor_Diastolic = list(calc_cor_p(NormAbundance, Diastolic)),
+    cor_Weight = list(calc_cor_p(NormAbundance, Weight)),
+    cor_Height = list(calc_cor_p(NormAbundance, Height)),
+    cor_Waist = list(calc_cor_p(NormAbundance, Waist)),
+    cor_Hip = list(calc_cor_p(NormAbundance, Hip)),
+    cor_HbA1c = list(calc_cor_p(NormAbundance, HbA1c)),
+    cor_COLESTEROL = list(calc_cor_p(NormAbundance, COLESTEROL)),
+    cor_LDL = list(calc_cor_p(NormAbundance, LDL)),
+    cor_HDL = list(calc_cor_p(NormAbundance, HDL)),
+    cor_VLDL = list(calc_cor_p(NormAbundance, VLDL)),
+    cor_TRIGLICERIDES = list(calc_cor_p(NormAbundance, TRIGLICERIDES)),
+    cor_TGO = list(calc_cor_p(NormAbundance, TGO)),
+    cor_TGP = list(calc_cor_p(NormAbundance, TGP)),
+    cor_GGT = list(calc_cor_p(NormAbundance, GGT)),
+    cor_GLICOSE = list(calc_cor_p(NormAbundance, GLICOSE)),
+    cor_INSULINA = list(calc_cor_p(NormAbundance, INSULINA)),
+    cor_HOMA = list(calc_cor_p(NormAbundance, HOMA)),
+    cor_PCR = list(calc_cor_p(NormAbundance, PCR))
+  ) %>%
+  dplyr::ungroup() %>%
+  tidyr::unnest_wider(everything(), names_sep = \"_\")
+
+```"

@@ -1,0 +1,18 @@
+"0","# Volcano plot com rótulos
+ggplot(df_vai, aes(x = log2FC, y = -log10(pvalue))) +
+  geom_point(aes(color = pval_signif)) +
+  geom_text_repel(data = df_vai_tax, aes(label = label), size = 3, max.overlaps = 10) +
+  geom_hline(yintercept = -log10(0.05), linetype = ""dashed"") +
+  geom_vline(xintercept = c(-1, 1), linetype = ""dashed"") +
+  scale_color_manual(values = c(""gray"", ""red"")) +
+  labs(title = ""Volcano Plot - VAI (ASVs) com taxonomia"",
+       x = ""log2 Fold Change"", y = ""-log10(p-valor)"") +
+  theme_minimal()
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/2C38EB69-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F241fd9b6/cghz19nvdx3uq_t/2576c89e4e5241759116f8f1d5a2746e.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

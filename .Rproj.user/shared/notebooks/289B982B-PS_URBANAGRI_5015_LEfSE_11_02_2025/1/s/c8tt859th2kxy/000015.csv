@@ -1,0 +1,8 @@
+"0","# 4. Criar o objeto phyloseq completo
+ps <- phyloseq(otu_tab_filtrado, tax_tab_filtrado, sample_tab_filtrado, tree_filtrado)
+"
+"2","Error in validObject(.Object) : invalid class “phyloseq” object: 
+ Component taxa/OTU names do not match.
+ Taxa indices are critical to analysis.
+ Try taxa_names()
+"

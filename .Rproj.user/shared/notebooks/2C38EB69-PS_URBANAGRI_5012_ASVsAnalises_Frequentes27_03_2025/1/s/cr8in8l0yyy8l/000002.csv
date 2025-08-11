@@ -1,0 +1,56 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGRwbHlyKVxuXG5cbmxpYnJhcnkoZ2dwbG90MilcblxuZGZfdmFpJHNpZ25pZmljYW50IDwtIGlmZWxzZShkZl92YWkkRkRSIDwgMC4wNSAmIGFicyhkZl92YWkkbG9nMkZDKSA+IDEsIFwiWWVzXCIsIFwiTm9cIilcblxuZGZfdmFpX2ZpbHRyYWRvIDwtIGRmX3ZhaSAlPiVcbiAgZmlsdGVyKCFpcy5uYShsb2cyRkMpLCAhaXMubmEoRkRSKSwgaXMuZmluaXRlKGxvZzJGQyksIGlzLmZpbml0ZShGRFIpKVxuXG4jIEFnb3JhLCBwbG90ZSBvIGdyw6FmaWNvXG5nZ3Bsb3QoZGZfdmFpX2ZpbHRyYWRvLCBhZXMoeCA9IGxvZzJGQywgeSA9IC1sb2cxMChGRFIpLCBjb2xvciA9IHNpZ25pZmljYW50KSkgK1xuICBnZW9tX3BvaW50KCkgK1xuICBnZW9tX2hsaW5lKHlpbnRlcmNlcHQgPSAtbG9nMTAoMC4wNSksIGxpbmV0eXBlID0gXCJkYXNoZWRcIikgK1xuICBnZW9tX3ZsaW5lKHhpbnRlcmNlcHQgPSBjKC0xLCAxKSwgbGluZXR5cGUgPSBcImRhc2hlZFwiKSArXG4gIHNjYWxlX2NvbG9yX21hbnVhbCh2YWx1ZXMgPSBjKFwiZ3JheVwiLCBcInJlZFwiKSkgK1xuICBsYWJzKHRpdGxlID0gXCJWb2xjYW5vIFBsb3QgLSBWQUkgKEFTVnMpXCIsIHggPSBcImxvZzIgRm9sZCBDaGFuZ2VcIiwgeSA9IFwiLWxvZzEwKEZEUilcIikgK1xuICB0aGVtZV9taW5pbWFsKClcblxuXG5cblxuYGBgIn0= -->
+
+```r
+
+library(dplyr)
+
+
+library(ggplot2)
+
+df_vai$significant <- ifelse(df_vai$FDR < 0.05 & abs(df_vai$log2FC) > 1, \"Yes\", \"No\")
+
+df_vai_filtrado <- df_vai %>%
+  filter(!is.na(log2FC), !is.na(FDR), is.finite(log2FC), is.finite(FDR))
+
+# Agora, plote o gráfico
+ggplot(df_vai_filtrado, aes(x = log2FC, y = -log10(FDR), color = significant)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), linetype = \"dashed\") +
+  geom_vline(xintercept = c(-1, 1), linetype = \"dashed\") +
+  scale_color_manual(values = c(\"gray\", \"red\")) +
+  labs(title = \"Volcano Plot - VAI (ASVs)\", x = \"log2 Fold Change\", y = \"-log10(FDR)\") +
+  theme_minimal()
+
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+library(dplyr)
+
+
+library(ggplot2)
+
+df_vai$significant <- ifelse(df_vai$FDR < 0.05 & abs(df_vai$log2FC) > 1, \"Yes\", \"No\")
+
+df_vai_filtrado <- df_vai %>%
+  filter(!is.na(log2FC), !is.na(FDR), is.finite(log2FC), is.finite(FDR))
+
+# Agora, plote o gráfico
+ggplot(df_vai_filtrado, aes(x = log2FC, y = -log10(FDR), color = significant)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), linetype = \"dashed\") +
+  geom_vline(xintercept = c(-1, 1), linetype = \"dashed\") +
+  scale_color_manual(values = c(\"gray\", \"red\")) +
+  labs(title = \"Volcano Plot - VAI (ASVs)\", x = \"log2 Fold Change\", y = \"-log10(FDR)\") +
+  theme_minimal()
+
+
+
+
+```"

@@ -1,0 +1,96 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTdWJzdGl0dWlyIElEcyBwb3IgdGF4b25vbWlhXG5jb3JfYWxsX2RpZXRfbmFtZWQgPC0gY29yX2FsbF9kaWV0ICU+JVxuICBsZWZ0X2pvaW4odGF4b25vbXlfbmFtZWQsIGJ5ID0gXCJGZWF0dXJlLklEXCIpICU+JVxuICBmaWx0ZXIoIWlzLm5hKFRheG9uX0xhYmVsKSlcblxuIyBTZWxlY2lvbmFyIGFwZW5hcyB0YXhhcyBjb20gcGVsbyBtZW5vcyB1bWEgY29ycmVsYcOnw6NvIHNpZ25pZmljYXRpdmFcbnRheGFfc2lnbmlmX2RpZXQgPC0gY29yX2FsbF9kaWV0X25hbWVkICU+JVxuICBmaWx0ZXIocF9hZGogPCAwLjA1KSAlPiVcbiAgcHVsbChUYXhvbl9MYWJlbCkgJT4lXG4gIHVuaXF1ZSgpXG5cbiMgTWF0cml6IGRlIGNvcnJlbGHDp8OjbyAobcOpZGlhIHBhcmEgZHVwbGljYXRhcylcbmNvcl9tYXRyaXhfZGlldCA8LSBjb3JfYWxsX2RpZXRfbmFtZWQgJT4lXG4gIGZpbHRlcihUYXhvbl9MYWJlbCAlaW4lIHRheGFfc2lnbmlmX2RpZXQpICU+JVxuICBzZWxlY3QoVGF4b25fTGFiZWwsIHZhcmlhYmxlLCBjb3JyZWxhdGlvbikgJT4lXG4gIHBpdm90X3dpZGVyKG5hbWVzX2Zyb20gPSB2YXJpYWJsZSwgdmFsdWVzX2Zyb20gPSBjb3JyZWxhdGlvbiwgdmFsdWVzX2ZuID0gbWVhbikgJT4lXG4gIGNvbHVtbl90b19yb3duYW1lcyhcIlRheG9uX0xhYmVsXCIpICU+JVxuICBhcy5tYXRyaXgoKVxuXG4jIE1hdHJpeiBkZSBhc3RlcmlzY29zIChwZWdhciBvIHByaW1laXJvIG7Do28gbnVsbylcbnN0YXJfbWF0cml4X2RpZXQgPC0gY29yX2FsbF9kaWV0X25hbWVkICU+JVxuICBmaWx0ZXIoVGF4b25fTGFiZWwgJWluJSB0YXhhX3NpZ25pZl9kaWV0KSAlPiVcbiAgc2VsZWN0KFRheG9uX0xhYmVsLCB2YXJpYWJsZSwgc3RhcikgJT4lXG4gIHBpdm90X3dpZGVyKG5hbWVzX2Zyb20gPSB2YXJpYWJsZSwgdmFsdWVzX2Zyb20gPSBzdGFyLCB2YWx1ZXNfZm4gPSB+IGZpcnN0KG5hLm9taXQoLikpKSAlPiVcbiAgY29sdW1uX3RvX3Jvd25hbWVzKFwiVGF4b25fTGFiZWxcIikgJT4lXG4gIGFzLm1hdHJpeCgpXG5cbiMgR2VyYXIgbyBoZWF0bWFwXG5waGVhdG1hcChjb3JfbWF0cml4X2RpZXQsXG4gICAgICAgICBkaXNwbGF5X251bWJlcnMgPSBzdGFyX21hdHJpeF9kaWV0LFxuICAgICAgICAgY2x1c3RlcmluZ19tZXRob2QgPSBcIndhcmQuRDJcIixcbiAgICAgICAgIGNsdXN0ZXJpbmdfZGlzdGFuY2Vfcm93cyA9IFwiZXVjbGlkZWFuXCIsXG4gICAgICAgICBjbHVzdGVyaW5nX2Rpc3RhbmNlX2NvbHMgPSBcImV1Y2xpZGVhblwiLFxuICAgICAgICAgY29sb3IgPSBjb2xvclJhbXBQYWxldHRlKGMoXCJibHVlXCIsIFwid2hpdGVcIiwgXCJyZWRcIikpKDEwMCksXG4gICAgICAgICBicmVha3MgPSBzZXEoLTAuNSwgMC41LCBsZW5ndGgub3V0ID0gMTAxKSxcbiAgICAgICAgIG1haW4gPSBcIkNvcnJlbGHDp8OjbyBlbnRyZSBUYXhhcyBlIFZhcmnDoXZlaXMgZGEgRGlldGFcXG4oKiBGRFIgPCAwLjA1KVwiLFxuICAgICAgICAgZm9udHNpemVfcm93ID0gNyxcbiAgICAgICAgIGZvbnRzaXplX2NvbCA9IDksXG4gICAgICAgICBmb250c2l6ZV9udW1iZXIgPSAxMCxcbiAgICAgICAgIGJvcmRlcl9jb2xvciA9IE5BKVxuXG5gYGAifQ== -->
+
+```r
+# Substituir IDs por taxonomia
+cor_all_diet_named <- cor_all_diet %>%
+  left_join(taxonomy_named, by = \"Feature.ID\") %>%
+  filter(!is.na(Taxon_Label))
+
+# Selecionar apenas taxas com pelo menos uma correlação significativa
+taxa_signif_diet <- cor_all_diet_named %>%
+  filter(p_adj < 0.05) %>%
+  pull(Taxon_Label) %>%
+  unique()
+
+# Matriz de correlação (média para duplicatas)
+cor_matrix_diet <- cor_all_diet_named %>%
+  filter(Taxon_Label %in% taxa_signif_diet) %>%
+  select(Taxon_Label, variable, correlation) %>%
+  pivot_wider(names_from = variable, values_from = correlation, values_fn = mean) %>%
+  column_to_rownames(\"Taxon_Label\") %>%
+  as.matrix()
+
+# Matriz de asteriscos (pegar o primeiro não nulo)
+star_matrix_diet <- cor_all_diet_named %>%
+  filter(Taxon_Label %in% taxa_signif_diet) %>%
+  select(Taxon_Label, variable, star) %>%
+  pivot_wider(names_from = variable, values_from = star, values_fn = ~ first(na.omit(.))) %>%
+  column_to_rownames(\"Taxon_Label\") %>%
+  as.matrix()
+
+# Gerar o heatmap
+pheatmap(cor_matrix_diet,
+         display_numbers = star_matrix_diet,
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         color = colorRampPalette(c(\"blue\", \"white\", \"red\"))(100),
+         breaks = seq(-0.5, 0.5, length.out = 101),
+         main = \"Correlação entre Taxas e Variáveis da Dieta\n(* FDR < 0.05)\",
+         fontsize_row = 7,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Substituir IDs por taxonomia
+cor_all_diet_named <- cor_all_diet %>%
+  left_join(taxonomy_named, by = \"Feature.ID\") %>%
+  filter(!is.na(Taxon_Label))
+
+# Selecionar apenas taxas com pelo menos uma correlação significativa
+taxa_signif_diet <- cor_all_diet_named %>%
+  filter(p_adj < 0.05) %>%
+  pull(Taxon_Label) %>%
+  unique()
+
+# Matriz de correlação (média para duplicatas)
+cor_matrix_diet <- cor_all_diet_named %>%
+  filter(Taxon_Label %in% taxa_signif_diet) %>%
+  select(Taxon_Label, variable, correlation) %>%
+  pivot_wider(names_from = variable, values_from = correlation, values_fn = mean) %>%
+  column_to_rownames(\"Taxon_Label\") %>%
+  as.matrix()
+
+# Matriz de asteriscos (pegar o primeiro não nulo)
+star_matrix_diet <- cor_all_diet_named %>%
+  filter(Taxon_Label %in% taxa_signif_diet) %>%
+  select(Taxon_Label, variable, star) %>%
+  pivot_wider(names_from = variable, values_from = star, values_fn = ~ first(na.omit(.))) %>%
+  column_to_rownames(\"Taxon_Label\") %>%
+  as.matrix()
+
+# Gerar o heatmap
+pheatmap(cor_matrix_diet,
+         display_numbers = star_matrix_diet,
+         clustering_method = \"ward.D2\",
+         clustering_distance_rows = \"euclidean\",
+         clustering_distance_cols = \"euclidean\",
+         color = colorRampPalette(c(\"blue\", \"white\", \"red\"))(100),
+         breaks = seq(-0.5, 0.5, length.out = 101),
+         main = \"Correlação entre Taxas e Variáveis da Dieta\n(* FDR < 0.05)\",
+         fontsize_row = 7,
+         fontsize_col = 9,
+         fontsize_number = 10,
+         border_color = NA)
+
+```"
+"1","Aviso em gzfile(file, \"wb\") :
+  não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/AnalisesAgriUrbana/.Rproj.user/shared/notebooks/A8B65409-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F2419ec22/crpnltal3i631_t/4fa680578bed4e76b3fafed3467c606e.snapshot', motivo provável 'No such file or directory'
+Error in gzfile(file, \"wb\") : não é possível abrir a conexão
+"

@@ -1,0 +1,21 @@
+"0","```r
+
+
+# Verificar se as colunas Region e Region_type estão presentes no dataframe
+if (!(\"Region\" %in% colnames(metadados_raw))) {
+  stop(\"A coluna 'Region' não está presente no dataframe 'metadados_raw'.\")
+}
+
+if (!(\"Region_type\" %in% colnames(metadados_raw))) {
+  stop(\"A coluna 'Region_type' não está presente no dataframe 'metadados_raw'.\")
+}
+
+# Box plot de Shannon Entropy por Region
+ggplot(metadados_raw, aes(x = Region, y = shannon_entropy, fill = Region)) +
+  geom_boxplot() +
+  labs(title = \"Shannon Entropy por Região\", x = \"Região\", y = \"Shannon Entropy\") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotacionar labels do eixo x para melhor visualização
+
+
+```"

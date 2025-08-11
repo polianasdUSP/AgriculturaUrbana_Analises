@@ -1,0 +1,1503 @@
+#_______________________________#
+#     title: ASVs Análises"
+#_______________________________#
+  
+  
+#=== Carregar pacotes necessários ===#
+
+library(tidyverse)
+library(microbiomeMarker)
+library(qiime2R)
+library(phyloseq)
+#install.packages("xfun")
+
+library(tibble)
+
+#====== Carregar Objetos =====#
+
+# Carregando os dados
+# Carregando os dados
+metadados.all <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/metadados.all.corrigido - metadados.all.corrigido.csv") # Atualize com o caminho correto do arquivo
+
+metadados.all.filtrado <- metadados.all[metadados.all$Sample.id != "S40142.F00", ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadados.all.filtrado)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadados.all.filtrado)
+
+
+
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/table_corrigida.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+
+
+
+# Filtrar colunas de SVs com base nos IDs presentes em metadados.all.filtrado
+SVs_filtrado <- SVs[, colnames(SVs) %in% metadados.all.filtrado$Sample.id]
+
+#===== Filtragem, normalização e log das ASVs ==========#
+
+# Calcular o número de voluntários em que cada ASV está presente
+asv_presence <- as.data.frame(rowSums(SVs_filtrado > 0))
+
+# Filtrar ASVs presentes em pelo menos 13 voluntários
+SVs_filtered <- SVs_filtrado[asv_presence >= 10, ]
+
+
+# Normalizar para porcentagem
+SVs_normalized <- apply(SVs_filtered, 2, function(x) x / sum(x) * 100)  # Converte para porcentagem
+
+
+# Transformar em data frame para manipulação
+SVs_long <- SVs_normalized %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "Sample.id", value = "Abundance")
+
+
+# Aplicar transformação logarítmica
+
+SVs_long <- SVs_long %>%
+  mutate(NormAbundance = log10(Abundance + 0.01))  # Adiciona 0.01 para evitar log(0)
+
+# Exportar para uma planilha
+write.csv(SVs_long, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/SVs_normalized_log_transformed.csv", row.names = FALSE)
+
+
+#=========== Heatmap =============#
+
+
+library(ggplot2)
+library(pheatmap)
+
+# Converter de volta para formato largo para o heatmap
+SVs_matrix <- SVs_long %>%
+  select(Feature.ID, Sample.id, NormAbundance) %>%
+  spread(key = Sample.id, value = NormAbundance, fill = 0) %>%
+  column_to_rownames("Feature.ID")
+
+
+
+# Definir a paleta de cores com branco no centro
+color_palette <- colorRampPalette(c("blue", "white", "red"))(50)
+
+# Gerar o heatmap com o ponto zero centralizado na cor branca
+heatmap_ASVs <- pheatmap(SVs_matrix, 
+                clustering_method = "ward.D2",  # Método de clusterização
+                clustering_distance_rows = "euclidean",  # Distância para ASVs
+                clustering_distance_cols = "euclidean",  # Distância para amostras
+                scale = "row",  # Escala por linha para melhor visualização
+                main = "Heatmap of the ASVs (Normalized and Log-Transformed)",
+                color = color_palette)
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_ASVs.png", heatmap_ASVs, width = 24, height = 16, dpi = 300)
+
+
+
+library(pheatmap)
+
+# Selecionar as 50 ASVs mais abundantes
+top_ASVs <- rowSums(SVs_matrix) %>% sort(decreasing = TRUE) %>% head(50) %>% names()
+SVs_matrix_top <- SVs_matrix[top_ASVs, ]
+
+# Criar a paleta de cores com branco centralizado
+color_palette <- colorRampPalette(c("blue", "white", "red"))(100)
+
+# Gerar o heatmap com as top 50 ASVs
+heatmap_ASVs_50_most <- pheatmap(SVs_matrix_top, 
+                        clustering_method = "ward.D2",
+                        clustering_distance_rows = "euclidean",
+                        clustering_distance_cols = "euclidean",
+                        scale = "row",
+                        main = "Heatmap of the 50 Most Abundant ASVs (Normalized and Log-Transformed)",
+         color = color_palette)
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_ASVs_50_most.png", heatmap_ASVs_50_most, width = 24, height = 16, dpi = 300)
+
+library(dplyr)
+
+
+
+# Remover as colunas indesejadas do metadata
+metadata_filtered <- metadados.all.filtrado %>%
+  select(-c("Gravida", "Menopausa", "Raca", "Gravida", "Weight", "Height","Hip","WHR" ,  "energia2_kcal","sample.plate", "SoFAAS_Score", "Sat_Fat_Score", "Sodium_Score", "grain_roots_tubers_score", "milk_dairy_score",                 "total_fruit_score" ,  "total_vegetable_score" ,  "vegetable_oils_nuts_fishoil_score",  "dark_green_orange_veg_legume_score", "whole_fruit_score", "whole_grain_score"  , "ConsumoGrupo_NOVA_group_1" ,         "ConsumoGrupo_NOVA_group_2" ,  "ConsumoGrupo_NOVA_group_3" ,  "ConsumoCategoria"  , "BMI", "VAI" , "QUICKI", "METS_IR",  "TyG_BMI" ,  "TyG_WC" , "ACE" , "VAI"                                                                ))
+
+str(metadata_filtered)
+
+
+#==== juntar Metadada + ASVs =====#
+
+# Juntar ASVs_long com metadata filtrado
+# Assumindo que a coluna de junção seja "Sample.id" em ASVs_long e "SampleID" em metadata_filtered
+metadata_ASVs <- SVs_long %>%
+  inner_join(metadata_filtered, by = c("Sample.id" = "Sample.id"))
+
+
+library(dplyr)
+
+# Juntar o objeto taxonomy ao metadata_ASVs usando a coluna Feature.ID
+metadata_ASVs <- metadata_ASVs %>%
+  left_join(taxonomy %>% select(Feature.ID, Taxon, Confidence), by = "Feature.ID")
+
+# Reorganizar para que Taxon seja a segunda coluna e Confidence a terceira
+metadata_ASVs <- metadata_ASVs %>%
+  select(Feature.ID, Taxon, Confidence, everything())
+
+# Visualizar o resultado
+metadata_ASVs
+
+# Reorganizar para que Sample.id seja a primeira coluna
+metadata_ASVs <- metadata_ASVs %>%
+  select(Sample.id, everything())
+
+# Visualizar o resultado
+glimpse(metadata_ASVs)
+
+#===================================#
+#        Heatmap  
+#===================================#
+
+library(dplyr)
+library(ggplot2)
+
+
+
+# Plotar o heatmap
+heatmap_normalized_abundance <- ggplot(metadata_ASVs, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = "NormAbundance") +
+  labs(title = "Heatmap of the ASVs (Normalized and Log-Transformed)", x = "Sample ID", y = "ASV (Feature.ID e Taxonomia)")
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_normalized_abundance.png", heatmap_normalized_abundance, width = 24, height = 16, dpi = 300)
+
+
+#=================================================#
+#-------- Inflammatory Markers vs ASVs -----------#
+#=================================================#
+
+#Criar um metadata+ ASVs inflamattory, tirando NAs de IL17A
+
+metadata_filtered_inf <- metadata_filtered %>% filter(!is.na(IL17A))
+
+# Juntar ASVs_long com metadata filtrado
+# Assumindo que a coluna de junção seja "Sample.id" em ASVs_long e "Sample.id" em metadata_filtered
+metadata_ASVs_inf <- SVs_long %>%
+  inner_join(metadata_filtered_inf, by = c("Sample.id" = "Sample.id"))
+
+
+library(dplyr)
+
+# Juntar o objeto taxonomy ao metadata_ASVs usando a coluna Feature.ID
+metadata_ASVs_inf <- metadata_ASVs_inf %>%
+  left_join(taxonomy %>% select(Feature.ID, Taxon, Confidence), by = "Feature.ID")
+
+# Reorganizar para que Taxon seja a segunda coluna e Confidence a terceira
+metadata_ASVs_inf <- metadata_ASVs_inf %>%
+  select(Feature.ID, Taxon, Confidence, everything())
+
+# Visualizar o resultado
+metadata_ASVs_inf
+
+# Reorganizar para que Sample.id seja a primeira coluna
+metadata_ASVs_inf <- metadata_ASVs_inf %>%
+  select(Sample.id, everything())
+
+# Visualizar o resultado
+glimpse(metadata_ASVs_inf)
+####
+
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+library(tibble)
+
+# 1. Selecionar apenas colunas relevantes de saúde
+# Corrigido
+inflammatory_markers_ASVs <- metadata_ASVs_inf %>%
+  select(Sample.id,  Feature.ID, Taxon, Confidence,  Abundance, NormAbundance, IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, INSULINA,  
+         PCR) 
+
+
+# 2. Calcular correlações para cada ASV com as variáveis de saúde
+#cor_results <- inflammatory_markers_ASVs %>%
+# group_by(Feature.ID) %>%
+#  summarize(across(
+#    .cols = c(IL17A, IFNGamma, TNF, IL10, IL6, IL4, IL2, INSULINA,  
+#              PCR),
+#    .fns = ~ cor(NormAbundance, .x, use = "complete.obs"),
+#    .names = "cor_{.col}"
+#  )) %>%
+#  ungroup()
+
+
+
+safe_cor <- function(x, y) {
+  if (sum(complete.cases(x, y)) >= 2) {
+    tryCatch(cor(x, y, use = "complete.obs"), error = function(e) NA_real_)
+  } else {
+    NA_real_
+  }
+}
+
+cor_results <- inflammatory_markers_ASVs %>%
+  group_by(Feature.ID) %>%
+  summarise(
+    cor_IL17A     = safe_cor(NormAbundance, IL17A),
+    cor_IFNGamma  = safe_cor(NormAbundance, IFNGamma),
+    cor_TNF       = safe_cor(NormAbundance, TNF),
+    cor_IL10      = safe_cor(NormAbundance, IL10),
+    cor_IL6       = safe_cor(NormAbundance, IL6),
+    cor_IL4       = safe_cor(NormAbundance, IL4),
+    cor_IL2       = safe_cor(NormAbundance, IL2),
+    cor_INSULINA  = safe_cor(NormAbundance, INSULINA),
+    cor_PCR       = safe_cor(NormAbundance, PCR)
+  ) %>%
+  ungroup()
+
+
+#4. Transformar em formato longo
+cor_long <- cor_results %>%
+ pivot_longer(cols = starts_with("cor_"), names_to = "Health_Param", values_to = "Correlation") %>%
+ mutate(Health_Param = gsub("cor_", "", Health_Param))
+
+# 5. Criar matriz
+cor_matrix <- cor_long %>%
+  pivot_wider(names_from = Health_Param, values_from = Correlation) %>%
+  column_to_rownames("Feature.ID") %>%
+  as.matrix()
+
+# 6. Heatmap
+color_palette <- colorRampPalette(c("blue", "white", "red"))(50)
+breaks <- seq(-0.5, 0.5, length.out = 51)
+
+p <- pheatmap(cor_matrix, 
+         clustering_method = "ward.D2",
+         clustering_distance_rows = "euclidean",
+         clustering_distance_cols = "euclidean",
+         main = "Correlation Heatmap between ASVs and Inflammatory Markers",
+         color = color_palette, 
+         breaks = breaks,
+         border_color = NA)
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_ASVvsInflamatMarkers.png", p,  width = 24, height = 16, dpi = 300)
+
+library(dplyr)
+library(tidyr)
+
+# Função para calcular correlação e p-valor
+calc_cor_p <- function(x, y) {
+  valid <- complete.cases(x, y)
+  if (sum(valid) > 2) {
+    res <- suppressWarnings(cor.test(x[valid], y[valid]))
+    return(c(correlation = as.numeric(res$estimate), p_value = res$p.value))
+  } else {
+    return(c(correlation = NA_real_, p_value = NA_real_))
+  }
+}
+
+
+# Lista de variáveis de saúde
+Inflammatory_vars <- c("IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "INSULINA",
+                 "PCR")
+
+# Criar uma lista vazia para guardar os resultados
+cor_list <- list()
+
+# Loop pelas variáveis de saúde
+for (var in Inflammatory_vars) {
+  
+  temp <- inflammatory_markers_ASVs %>%
+    group_by(Feature.ID) %>%
+    summarise(
+      correlation = calc_cor_p(NormAbundance, .data[[var]])["correlation"],
+      p_value = calc_cor_p(NormAbundance, .data[[var]])["p_value"]
+    ) %>%
+    ungroup() %>%
+    mutate(variable = var) %>%
+    mutate(
+      correlation = as.numeric(correlation),
+      p_value = as.numeric(p_value)
+    )
+  
+  # Armazenar na lista
+  cor_list[[var]] <- temp
+}
+
+
+# Unir todos os resultados
+cor_inflammatory <- bind_rows(cor_list)
+
+# Ajustar p-valor com FDR
+cor_inflammatory <- cor_inflammatory %>%
+  group_by(variable) %>%
+  mutate(p_adj = p.adjust(p_value, method = "fdr")) %>%
+  ungroup()
+
+# Marcar significância
+cor_inflammatory <- cor_inflammatory %>%
+  mutate(star = case_when(
+    p_adj < 0.001 ~ "***",
+    p_adj < 0.01 ~ "**",
+    p_adj < 0.05 ~ "*",
+    TRUE ~ ""
+  ))
+
+# Visualizar resultados formatados
+head(cor_inflammatory)
+
+
+cor_signif_inflammatory <- cor_inflammatory %>%
+  filter(p_adj < 0.05)
+
+cor_inflammatory %>%
+  filter(p_adj < 0.05) %>%
+  arrange(desc(abs(correlation)))
+
+
+
+
+
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(tibble)
+
+
+
+# 1. Selecionar apenas ASVs com pelo menos uma correlação significativa (FDR < 0.05)
+asvs_signif <- cor_inflammatory %>%
+  filter(p_adj < 0.05) %>%
+  pull(Feature.ID) %>%
+  unique()
+
+# 2. Criar matriz de correlação apenas com ASVs significativas
+cor_matrix <- cor_inflammatory %>%
+  filter(Feature.ID %in% asvs_signif) %>%
+  select(Feature.ID, variable, correlation) %>%
+  pivot_wider(names_from = variable, values_from = correlation) %>%
+  column_to_rownames("Feature.ID") %>%
+  as.matrix()
+
+# 3. Criar matriz de asteriscos para significância (p_adj)
+star_matrix <- cor_inflammatory %>%
+  filter(Feature.ID %in% asvs_signif) %>%
+  select(Feature.ID, variable, star) %>%
+  pivot_wider(names_from = variable, values_from = star) %>%
+  column_to_rownames("Feature.ID") %>%
+  as.matrix()
+
+# 4. Paleta de cores e quebras
+color_palette <- colorRampPalette(c("blue", "white", "red"))(100)
+breaks <- seq(-0.5, 0.5, length.out = 101)
+
+# 5. Gerar o heatmap com significância destacada
+p <- pheatmap(cor_matrix,
+         display_numbers = star_matrix,
+         number_color = "white",  # cor dos asteriscos
+         clustering_method = "ward.D2",
+         clustering_distance_rows = "euclidean",
+         clustering_distance_cols = "euclidean",
+         color = color_palette,
+         breaks = breaks,
+         main = "Significant Correlations: ASVs vs Inflammatory Markers (n = 76) \n(FDR < 0.05)",
+         fontsize = 18,
+         fontsize_row = 18,
+         fontsize_col = 18,
+         fontsize_number = 26, # tamanho dos asteriscos
+         border_color = NA)
+
+
+
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_Significant_correlation_ASVvsInflamatMarkers.png", p,  width = 35, height = 20, dpi = 300)
+
+
+
+# Filtrar apenas ASVs com significância
+asvs_signif_df <- cor_inflammatory %>%
+  filter(p_adj < 0.05) %>%
+  distinct(Feature.ID)
+
+# Juntar com a tabela de taxonomia
+asvs_tax_signif <- asvs_signif_df %>%
+  left_join(taxonomy, by = "Feature.ID")
+
+# Visualizar
+head(asvs_tax_signif)
+
+
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+
+# 1. Criar coluna de nome taxonômico compacto
+taxonomy_named <- taxonomy %>%
+  filter(Feature.ID %in% rownames(cor_matrix)) %>%
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", extra = "drop") %>%
+  mutate(across(Domain:Species, ~ gsub("^[a-z]__*", "", .))) %>%
+  mutate(Taxon_Label = paste(Phylum, Family, Genus, sep = " | ")) %>%
+  select(Feature.ID, Taxon_Label)
+
+# 2. Substituir rownames da matriz de correlação
+rownames(cor_matrix) <- taxonomy_named$Taxon_Label[match(rownames(cor_matrix), taxonomy_named$Feature.ID)]
+rownames(star_matrix) <- rownames(cor_matrix)  # para manter igual
+
+# 3. Gerar o heatmap padrão com nomes taxonômicos
+p <- pheatmap(cor_matrix,
+              display_numbers = star_matrix,
+              number_color = "white",
+              clustering_method = "ward.D2",
+              clustering_distance_rows = "euclidean",
+              clustering_distance_cols = "euclidean",
+              color = color_palette,
+              breaks = breaks,
+              main = "Correlation Heatmap: Taxons vs Inflammatory Markers (n = 76)\n(FDR < 0.05)",
+              fontsize = 18,
+              fontsize_row = 18,
+              fontsize_col = 18,
+              fontsize_number = 26,
+              border_color = NA)
+
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_Significant_correlation_TaxonvsInflamatMarkers.png", p,  width = 35, height = 20, dpi = 300)
+
+
+
+#Parei aqui no dia 13/05!!
+
+#====================================#
+#                Diet + BHEI
+#====================================#
+
+
+
+library(dplyr)
+library(tidyr)
+
+
+# Juntar ASVs_long com metadata filtrado
+# Assumindo que a coluna de junção seja "Sample.id" em ASVs_long e "Sample.id" em metadata_filtered
+metadata_ASVs <- SVs_long %>%
+  inner_join(metadata_filtered, by = c("Sample.id" = "Sample.id"))
+
+
+library(dplyr)
+
+# Juntar o objeto taxonomy ao metadata_ASVs usando a coluna Feature.ID
+metadata_ASVs <- metadata_ASVs %>%
+  left_join(taxonomy %>% select(Feature.ID, Taxon, Confidence), by = "Feature.ID")
+
+# Reorganizar para que Taxon seja a segunda coluna e Confidence a terceira
+metadata_ASVs <- metadata_ASVs %>%
+  select(Feature.ID, Taxon, Confidence, everything())
+
+# Visualizar o resultado
+metadata_ASVs
+
+# Reorganizar para que Sample.id seja a primeira coluna
+metadata_ASVs <- metadata_ASVs %>%
+  select(Sample.id, everything())
+
+# Visualizar o resultado
+glimpse(metadata_ASVs)
+####
+
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+library(tibble)
+
+# 1. Selecionar apenas colunas relevantes de dieta
+# Corrigido
+diet_ASVs <- metadata_ASVs %>%
+  select(Sample.id,  Feature.ID, Taxon, Confidence,  Abundance, NormAbundance, carboidrato_total_g, proteina_g, lipidios_g, fibra_alimentar_g,
+         colesterol_mg, acidos_graxos_saturados_g, acidos_graxos_monoinsaturados_g,
+         acidos_graxos_poliinsaturados_g, acidos_graxos_trans_g,
+         calcio_mg, ferro_mg, sodio_mg, magnesio_mg, fosforo_mg,
+         potassio_mg, manganes_mg, zinco_mg, cobre_mg, selenio_mcg,
+         vitamina_A_RAE_mcg, vitamina_D_mcg, vitamina_E_mg, tiamina_mg,
+         riboflavina_mg, niacina_mg, vitamina_B6_mg, vitamina_B12_mcg,
+         vitamina_C_mg, equivalente_de_folato_mcg, sal_de_adicao_g,
+         acucar_de_adicao_g, BHEI_R_Score_Total) 
+
+
+
+
+
+# 2. Calcular correlações para cada ASV com as variáveis de dieta
+cor_results_diet <- diet_ASVs %>%
+  group_by(Feature.ID) %>%
+  summarize(across(
+    .cols = c(carboidrato_total_g, proteina_g, lipidios_g, fibra_alimentar_g,
+              colesterol_mg, acidos_graxos_saturados_g, acidos_graxos_monoinsaturados_g,
+              acidos_graxos_poliinsaturados_g, acidos_graxos_trans_g,
+              calcio_mg, ferro_mg, sodio_mg, magnesio_mg, fosforo_mg,
+              potassio_mg, manganes_mg, zinco_mg, cobre_mg, selenio_mcg,
+              vitamina_A_RAE_mcg, vitamina_D_mcg, vitamina_E_mg, tiamina_mg,
+              riboflavina_mg, niacina_mg, vitamina_B6_mg, vitamina_B12_mcg,
+              vitamina_C_mg, equivalente_de_folato_mcg, sal_de_adicao_g,
+              acucar_de_adicao_g, BHEI_R_Score_Total),
+    .fns = ~ cor(NormAbundance, .x, use = "complete.obs"),
+    .names = "cor_{.col}"
+  )) %>%
+  ungroup()
+
+# 4. Transformar em formato longo
+cor_long_diet <- cor_results_diet %>%
+  pivot_longer(cols = starts_with("cor_"), names_to = "Health_Param", values_to = "Correlation") %>%
+  mutate(Health_Param = gsub("cor_", "", Health_Param))
+
+# 5. Criar matriz
+cor_matrix_diet <- cor_long_diet %>%
+  pivot_wider(names_from = Health_Param, values_from = Correlation) %>%
+  column_to_rownames("Feature.ID") %>%
+  as.matrix()
+
+# 6. Heatmap
+color_palette_diet <- colorRampPalette(c("blue", "white", "red"))(50)
+breaks <- seq(-0.5, 0.5, length.out = 51)
+
+p <- pheatmap(cor_matrix_diet, 
+              clustering_method = "ward.D2",
+              clustering_distance_rows = "euclidean",
+              clustering_distance_cols = "euclidean",
+              main = "Correlation Heatmap between ASVs and Diet",
+              color = color_palette, 
+              breaks = breaks,
+              border_color = NA)
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_ASVvsDiet.png", p,  width = 24, height = 16, dpi = 300)
+
+library(dplyr)
+library(tidyr)
+
+# Função para calcular correlação e p-valor
+calc_cor_p <- function(x, y) {
+  valid <- complete.cases(x, y)
+  if (sum(valid) > 2) {
+    res <- suppressWarnings(cor.test(x[valid], y[valid]))
+    return(c(correlation = as.numeric(res$estimate), p_value = res$p.value))
+  } else {
+    return(c(correlation = NA_real_, p_value = NA_real_))
+  }
+}
+
+
+# Lista de variáveis de dieta
+diet_vars <- c("carboidrato_total_g", "proteina_g", "lipidios_g", "fibra_alimentar_g",
+               "colesterol_mg", "acidos_graxos_saturados_g", "acidos_graxos_monoinsaturados_g",
+               "acidos_graxos_poliinsaturados_g", "acidos_graxos_trans_g",
+               "calcio_mg", "ferro_mg", "sodio_mg", "magnesio_mg", "fosforo_mg",
+               "potassio_mg", "manganes_mg", "zinco_mg", "cobre_mg", "selenio_mcg",
+               "vitamina_A_RAE_mcg", "vitamina_D_mcg", "vitamina_E_mg", "tiamina_mg",
+               "riboflavina_mg", "niacina_mg", "vitamina_B6_mg", "vitamina_B12_mcg",
+               "vitamina_C_mg", "equivalente_de_folato_mcg", "sal_de_adicao_g",
+               "acucar_de_adicao_g", "BHEI_R_Score_Total")
+
+# Criar uma lista vazia para guardar os resultados
+cor_list_diet <- list()
+
+# Loop pelas variáveis de dieta
+for (var in diet_vars) {
+  
+  temp <- diet_ASVs %>%
+    group_by(Feature.ID) %>%
+    summarise(
+      correlation = calc_cor_p(NormAbundance, .data[[var]])["correlation"],
+      p_value = calc_cor_p(NormAbundance, .data[[var]])["p_value"]
+    ) %>%
+    ungroup() %>%
+    mutate(variable = var) %>%
+    mutate(
+      correlation = as.numeric(correlation),
+      p_value = as.numeric(p_value)
+    )
+  
+  # Armazenar na lista
+  cor_list_diet[[var]] <- temp
+}
+
+
+# Unir todos os resultados
+cor_diet <- bind_rows(cor_list_diet)
+
+# Ajustar p-valor com FDR
+cor_diet <- cor_diet %>%
+  group_by(variable) %>%
+  mutate(p_adj = p.adjust(p_value, method = "fdr")) %>%
+  ungroup()
+
+# Marcar significância
+cor_diet <- cor_diet %>%
+  mutate(star = case_when(
+    p_adj < 0.001 ~ "***",
+    p_adj < 0.01 ~ "**",
+    p_adj < 0.05 ~ "*",
+    TRUE ~ ""
+  ))
+
+# Visualizar resultados formatados
+head(cor_diet)
+
+
+cor_signif_diet <- cor_diet %>%
+  filter(p_adj < 0.05)
+
+cor_diet %>%
+  filter(p_adj < 0.05) %>%
+  arrange(desc(abs(correlation)))
+
+
+
+
+
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(tibble)
+
+
+
+# 1. Selecionar apenas ASVs com pelo menos uma correlação significativa (FDR < 0.05)
+asvs_signif_diet <- cor_diet %>%
+  filter(p_adj < 0.05) %>%
+  pull(Feature.ID) %>%
+  unique()
+
+# 2. Criar matriz de correlação apenas com ASVs significativas
+cor_matrix_diet <- cor_diet %>%
+  filter(Feature.ID %in% asvs_signif_diet) %>%
+  select(Feature.ID, variable, correlation) %>%
+  pivot_wider(names_from = variable, values_from = correlation) %>%
+  column_to_rownames("Feature.ID") %>%
+  as.matrix()
+
+# Criar dicionário de tradução
+col_translation <- c(
+  "carboidrato_total_g" = "Carbohydrate", "proteina_g" = "Protein",
+  "lipidios_g" = " Total_Fat", "fibra_alimentar_g" = "Fiber",
+  "colesterol_mg" = "Cholesterol", "acidos_graxos_saturados_g" = "Saturated_Fat",
+  "acidos_graxos_monoinsaturados_g" = "Monounsaturated_Fat", "acidos_graxos_poliinsaturados_g" = "Polyunsaturated _Fat",
+  "acidos_graxos_trans_g" = "Trans_Fat", "calcio_mg" = "Calcium",
+  "ferro_mg" = "Iron", "sodio_mg" = "Sodium", "magnesio_mg" = "Magnesium",
+  "fosforo_mg" = "Phosphorus", "potassio_mg" = "Potassium", "manganes_mg" = "Manganese",
+  "zinco_mg" = "Zinc", "cobre_mg" = "Copper", "selenio_mcg" = "Selenium",
+  "vitamina_A_RAE_mcg" = "VitA", "vitamina_D_mcg" = "VitD", "vitamina_E_mg" = "VitE",
+  "tiamina_mg" = "Thiamine", "riboflavina_mg" = "Riboflavin", "niacina_mg" = "Niacin",
+  "vitamina_B6_mg" = "VitB6", "vitamina_B12_mcg" = "VitB12", "vitamina_C_mg" = "VitC",
+  "equivalente_de_folato_mcg" = "Folate", "sal_de_adicao_g" = "Added.Salt",
+  "acucar_de_adicao_g" = "Added.Sugar", "BHEI_R_Score_Total" = "BHEI_R"
+)
+
+# Aplicar ao cor_matrix
+colnames(cor_matrix_diet) <- col_translation[colnames(cor_matrix_diet)]
+
+
+# 3. Criar matriz de asteriscos para significância (p_adj)
+star_matrix_diet <- cor_diet %>%
+  filter(Feature.ID %in% asvs_signif_diet) %>%
+  select(Feature.ID, variable, star) %>%
+  pivot_wider(names_from = variable, values_from = star) %>%
+  column_to_rownames("Feature.ID") %>%
+  as.matrix()
+
+# 4. Paleta de cores e quebras
+color_palette_diet <- colorRampPalette(c("blue", "white", "red"))(100)
+breaks <- seq(-0.5, 0.5, length.out = 101)
+
+
+
+# 2. Gerar o gráfico
+d <- pheatmap(cor_matrix_diet, 
+         clustering_method = "ward.D2",
+         clustering_distance_rows = "euclidean",
+         clustering_distance_cols = "euclidean",
+         main = "Correlation Heatmap between ASVs and Diet",
+         color = color_palette, 
+         breaks = breaks,
+         border_color = NA)
+
+
+
+
+# Filtrar apenas ASVs com significância
+asvs_signif_diet_df <- cor_diet %>%
+  filter(p_adj < 0.05) %>%
+  distinct(Feature.ID)
+
+# Juntar com a tabela de taxonomia
+asvs_tax_signif_diet <- asvs_signif_diet_df %>%
+  left_join(taxonomy, by = "Feature.ID")
+
+# Visualizar
+head(asvs_tax_signif_diet)
+
+library(tidyr)
+
+asvs_tax_signif_diet <- asvs_tax_signif_diet %>%
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", remove = FALSE, extra = "drop") %>%
+  mutate(across(Domain:Species, ~ gsub("^[a-z]__*", "", .)))  # Remove prefixos tipo "g__"
+
+# Garantir que os Feature.IDs do heatmap estão no objeto com taxonomia
+tax_annot_diet <- taxonomy %>%
+  filter(Feature.ID %in% rownames(cor_matrix_diet)) %>%
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", extra = "drop", remove = FALSE) %>%
+  mutate(across(Domain:Species, ~ gsub("^[a-z]__*", "", .))) %>%
+  select(Feature.ID, Phylum, Family, Genus)  # escolha os níveis que quer mostrar
+
+# Criar data frame com os Feature.IDs como rownames
+annotation_row_diet <- tax_annot_diet %>%
+  column_to_rownames("Feature.ID")  # Importante: rownames devem ser iguais ao cor_matrix
+
+library(grid)
+
+# 1. Abrir dispositivo gráfico
+png("C://polia/OneDriUsersve/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_TaxonsvsDiet.png", width = 2400, height = 1600, res = 300)
+
+
+# Gerar o pheatmap
+d2 <-pheatmap(cor_matrix_diet,
+              display_numbers = star_matrix,
+              number_color = "white",
+              clustering_method = "ward.D2",
+              clustering_distance_rows = "euclidean",
+              clustering_distance_cols = "euclidean",
+              color = color_palette,
+              breaks = breaks,
+              main = "Taxons  vs diet Markers (n = 105) \n(FDR < 0.05)",
+              fontsize = 20,
+              fontsize_row = 10,
+              fontsize_col = 20,
+              fontsize_number = 28,
+              border_color = NA,
+              annotation_row = annotation_row)
+
+
+# 3. Fechar o dispositivo gráfico
+dev.off()
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_Significant_correlation_TaxonvsDiet.png", d2,  width = 35, height = 20, dpi = 300)
+
+
+##### Corrigindo
+
+# Preparar nomes taxonômicos amigáveis para as ASVs
+taxonomy_named <- taxonomy %>%
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", extra = "drop") %>%
+  mutate(across(Domain:Species, ~ gsub("^[a-z]__*", "", .))) %>%
+  mutate(Taxon_Label = paste(Phylum, Family, Genus, sep = " | ")) %>%
+  select(Feature.ID, Taxon_Label)
+
+# Preparar dados com nome taxonômico
+cor_all_diet_named <- cor_diet %>%
+  left_join(taxonomy_named, by = "Feature.ID") %>%
+  filter(!is.na(Taxon_Label))
+
+# Selecionar ASVs significativas
+taxa_signif_diet <- cor_all_diet_named %>%
+  filter(p_adj < 0.05) %>%
+  pull(Taxon_Label) %>%
+  unique()
+
+# Matriz de correlação
+cor_matrix_diet <- cor_all_diet_named %>%
+  filter(Taxon_Label %in% taxa_signif_diet) %>%
+  select(Taxon_Label, variable, correlation) %>%
+  pivot_wider(names_from = variable, values_from = correlation, values_fn = mean) %>%
+  column_to_rownames("Taxon_Label") %>%
+  as.matrix()
+
+
+# Matriz de asteriscos
+star_matrix_diet <- cor_all_diet_named %>%
+  filter(Taxon_Label %in% taxa_signif_diet) %>%
+  select(Taxon_Label, variable, star) %>%
+  pivot_wider(names_from = variable, values_from = star, values_fn = ~ first(na.omit(.))) %>%
+  column_to_rownames("Taxon_Label") %>%
+  as.matrix()
+
+# 1. Abrir dispositivo gráfico com o caminho corrigido
+png("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_TaxonsvsDiet.png", 
+    width = 2400, height = 1600, res = 300)
+
+# 2. Gerar o heatmap
+pheatmap(cor_matrix_diet,
+         display_numbers = star_matrix_diet,
+         clustering_method = "ward.D2",
+         clustering_distance_rows = "euclidean",
+         clustering_distance_cols = "euclidean",
+         color = colorRampPalette(c("blue", "white", "red"))(100),
+         breaks = seq(-0.5, 0.5, length.out = 101),
+         main = "Taxons vs Diet (n = 105) \n(FDR < 0.05)",
+         fontsize_row = 5,
+         fontsize_col = 7,
+         fontsize_number = 8,
+         border_color = NA)
+
+# 3. Fechar o dispositivo gráfico
+dev.off()
+
+
+# Substituir IDs por taxonomia
+cor_all_diet_named <- cor_all_diet %>%
+  left_join(taxonomy_named, by = "Feature.ID") %>%
+  filter(!is.na(Taxon_Label))
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/heatmap_Significant_correlation_TaxonvsDiet.png", d2,  width = 35, height = 20, dpi = 300)
+
+#============================================#
+#           Core Microbiota
+#============================================#
+
+```{r}
+#Encontrar quais ASVs (linhas da matriz) estão presentes em pelo menos X% das amostras de um determinado grupo — esse conjunto é chamado de "core microbiota" para aquele grupo.
+# Função para calcular core microbiota por grupo
+
+get_core_microbiota <- function(SV_matrix, group_vector, group_name, threshold = 0.5) {
+  
+  #threshold de 0.5 = 50% das amostras
+  
+  # Subset da matriz de ASVs por grupo
+  group_samples <- colnames(SV_matrix)[group_vector == group_name]
+  SV_group <- SV_matrix[, group_samples]
+  
+  # Calcular a presença relativa (em % das amostras)
+  presença <- rowSums(SV_group > 0) / length(group_samples)
+  
+  # Selecionar ASVs com presença acima do limiar
+  core_asvs <- presença[presença >= threshold]
+  
+  return(core_asvs)
+}
+
+```
+
+```{r}
+# Vetor do grupo
+grupo_vai <- metadados_filtrado$VAI_group
+
+
+
+
+```
+
+
+```{r}
+# 1. Pegar os IDs em comum entre metadados e matriz
+ids_comuns <- intersect(colnames(SVs_filtrado), metadados_filtrado$Sample.id)
+
+# 2. Filtrar e reordenar ambos para alinhar
+SVs_filtrado <- SVs_filtrado[, ids_comuns]
+metadados_filtrado <- metadados_filtrado[match(ids_comuns, metadados_filtrado$Sample.id), ]
+
+# 3. Confirmar se as posições batem
+stopifnot(all(colnames(SVs_filtrado) == metadados_filtrado$Sample.id))
+
+# 4. Extrair os grupos
+grupo_vai <- metadados_filtrado$VAI_group
+
+# 5. Rodar core microbiota
+core_low  <- get_core_microbiota(SVs_filtrado, grupo_vai, group_name = "Low", threshold = 0.5)
+core_high <- get_core_microbiota(SVs_filtrado, grupo_vai, group_name = "High", threshold = 0.5)
+
+```
+
+```{r}
+# Garantir que os IDs de SVs estejam nas linhas
+SVs_t <- as.data.frame(t(SVs_filtrado))
+
+# Adicionar coluna com IDs
+SVs_t$Sample.id <- rownames(SVs_t)
+
+# Juntar com metadados
+SVs_meta <- merge(SVs_t, metadados.saude.alpha[, c("Sample.id", "VAI_group", "TyG_group")], by = "Sample.id")
+
+# Remover NAs
+SVs_meta <- SVs_meta %>% filter(!is.na(VAI_group) & !is.na(TyG_group))
+
+```
+
+
+```{r}
+# Separar grupos
+SVs_vai <- SVs_meta[, -1]  # Remove Sample.id
+grupo_vai <- SVs_meta$VAI_group
+
+# Teste de Mann-Whitney para cada ASV
+pvals_vai <- apply(SVs_vai[, -c(ncol(SVs_vai)-1, ncol(SVs_vai))], 2, function(x) {
+  wilcox.test(x ~ grupo_vai)$p.value
+})
+
+# Calcular log2FC
+log2FC_vai <- apply(SVs_vai[, -c(ncol(SVs_vai)-1, ncol(SVs_vai))], 2, function(x) {
+  log2(mean(x[grupo_vai == "High"] + 1) / mean(x[grupo_vai == "Low"] + 1))
+})
+
+# Criar dataframe de resultados
+df_vai <- data.frame(ASV = names(pvals_vai),
+                     pvalue = pvals_vai,
+                     log2FC = log2FC_vai,
+                     FDR = p.adjust(pvals_vai, method = "fdr"))
+
+```
+
+```{r}
+
+library(dplyr)
+
+
+library(ggplot2)
+
+df_vai$significant <- ifelse(df_vai$FDR < 0.05 & abs(df_vai$log2FC) > 1, "Yes", "No")
+
+df_vai_filtrado <- df_vai %>%
+  filter(!is.na(log2FC), !is.na(FDR), is.finite(log2FC), is.finite(FDR))
+
+# Agora, plote o gráfico
+ggplot(df_vai_filtrado, aes(x = log2FC, y = -log10(FDR), color = significant)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  scale_color_manual(values = c("gray", "red")) +
+  labs(title = "Volcano Plot - VAI (ASVs)", x = "log2 Fold Change", y = "-log10(FDR)") +
+  theme_minimal()
+
+
+
+
+```
+
+```{r}
+# Marcar como significativo com base no p-valor cru
+df_vai$pval_signif <- ifelse(!is.na(df_vai$pvalue) & df_vai$pvalue < 0.05 & abs(df_vai$log2FC) > 1, "Yes", "No")
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(df_vai, aes(x = log2FC, y = -log10(pvalue), color = pval_signif)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  scale_color_manual(values = c("No" = "gray", "Yes" = "red")) +
+  labs(
+    title = "Volcano Plot - VAI (ASVs) usando p-valor",
+    x = "log2 Fold Change",
+    y = "-log10(p-value)"
+  ) +
+  theme_minimal()
+
+#Esse volcano plot com p-valor cru mostra que algumas ASVs estão significativamente diferentes entre os grupos de VAI, com base nos critérios:
+
+# p-valor < 0.05
+
+# |log2FC| > 1 (ou seja, pelo menos 2x de diferença na média da abundância relativa entre os grupos)
+
+# Essas ASVs estão destacadas em vermelho no gráfico.
+
+```
+
+```{r}
+asvs_signif_vai <- df_vai %>%
+  filter(pvalue < 0.05, abs(log2FC) > 1) %>%
+  arrange(pvalue)
+
+# Visualizar
+View(asvs_signif_vai)
+
+```
+
+```{r}
+# Supondo que o objeto com a taxonomia se chame 'taxonomy'
+asvs_signif_vai_tax <- left_join(asvs_signif_vai, taxonomy, by = c("ASV" = "Feature.ID"))
+
+```
+
+```{r}
+library(ggrepel)
+
+# Filtrar significativas com p < 0.05 e |log2FC| > 1
+df_vai_tax <- df_vai %>%
+  filter(pvalue < 0.05, abs(log2FC) > 1) %>%
+  left_join(taxonomy, by = c("ASV" = "Feature.ID")) %>%
+  mutate(label = stringr::str_extract(Taxon, "g__[^;]*"))  # extrai o gênero
+
+# Volcano plot com rótulos
+ggplot(df_vai, aes(x = log2FC, y = -log10(pvalue))) +
+  geom_point(aes(color = pval_signif)) +
+  geom_text_repel(data = df_vai_tax, aes(label = label), size = 3, max.overlaps = 10) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  scale_color_manual(values = c("gray", "red")) +
+  labs(title = "Volcano Plot - VAI (ASVs) with Taxonomy",
+       x = "log2 Fold Change", y = "-log10(p-valor)") +
+  theme_minimal()
+
+```
+
+```{r}
+
+
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(stringr)
+
+# 1. Identificar ASVs significativas no volcano
+asvs_signif <- df_vai %>%
+  filter(pvalue < 0.05, abs(log2FC) > 1) %>%
+  pull(ASV)
+
+# 2. Calcular abundância relativa por amostra
+SVs_rel <- sweep(SVs_filtrado, 2, colSums(SVs_filtrado), FUN = "/")
+
+# 3. Transpor e adicionar Sample.id
+SVs_long <- as.data.frame(t(SVs_rel))
+SVs_long$Sample.id <- rownames(SVs_long)
+
+# 4. Unir com metadados (grupo VAI)
+dados_plot <- SVs_long %>%
+  left_join(metadados.saude.alpha[, c("Sample.id", "VAI_group")], by = "Sample.id") %>%
+  filter(!is.na(VAI_group))
+
+# 5. Pivotar para formato longo
+dados_long <- dados_plot %>%
+  tidyr::pivot_longer(-c(Sample.id, VAI_group), names_to = "ASV", values_to = "Abundancia")
+
+# 6. Filtrar apenas as ASVs significativas
+dados_signif <- dados_long %>% filter(ASV %in% asvs_signif)
+
+# 7. Juntar com a taxonomia e extrair o gênero
+dados_signif <- dados_signif %>%
+  left_join(taxonomy[, c("Feature.ID", "Taxon")], by = c("ASV" = "Feature.ID")) %>%
+  mutate(Genus = str_extract(Taxon, "g__[^;]+"),
+         Genus = gsub("g__", "", Genus),
+         Genus = ifelse(Genus == "" | is.na(Genus), "Unclassified", Genus))
+
+# 8. Agregar por gênero
+dados_genus <- dados_signif %>%
+  group_by(Sample.id, VAI_group, Genus) %>%
+  summarise(Abundancia = sum(Abundancia), .groups = "drop")
+
+# 9. Gerar boxplot apenas com gêneros das ASVs significantes
+ggplot(dados_genus, aes(x = VAI_group, y = Abundancia, fill = VAI_group)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.4) +
+  facet_wrap(~ Genus, scales = "free_y") +
+  stat_compare_means(method = "wilcox.test", label = "p.signif", size = 4) +
+  labs(title = "Relative Abundance of Significant Genera (Volcano) by Visceral Adiposity Index (VAI) Group",
+       y = "Relative Abundance", x = "VAI group") +
+  scale_fill_manual(values = c("Low" = "#F9A03F", "High" = "#59C3C3")) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        strip.text = element_text(size = 10),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+
+# Se você ainda não tiver, agrupe os dados por Genus e VAI_group
+dados_agrupados <- dados_genus %>%
+  group_by(Genus, VAI_group) %>%
+  summarise(Abundancia_media = mean(Abundancia, na.rm = TRUE)) %>%
+  ungroup()
+
+# Ordena os gêneros por abundância média no grupo Low
+generos_ordenados <- dados_agrupados %>%
+  filter(VAI_group == "Low") %>%
+  arrange(desc(Abundancia_media)) %>%
+  pull(Genus)
+
+# Converte Genus em fator com a ordem desejada
+dados_agrupados$Genus <- factor(dados_agrupados$Genus, levels = generos_ordenados)
+
+# Gráfico
+ggplot(dados_agrupados, aes(x = Genus, y = Abundancia_media, fill = VAI_group)) +
+  geom_col(position = "dodge") + 
+  labs(title = "Relative Abundance of Significant Genera by Visceral Adiposity Index (VAI) Group",
+       x = NULL, y = "Abundância Relativa", fill = "Grupo VAI") +
+  scale_fill_manual(values = c("Low" = "#fdbf11", "High" = "#e66101")) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(forcats)
+
+# Garante que Feature.ID está como coluna
+df_vai <- df_vai %>%
+  tibble::rownames_to_column("Feature.ID")
+
+
+# 1. Selecionar ASVs significativas pelo p-valor
+asvs_significativas <- df_vai %>%
+  filter(pval_signif == "Yes") %>%
+  pull(Feature.ID)
+
+# 2. Filtrar matriz com ASVs significantes
+SVs_sig <- SVs_filtrado[asvs_significativas, ]
+
+# 3. Calcular abundância relativa por amostra
+SVs_rel <- sweep(SVs_sig, 2, colSums(SVs_sig), FUN = "/") %>% as.data.frame()
+
+# 4. Reorganizar para formato longo
+SVs_long <- SVs_rel %>%
+  tibble::rownames_to_column("Feature.ID") %>%
+  pivot_longer(-Feature.ID, names_to = "Sample.id", values_to = "Abundancia")
+
+# 5. Adicionar taxonomia e grupo VAI
+SVs_long <- SVs_long %>%
+  left_join(taxonomy, by = "Feature.ID") %>%
+  left_join(metadados.saude.alpha[, c("Sample.id", "VAI_group")], by = "Sample.id") %>%
+  mutate(Genus = stringr::str_extract(Taxon, "g__[^;]*")) %>%
+  mutate(Genus = gsub("g__", "", Genus))
+
+# 6. Calcular média por grupo
+abund_por_grupo <- SVs_long %>%
+  group_by(Genus, VAI_group) %>%
+  summarise(Abundancia_Relativa = mean(Abundancia, na.rm = TRUE), .groups = "drop") %>%
+  filter(!is.na(Genus))
+
+# 7. Gráfico
+ggplot(abund_por_grupo, aes(x = fct_reorder(Genus, -Abundancia_Relativa), 
+                            y = Abundancia_Relativa, fill = VAI_group)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Relative Abundance of Significant Genera by Visceral Adiposity Index (VAI) Group",
+       x = "Genus", y = "Relative Abundance") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#F9A03F", "#D9503F"), name = "Grupo VAI") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+```
+#===========================================#
+TyG
+#==========================================#
+
+```{r}
+# Carregar pacotes necessários
+library(tidyverse)
+library(ggplot2)
+library(FSA)
+library(dplyr)
+
+# 1. Filtrar apenas as amostras com TyG_group definido
+dados_tyg <- metadados.saude.alpha %>% 
+  filter(!is.na(TyG_group))
+
+# 2. Descobrir quais IDs estão duplicados
+duplicados <- dados_tyg$Sample.id[duplicated(dados_tyg$Sample.id)]
+print(unique(duplicados))
+# [1] "S40061.F00" "S40141.F00"
+
+# Visualizar as duplicatas para inspecionar (opcional)
+dados_tyg %>%
+  filter(Sample.id %in% c("S40061.F00", "S40141.F00")) %>%
+  arrange(Sample.id)
+
+# Remover duplicatas mantendo a primeira ocorrência
+dados_tyg <- dados_tyg %>% distinct(Sample.id, .keep_all = TRUE)
+
+# 3. Alinhar os metadados com as colunas da matriz de SVs
+# Filtrar para manter só amostras presentes na matriz
+dados_tyg <- dados_tyg %>% 
+  filter(Sample.id %in% colnames(SVs_filtrado)) %>%
+  arrange(match(Sample.id, colnames(SVs_filtrado)))
+
+# Reordenar a matriz SVs de acordo com os metadados
+SVs_tyg <- SVs_filtrado[, dados_tyg$Sample.id]
+
+# 4. Calcular abundância relativa (se ainda não estiver feita)
+SVs_tyg_rel_filtrado <- sweep(SVs_tyg, 2, colSums(SVs_tyg), FUN = "/")
+
+# Criar vetor de grupos na ordem correta
+grupo_tyg <- dados_tyg$TyG_group
+
+# Verificar se o tamanho bate: deve ser 57 (mesmo número de colunas)
+if(length(grupo_tyg) != ncol(SVs_tyg_rel_filtrado)) {
+  stop("O comprimento de grupo_tyg não bate com o número de amostras na matriz SVs_tyg_rel_filtrado")
+}
+
+# 5. Separar as amostras dos grupos "Low" e "High"
+SVs_tyg_grupo_low <- SVs_tyg_rel_filtrado[, grupo_tyg == "Low"]
+SVs_tyg_grupo_high <- SVs_tyg_rel_filtrado[, grupo_tyg == "High"]
+
+# 6. Calcular médias para cada ASV e log2 Fold Change
+media_low <- rowMeans(SVs_tyg_grupo_low)
+media_high <- rowMeans(SVs_tyg_grupo_high)
+
+# Adiciona um pseudocount para evitar divisão por zero e log de zero
+log2fc <- log2((media_high + 1e-6) / (media_low + 1e-6))
+
+# Calcular p-values para cada ASV com o teste de Wilcoxon
+pvalues <- apply(SVs_tyg_rel_filtrado, 1, function(x) {
+  grupo1 <- x[grupo_tyg == "Low"]
+  grupo2 <- x[grupo_tyg == "High"]
+  # Realiza o teste somente se houver variação em ambos os grupos
+  if (length(unique(grupo1)) > 1 && length(unique(grupo2)) > 1) {
+    wilcox.test(grupo1, grupo2)$p.value
+  } else {
+    NA  # Caso não haja variação, retorna NA
+  }
+})
+
+# Criar o dataframe com os resultados
+resultado_volcano_tyg <- data.frame(
+  ASV = rownames(SVs_tyg_rel_filtrado),
+  mean_low = media_low,
+  mean_high = media_high,
+  log2FoldChange = log2fc,
+  pvalue = pvalues
+)
+
+# Classificar a significância com base em pvalue bruto
+resultado_volcano_tyg <- resultado_volcano_tyg %>%
+  mutate(Significativo = ifelse(!is.na(pvalue) & pvalue < 0.05 & abs(log2FoldChange) > 1, "Sim", "Não"))
+
+# Remover linhas com NA em pvalue ou log2FoldChange para plotar
+resultado_volcano_tyg_filtrado <- resultado_volcano_tyg %>%
+  filter(!is.na(pvalue), !is.na(log2FoldChange))
+
+# 7. Gerar o Volcano Plot sem correção FDR
+ggplot(resultado_volcano_tyg_filtrado, aes(x = log2FoldChange, y = -log10(pvalue), color = Significativo)) +
+  geom_point(alpha = 0.8, size = 2) +
+  scale_color_manual(values = c("Sim" = "red", "Não" = "gray")) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
+  labs(
+    title = "Volcano Plot - Triglyceride-Glucose (TyG) Index Group (pvalue)",
+    x = "log2(Fold Change) (High vs Low)",
+    y = "-log10(p-valor)",
+    color = "Significativo"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+```{r}
+# Supondo que sua tabela de taxonomia se chame 'taxonomy' com coluna 'Feature.ID' e 'Taxon'
+resultado_volcano_tyg_tax <- resultado_volcano_tyg %>%
+  left_join(taxonomy, by = c("ASV" = "Feature.ID"))
+
+library(tidyr)
+
+resultado_volcano_tyg_tax_sep <- resultado_volcano_tyg_tax %>%
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", remove = FALSE)
+
+
+```
+
+```{r}
+resultado_volcano_tyg_tax_sep <- resultado_volcano_tyg_tax_sep %>%
+  mutate(Significativo_pval = ifelse(!is.na(pvalue) & pvalue < 0.05 & abs(log2FoldChange) > 1, "Sim", "Não"))
+
+
+```
+```{r}
+resultado_volcano_tyg_tax_sep %>%
+  filter(Significativo_pval == "Sim") %>%
+  select(ASV, log2FoldChange, pvalue, Phylum, Family, Genus) %>%
+  arrange(pvalue)
+
+```
+
+```{r}
+
+library(ggplot2)
+library(ggrepel)  # para rótulos que não se sobrepõem
+
+ggplot(resultado_volcano_tyg_tax_sep, aes(x = log2FoldChange, y = -log10(pvalue), color = Significativo_pval)) +
+  geom_point(alpha = 0.7, size = 2) +
+  scale_color_manual(values = c("Sim" = "red", "Não" = "gray")) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
+  geom_text_repel(
+    data = subset(resultado_volcano_tyg_tax_sep, Significativo_pval == "Sim"),
+    aes(label = Genus),
+    size = 3,
+    max.overlaps = 30
+  ) +
+  labs(
+    title = "Volcano Plot - Triglyceride-Glucose (TyG) Index Group",
+    x = "log2(Fold Change) (High vs Low)",
+    y = "-log10(p-valor)",
+    color = "Significativo"
+  ) +
+  theme_minimal(base_size = 14)
+
+
+```
+```{r}
+# Pegar ASVs significativas
+asvs_significativas <- resultado_volcano_tyg_tax_sep %>%
+  filter(Significativo_pval == "Sim") %>%
+  pull(ASV)
+
+# Filtrar matriz relativa para essas ASVs
+SVs_signif <- SVs_tyg_rel_filtrado[asvs_significativas, ]
+
+# Pegar os gêneros correspondentes
+generos_signif <- resultado_volcano_tyg_tax_sep %>%
+  filter(ASV %in% asvs_significativas) %>%
+  select(ASV, Genus) %>%
+  mutate(Genus = ifelse(is.na(Genus) | Genus == "", ASV, Genus))  # fallback
+
+# Substituir nomes das linhas por gêneros
+rownames(SVs_signif) <- generos_signif$Genus
+
+# Transpor e preparar em formato longo
+# 1. Transpor e transformar em data frame
+SVs_long <- as.data.frame(t(SVs_signif))
+
+# 2. Adicionar coluna com IDs das amostras
+SVs_long$Sample.id <- rownames(SVs_long)
+
+# 3. Passar para formato longo com pivot_longer()
+SVs_long <- SVs_long %>%
+  pivot_longer(-Sample.id, names_to = "Genus", values_to = "Abundancia")
+
+
+# Adicionar grupo TyG
+SVs_long$TyG_group <- rep(grupo_tyg, each = length(asvs_significativas))
+
+
+
+
+```
+
+```{r}
+library(dplyr)
+
+# Média por gênero e grupo
+medias <- SVs_long %>%
+  group_by(Genus, TyG_group) %>%
+  summarise(Abundancia_media = mean(Abundancia), .groups = "drop")
+
+# Gráfico
+ggplot(medias, aes(x = reorder(Genus, -Abundancia_media), y = Abundancia_media, fill = TyG_group)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Relative Abundance of Significant Genera by Triglyceride-Glucose (TyG) Index Group",
+       x = "Genus", y = "Mean Relative Abundance") +
+  scale_fill_manual(values = c("Low" = "#1f77b4", "High" = "#ff7f0e")) +
+  theme_minimal(base_size = 14)
+
+```
+```{r}
+library(tidyverse)
+library(forcats)
+
+# 1. Garante que Feature.ID está como coluna
+df_tyg <- resultado_volcano_tyg_tax_sep %>%
+  tibble::as_tibble() %>%
+  rename(Feature.ID = ASV)
+
+# 2. Seleciona ASVs significativas pelo p-valor
+asvs_significativas <- df_tyg %>%
+  filter(Significativo_pval == "Sim") %>%
+  pull(Feature.ID)
+
+# 3. Filtrar matriz com ASVs significantes
+SVs_sig <- SVs_filtrado[asvs_significativas, ]
+
+# 4. Calcular abundância relativa por amostra
+SVs_rel <- sweep(SVs_sig, 2, colSums(SVs_sig), FUN = "/") %>% as.data.frame()
+
+# 5. Reorganizar para formato longo
+SVs_long <- SVs_rel %>%
+  tibble::rownames_to_column("Feature.ID") %>%
+  pivot_longer(-Feature.ID, names_to = "Sample.id", values_to = "Abundancia")
+
+# 6. Adicionar taxonomia e grupo TyG
+SVs_long <- SVs_long %>%
+  left_join(taxonomy, by = "Feature.ID") %>%
+  left_join(metadados.saude.alpha[, c("Sample.id", "TyG_group")], by = "Sample.id") %>%
+  mutate(Genus = stringr::str_extract(Taxon, "g__[^;]*")) %>%
+  mutate(Genus = gsub("g__", "", Genus)) %>%
+  filter(!is.na(TyG_group), !is.na(Genus))
+
+# 7. Calcular média por grupo
+abund_por_grupo_tyg <- SVs_long %>%
+  group_by(Genus, TyG_group) %>%
+  summarise(Abundancia_Relativa = mean(Abundancia, na.rm = TRUE), .groups = "drop")
+
+# 8. Gráfico
+ggplot(abund_por_grupo_tyg, aes(x = fct_reorder(Genus, -Abundancia_Relativa), 
+                                y = Abundancia_Relativa, fill = TyG_group)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Relative Abundance of Significant Genera by Triglyceride-Glucose (TyG) Index Group",
+       x = "Genus", y = "Mean Relative Abundance") +
+  theme_minimal(base_size = 13) +
+  scale_fill_manual(values = c("Low" = "#D9503F", "High" = "#F9A03F"), name = "TyG Group") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+```{r}
+
+
+
+# 1. Seleciona as ASVs significativas do volcano
+asvs_signif <- resultado_volcano_tyg_tax_sep %>%
+  filter(Significativo == "Sim") %>%
+  pull(ASV)
+
+# 2. Filtra o dataframe longo contendo abundâncias por amostra
+SVs_box_significativo <- SVs_long %>%
+  filter(Feature.ID %in% asvs_signif)
+
+# 3. Cria o gráfico boxplot com facet_wrap por gênero
+ggplot(SVs_box_significativo, aes(x = TyG_group, y = Abundancia, fill = TyG_group)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+  geom_jitter(width = 0.2, size = 1) +
+  facet_wrap(~ Genus, scales = "free_y", ncol = 5) +
+  stat_compare_means(method = "wilcox.test", label = "p.signif", size = 4) +
+  scale_fill_manual(values = c("Low" = "#F9A03F", "High" = "#59C3C3")) +
+  labs(
+    title = "Significant Genera by Triglyceride-Glucose (TyG) Index Group",
+    x = "TyG Group", y = "Mean Relative Abundance", fill = "TyG"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(size = 10),
+    axis.text.x = element_text(angle = 0),
+    plot.margin = margin(10, 20, 20, 10)
+  )
+
+
+
+```
+

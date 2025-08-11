@@ -1,0 +1,42 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIElEcyBkYXMgQVNWcyBuYSBPVFUgVGFibGVcbm90dV9pZHMgPC0gdGF4YV9uYW1lcyhwaHlzZXFfb2JqKVxuXG4jIElEcyBuYSB0YWJlbGEgZGUgdGF4b25vbWlhXG50YXhhX2lkcyA8LSB0YXhvbm9teSRGZWF0dXJlLklEXG5cbiMgSURzIGRhcyBhbW9zdHJhcyBuYSBPVFUgVGFibGUgZSBNZXRhZGF0YVxuc2FtcGxlX2lkc19vdHUgPC0gc2FtcGxlX25hbWVzKG90dV90YWJsZSlcbnNhbXBsZV9pZHNfbWV0YSA8LSByb3cubmFtZXMobWV0YWRhdGEpXG5cbiMgVmVyaWZpY2HDp8O1ZXNcbnN1bSh0YXhhX2lkcyAlaW4lIG90dV9pZHMpICAgICAgIyBEZXZlIHNlciBpZ3VhbCBhbyBuw7ptZXJvIGRlIGxpbmhhcyBkYSB0YXhvbm9taWFcbnN1bShzYW1wbGVfaWRzX21ldGEgJWluJSBzYW1wbGVfaWRzX290dSkgICMgRGV2ZSBzZXIgaWd1YWwgYW8gbsO6bWVybyBkZSBhbW9zdHJhc1xuXG5cbmBgYCJ9 -->
+
+```r
+
+# IDs das ASVs na OTU Table
+otu_ids <- taxa_names(physeq_obj)
+
+# IDs na tabela de taxonomia
+taxa_ids <- taxonomy$Feature.ID
+
+# IDs das amostras na OTU Table e Metadata
+sample_ids_otu <- sample_names(otu_table)
+sample_ids_meta <- row.names(metadata)
+
+# Verificações
+sum(taxa_ids %in% otu_ids)      # Deve ser igual ao número de linhas da taxonomia
+sum(sample_ids_meta %in% sample_ids_otu)  # Deve ser igual ao número de amostras
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+# IDs das ASVs na OTU Table
+otu_ids <- taxa_names(physeq_obj)
+
+# IDs na tabela de taxonomia
+taxa_ids <- taxonomy$Feature.ID
+
+# IDs das amostras na OTU Table e Metadata
+sample_ids_otu <- sample_names(otu_table)
+sample_ids_meta <- row.names(metadata)
+
+# Verificações
+sum(taxa_ids %in% otu_ids)      # Deve ser igual ao número de linhas da taxonomia
+sum(sample_ids_meta %in% sample_ids_otu)  # Deve ser igual ao número de amostras
+
+
+```"

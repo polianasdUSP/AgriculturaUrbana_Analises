@@ -1,0 +1,213 @@
+"0","library(microbiomeMarker)
+"
+"2","Registered S3 method overwritten by 'htmlwidgets':
+  method           from         
+  print.htmlwidget tools:rstudio
+"
+"2","Registered S3 method overwritten by 'gplots':
+  method         from     
+  reorder.factor DescTools
+"
+"2","
+Anexando pacote: ‘microbiomeMarker’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:microbiome’:
+
+    abundances, aggregate_taxa
+
+"
+"2","O seguinte objeto é mascarado por ‘package:phyloseq’:
+
+    plot_heatmap
+
+"
+"0","library(microbiomeMarker)"
+"0","library(ggplot2)"
+"0","library(dplyr)"
+"0","library(tidyverse)"
+"2","Aviso: pacote ‘readr’ foi compilado no R versão 4.4.3"
+"2","── [1mAttaching core tidyverse packages[22m ──────────────────────────────────────── tidyverse 2.0.0 ──
+[32m✔[39m [34mlubridate[39m 1.9.4     [32m✔[39m [34mreadr    [39m 2.1.5
+[32m✔[39m [34mpurrr    [39m 1.0.4     [32m✔[39m [34mtibble   [39m 3.2.1"
+"2","── [1mConflicts[22m ────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+[31m✖[39m [34mmicrobiome[39m::[32malpha()[39m masks [34mggplot2[39m::alpha()
+[31m✖[39m [34mggpp[39m::[32mannotate()[39m    masks [34mggplot2[39m::annotate()
+[31m✖[39m [34mnlme[39m::[32mcollapse()[39m    masks [34mdplyr[39m::collapse()
+[31m✖[39m [34mdplyr[39m::[32mfilter()[39m     masks [34mstats[39m::filter()
+[31m✖[39m [34mdplyr[39m::[32mlag()[39m        masks [34mstats[39m::lag()
+[31m✖[39m [34mape[39m::[32mwhere()[39m        masks [34mdplyr[39m::where()
+[36mℹ[39m Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors"
+"0","library(vegan)"
+"0","library(DESeq2)"
+"2","Carregando pacotes exigidos: S4Vectors
+"
+"2","Carregando pacotes exigidos: stats4
+"
+"2","Carregando pacotes exigidos: BiocGenerics
+"
+"2","
+Anexando pacote: ‘BiocGenerics’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind, colnames, dirname,
+    do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax, pmax.int,
+    pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, table,
+    tapply, union, unique, unsplit, which.max, which.min
+
+"
+"2","
+Anexando pacote: ‘S4Vectors’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:lubridate’:
+
+    second, second<-
+
+"
+"2","O seguinte objeto é mascarado por ‘package:tidyr’:
+
+    expand
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:dplyr’:
+
+    first, rename
+
+"
+"2","O seguinte objeto é mascarado por ‘package:utils’:
+
+    findMatches
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:base’:
+
+    expand.grid, I, unname
+
+"
+"2","Carregando pacotes exigidos: IRanges
+"
+"2","
+Anexando pacote: ‘IRanges’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:lubridate’:
+
+    %within%
+
+"
+"2","O seguinte objeto é mascarado por ‘package:purrr’:
+
+    reduce
+
+"
+"2","O seguinte objeto é mascarado por ‘package:nlme’:
+
+    collapse
+
+"
+"2","O seguinte objeto é mascarado por ‘package:microbiome’:
+
+    coverage
+
+"
+"2","O seguinte objeto é mascarado por ‘package:phyloseq’:
+
+    distance
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:dplyr’:
+
+    collapse, desc, slice
+
+"
+"2","O seguinte objeto é mascarado por ‘package:grDevices’:
+
+    windows
+
+"
+"2","Carregando pacotes exigidos: GenomicRanges
+"
+"2","Carregando pacotes exigidos: GenomeInfoDb
+"
+"2","Carregando pacotes exigidos: SummarizedExperiment
+"
+"2","Carregando pacotes exigidos: MatrixGenerics
+"
+"2","Carregando pacotes exigidos: matrixStats
+"
+"2","Aviso: pacote ‘matrixStats’ foi compilado no R versão 4.4.3"
+"2","
+Anexando pacote: ‘matrixStats’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:dplyr’:
+
+    count
+
+"
+"2","
+Anexando pacote: ‘MatrixGenerics’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse, colCounts,
+    colCummaxs, colCummins, colCumprods, colCumsums, colDiffs, colIQRDiffs, colIQRs,
+    colLogSumExps, colMadDiffs, colMads, colMaxs, colMeans2, colMedians, colMins,
+    colOrderStats, colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads, colWeightedMeans,
+    colWeightedMedians, colWeightedSds, colWeightedVars, rowAlls, rowAnyNAs, rowAnys,
+    rowAvgsPerColSet, rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps, rowMadDiffs, rowMads,
+    rowMaxs, rowMeans2, rowMedians, rowMins, rowOrderStats, rowProds, rowQuantiles,
+    rowRanges, rowRanks, rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs,
+    rowVars, rowWeightedMads, rowWeightedMeans, rowWeightedMedians, rowWeightedSds,
+    rowWeightedVars
+
+"
+"2","Carregando pacotes exigidos: Biobase
+"
+"2","Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with 'browseVignettes()'. To cite
+    Bioconductor, see 'citation(""Biobase"")', and for packages 'citation(""pkgname"")'.
+
+"
+"2","
+Anexando pacote: ‘Biobase’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:MatrixGenerics’:
+
+    rowMedians
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+"
+"2","O seguinte objeto é mascarado por ‘package:phyloseq’:
+
+    sampleNames
+
+"

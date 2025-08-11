@@ -1,0 +1,5 @@
+"0","# Calcular o IMC
+saude_dieta$IMC <- metadados_raw$Weight / (metadados_raw$Height ^ 2)
+"
+"2","Erro: objeto 'metadados_raw' não encontrado
+"

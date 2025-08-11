@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTdXBvbmRvIHF1ZSBvIG9iamV0byBjb20gYSB0YXhvbm9taWEgc2UgY2hhbWUgJ3RheG9ub215J1xuYXN2c19zaWduaWZfdmFpX3RheCA8LSBsZWZ0X2pvaW4oYXN2c19zaWduaWZfdmFpLCB0YXhvbm9teSwgYnkgPSBjKFwiQVNWXCIgPSBcIkZlYXR1cmUuSURcIikpXG5cbmBgYCJ9 -->
+
+```r
+# Supondo que o objeto com a taxonomia se chame 'taxonomy'
+asvs_signif_vai_tax <- left_join(asvs_signif_vai, taxonomy, by = c(\"ASV\" = \"Feature.ID\"))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Supondo que o objeto com a taxonomia se chame 'taxonomy'
+asvs_signif_vai_tax <- left_join(asvs_signif_vai, taxonomy, by = c(\"ASV\" = \"Feature.ID\"))
+
+```"

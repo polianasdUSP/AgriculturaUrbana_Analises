@@ -1,0 +1,266 @@
+---
+title: "LEfSe"
+output: html_notebook
+---
+
+
+```{r}
+install.packages(c("phyloseq", "ggplot2", "dplyr", "tidyverse"))
+BiocManager::install(c("microbiomeMarker", "DESeq2", "vegan"))
+
+install.packages("BiocManager")
+
+library(phyloseq)
+library(microbiomeMarker)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(vegan)
+library(DESeq2)
+
+
+```
+
+
+
+```{r}
+library(phyloseq)
+
+
+
+# Renomeando a matriz de contagem original para evitar conflito com a função
+otu_matrix <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/table_corrigida.qza")$data
+
+
+
+
+# Verifique se as ASVs estão nas linhas
+taxa_are_rows <- TRUE  # ajuste para FALSE se suas amostras estiverem nas linhas
+
+# Filtrando colunas indesejadas
+otu_matrix_filtrada <- otu_matrix[, !colnames(otu_matrix) %in% c(
+  # Amostras reais a excluir
+  "S10011.F01", "S10012.F01", "S10021.F01", "S10031.F01", "S10041.F01", "S10051.F01",
+  "S10052.F01", "S10061.F01", "S10062.F01", "S10091.F01", "S10092.F01", "S10111.F01",
+  "S10121.F01", "S10122.F01", "S10131.F01", "S10141.F01", "S10142.F01", "S10161.F01", "S10171.F01",
+  
+  # Controles negativos e positivos
+  "NEG_Run1_DNA_S5_L001", "NEG_Run2_DNA_S30_L001", "NEG_Run3_DNA_S54_L001",
+  "NEG_Run4_DNA_S75_L001", "Pooled-Extractioncontrol-NEG_S56_L001",
+  "Pooled-Extractioncontrol-POS-MOCK_S55_L001", "POSZymo_Run1_DNA_S6_L001"
+)]
+
+# Criando objeto phyloseq::otu_table a partir da matriz filtrada
+otu_tab <- otu_table(otu_matrix_filtrada, taxa_are_rows = taxa_are_rows)
+
+taxonomy <- taxonomy %>%
+  column_to_rownames("Feature.ID")  # se estiver como data.frame do tidyverse
+
+
+```
+
+```{r}
+library(tidyverse)
+
+#Carregar o pacote qiime2R (se ainda não tiver)
+
+if (!requireNamespace("qiime2R", quietly = TRUE)) {
+  devtools::install_github("jbisanz/qiime2R")
+}
+library(qiime2R)
+
+#Importar a taxonomia
+taxonomy_qza <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/taxonomy.qza")
+taxonomy <- taxonomy_qza$data
+
+#Corrigir a tabela para usar no phyloseq
+#O taxonomy.qza geralmente tem colunas: Feature.ID, Taxon, Confidence.
+
+#Se quiser separar os níveis taxonômicos (Reino, Filo, Classe, etc.), use:
+
+taxonomy_clean <- taxonomy %>%
+  separate(Taxon, into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right", extra = "drop") %>%
+  column_to_rownames("Feature.ID")
+
+#4. Converter para tax_table (phyloseq)
+tax_tab <- tax_table(as.matrix(taxonomy_clean))
+
+
+```
+
+
+```{r}
+library(phyloseq)
+library(qiime2R)
+
+# 1. OTU table já filtrada (usando o nome `otu_tab` criado anteriormente)
+# -> Se ainda não tiver feito, use o código anterior para gerar `otu_tab`
+
+# 2. Taxonomia
+tax_tab <- tax_table(as.matrix(taxonomy))
+
+# 3. Metadados
+sample_tab <- sample_data(metadados.all)
+sample_names(sample_tab) <- rownames(metadados.all)
+
+# 4. Árvore filogenética
+tree <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/unrooted-tree.qza")$data
+
+#2. Converta para objeto phy_tree() (caso ainda não tenha feito)
+tree_phyloseq <- phy_tree(tree)
+class(tree_phyloseq)
+
+#3. Aplique prune_taxa() corretamente
+tree_filtrado <- prune_taxa(taxa_comuns, tree_phyloseq)
+
+
+```
+
+```{r}
+# 1. Interseção das ASVs presentes em todos os objetos
+taxa_comuns <- Reduce(intersect, list(
+  taxa_names(otu_tab),
+  taxa_names(tax_tab),
+  taxa_names(tree_phyloseq)
+))
+
+# 2. Filtrar todos os objetos com os ASVs em comum
+otu_tab_filtrado  <- prune_taxa(taxa_comuns, otu_tab)
+tax_tab_filtrado  <- prune_taxa(taxa_comuns, tax_tab)
+tree_filtrado     <- prune_taxa(taxa_comuns, tree_phyloseq)
+
+# 3. (Se necessário) ajustar metadados
+sample_tab_filtrado <- sample_tab[colnames(otu_tab_filtrado), ]
+
+# 4. Criar o objeto phyloseq completo
+ps <- phyloseq(otu_tab_filtrado, tax_tab_filtrado, sample_tab_filtrado, tree_filtrado)
+
+# 5. Verificar
+ps
+
+```
+
+
+
+```{r}
+# Verificar os nomes de ASVs em cada objeto
+taxa_otu <- taxa_names(otu_tab)
+taxa_tax <- taxa_names(tax_tab)
+taxa_tree <- taxa_names(tree)
+
+# Verificar diferenças
+setdiff(taxa_otu, taxa_tax)  # Deve retornar character(0)
+setdiff(taxa_tax, taxa_otu)
+setdiff(taxa_otu, taxa_tree)
+
+# Interseção dos ASVs presentes em todos os objetos
+taxa_comuns <- Reduce(intersect, list(taxa_names(otu_tab), taxa_names(tax_tab), taxa_names(tree)))
+
+# Filtrar todos os objetos para manter só os ASVs em comum
+otu_tab <- prune_taxa(taxa_comuns, otu_tab)
+tax_tab <- prune_taxa(taxa_comuns, tax_tab)
+tree <- prune_taxa(taxa_comuns, phy_tree(tree))  # isso mantém a árvore coerente
+
+# Recriar o objeto phyloseq com tudo alinhado
+ps <- phyloseq(otu_tab, tax_tab, sample_tab, tree)
+
+
+```
+
+```{r}
+# 5. Criando o objeto phyloseq completo
+ps <- phyloseq(otu_tab, tax_tab, sample_tab, phy_tree(tree))
+
+# Verificar
+ps
+
+```
+
+
+```{r}
+taxonomy <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/taxonomy.qza")$data
+tree <- read_qza("caminho_para_arquivo/rooted-tree.qza")$data
+
+
+# Criar os componentes do phyloseq
+otu_table_ps <- otu_table(otu_table, taxa_are_rows = TRUE)
+tax_table_ps <- tax_table(as.matrix(taxonomy))
+sample_data_ps <- sample_data(metadados.alpha.all)
+phy_tree_ps <- phy_tree(tree)
+
+physeq_obj <- phyloseq(otu_table_ps, 
+                        tax_table_ps, 
+                        phy_tree_ps)
+
+
+my.phyloseq <- qza_to_phyloseq(features = ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/table.qza"),
+                            tree = ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/rooted-tree.qza"),
+                            taxonomy = ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/taxonomy_silva.qza"),
+                            metadata = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/Metadata.tsv")
+
+
+
+# Visualizar o objeto
+physeq_obj
+
+class(otu_table_ps)
+```
+
+```{r}
+length(taxa_names(otu_table_ps))  # Número de ASVs na tabela de OTUs
+length(taxa_names(tax_table_ps))  # Número de ASVs na tabela taxonômica
+length(taxa_names(phy_tree_ps))   # Número de ASVs na árvore filogenética (se houver)
+
+```
+```{r}
+all(taxa_names(otu_table_ps) %in% taxa_names(tax_table_ps))
+all(taxa_names(otu_table_ps) %in% taxa_names(phy_tree_ps))
+all(taxa_names(tax_table_ps) %in% taxa_names(phy_tree_ps))
+
+
+```
+
+```{r}
+setdiff(taxa_names(otu_table_ps), taxa_names(tax_table_ps))  # ASVs na OTU table, mas não na tax_table
+setdiff(taxa_names(tax_table_ps), taxa_names(otu_table_ps))  # ASVs na tax_table, mas não na OTU table
+setdiff(taxa_names(tax_table_ps), taxa_names(phy_tree_ps))   # ASVs na tax_table, mas não na árvore
+
+> 
+```
+
+```{r}
+colnames(tax_table_ps)
+```
+```{r}
+colnames(otu_table_ps)
+```
+```{r}
+library(qiime2R)
+
+?qza_to_phyloseq()
+
+
+
+my.phyloseq <- qza_to_phyloseq(features = ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/table.qza"),
+                            tree = ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/rooted-tree.qza"),
+                            taxonomy = ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/taxonomy_silva.qza"),
+                            metadata = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/Metadata.tsv")
+```
+
+
+
+```
+
+```{r}
+my.phyloseq <- qza_to_phyloseq(
+  features  = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/table_corrigida.qza",
+  tree      = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/unrooted-tree.qza",
+  taxonomy  = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/taxonomy.qza",
+  metadata  = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Phyloseq/Metadata_corrigido.tsv"
+)
+
+```
+
+
+

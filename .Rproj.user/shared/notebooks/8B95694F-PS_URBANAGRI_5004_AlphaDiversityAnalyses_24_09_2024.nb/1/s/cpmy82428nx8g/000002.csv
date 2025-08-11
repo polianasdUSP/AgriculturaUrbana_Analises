@@ -1,0 +1,26 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIFJlYWxpemFyIG8gdGVzdGUgZXhhdG8gZGUgRmlzaGVyIGRpcmV0YW1lbnRlXG5yZXN1bHRhZG9fZmlzaGVyIDwtIGZpc2hlci50ZXN0KHRhYmxlKHNhdWRlX2RpZXRhJFRyZXBvbmVtYSwgc2F1ZGVfZGlldGEkUGFyYXNpdG9sb2dpY29Qb3NpdGl2bykpXG5cbiMgRXhpYmlyIG8gcmVzdWx0YWRvIGRvIHRlc3RlIGV4YXRvIGRlIEZpc2hlclxucHJpbnQocmVzdWx0YWRvX2Zpc2hlcilcblxuXG5gYGAifQ== -->
+
+```r
+
+# Realizar o teste exato de Fisher diretamente
+resultado_fisher <- fisher.test(table(saude_dieta$Treponema, saude_dieta$ParasitologicoPositivo))
+
+# Exibir o resultado do teste exato de Fisher
+print(resultado_fisher)
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+
+# Realizar o teste exato de Fisher diretamente
+resultado_fisher <- fisher.test(table(saude_dieta$Treponema, saude_dieta$ParasitologicoPositivo))
+
+# Exibir o resultado do teste exato de Fisher
+print(resultado_fisher)
+
+
+```"

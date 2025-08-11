@@ -1,0 +1,10 @@
+"0","```r
+
+# Realizar o teste de Mann-Whitney-Wilcoxon para comparar shannon_entropy entre Rural e Urban
+wilcox_test_result <- wilcox.test(shannon_entropy ~ Region_type, data = metadados_raw)
+
+# Exibir os resultados do teste de Mann-Whitney-Wilcoxon
+print(wilcox_test_result)
+
+
+```"

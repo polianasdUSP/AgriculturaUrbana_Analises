@@ -1,0 +1,10 @@
+"0","gtsave(
+  data = TableClinicalTraits,
+  filename = ""TableClinicalTraits.png"",
+  path = ""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/"",  # ou outro caminho da sua preferência
+  expand = 10,   # aumenta a resolução do fundo
+  zoom = 2       # dobra a nitidez da tabela
+)
+"
+"2","file:///C:/Users/polia/AppData/Local/Temp/Rtmp02R914/file3e1cec9d00.html screenshot completed
+"

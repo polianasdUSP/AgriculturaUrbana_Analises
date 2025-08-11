@@ -1,0 +1,54 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBBZGljaW9uYSBhIGNvcnJlw6fDo28gZGUgRkRSIHVzYW5kbyBvIG3DqXRvZG8gQmVuamFtaW5pLUhvY2hiZXJnXG5jb3Jfd2l0aF9mZHIgPC0gY29yX3NpZ25pZmljYW50X3NhdWRlX2RpZXRhX3dpdGhfdGF4b25vbXkgJT4lXG4gIGRwbHlyOjptdXRhdGUoZmRyX2FkanVzdGVkX3AgPSBwLmFkanVzdChwX3ZhbHVlLCBtZXRob2QgPSBcImZkclwiKSkgJT4lXG4gIGRwbHlyOjpmaWx0ZXIoZmRyX2FkanVzdGVkX3AgPD0gMC4wNSkgICMgRmlsdHJhIGNvcnJlbGHDp8O1ZXMgc2lnbmlmaWNhdGl2YXMgY29tIEZEUiA8PSAwLjA1XG5cbiMgVmlzdWFsaXphIG9zIHByaW1laXJvcyByZXN1bHRhZG9zXG5wcmludChjb3Jfd2l0aF9mZHIpXG5cbiMgU2UgcXVpc2VyIHZpc3VhbGl6YXIgbm92YW1lbnRlIGNvbW8gdW1hIHRhYmVsYSBpbnRlcmF0aXZhXG5EVDo6ZGF0YXRhYmxlKGNvcl93aXRoX2Zkciwgb3B0aW9ucyA9IGxpc3QocGFnZUxlbmd0aCA9IDEwKSxcbiAgICAgICAgICAgICAgY2FwdGlvbiA9ICdDb3JyZWxhw6fDtWVzIFNpZ25pZmljYXRpdmFzIGNvbSBDb3JyZcOnw6NvIGRlIEZEUiAo4omkIDAuMDUpJylcblxuXG4jIFNhbHZhciBhIHRhYmVsYSBpbnRlcmF0aXZhIGNvbW8gSFRNTFxuRFQ6OnNhdmVXaWRnZXQoXG4gIERUOjpkYXRhdGFibGUoY29yX3dpdGhfZmRyLCBvcHRpb25zID0gbGlzdChwYWdlTGVuZ3RoID0gMTApLFxuICAgICAgICAgICAgICAgIGNhcHRpb24gPSAnQ29ycmVsYcOnw7VlcyBTaWduaWZpY2F0aXZhcyBjb20gQ29ycmXDp8OjbyBkZSBGRFIgKOKJpCAwLjA1KScpLFxuICBmaWxlID0gXCJDOi9Vc2Vycy9wb2xpYS9PbmVEcml2ZS9EZXNrdG9wL0VzdGF0aXN0aWNhUi9BZ3JVcmJhbmEvMTZTX0FncmlVcmJhbmEvUGxhbmlsaGFzL2NvcnJlbGFjb2VzX0ZEUl9zaWduaWZpY2F0aXZhcy5odG1sXCJcbilcblxuXG5cbmBgYCJ9 -->
+
+```r
+# Adiciona a correção de FDR usando o método Benjamini-Hochberg
+cor_with_fdr <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::mutate(fdr_adjusted_p = p.adjust(p_value, method = \"fdr\")) %>%
+  dplyr::filter(fdr_adjusted_p <= 0.05)  # Filtra correlações significativas com FDR <= 0.05
+
+# Visualiza os primeiros resultados
+print(cor_with_fdr)
+
+# Se quiser visualizar novamente como uma tabela interativa
+DT::datatable(cor_with_fdr, options = list(pageLength = 10),
+              caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)')
+
+
+# Salvar a tabela interativa como HTML
+DT::saveWidget(
+  DT::datatable(cor_with_fdr, options = list(pageLength = 10),
+                caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)'),
+  file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/correlacoes_FDR_significativas.html\"
+)
+
+
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Adiciona a correção de FDR usando o método Benjamini-Hochberg
+cor_with_fdr <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::mutate(fdr_adjusted_p = p.adjust(p_value, method = \"fdr\")) %>%
+  dplyr::filter(fdr_adjusted_p <= 0.05)  # Filtra correlações significativas com FDR <= 0.05
+
+# Visualiza os primeiros resultados
+print(cor_with_fdr)
+
+# Se quiser visualizar novamente como uma tabela interativa
+DT::datatable(cor_with_fdr, options = list(pageLength = 10),
+              caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)')
+
+
+# Salvar a tabela interativa como HTML
+DT::saveWidget(
+  DT::datatable(cor_with_fdr, options = list(pageLength = 10),
+                caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)'),
+  file = \"C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/correlacoes_FDR_significativas.html\"
+)
+
+
+
+```"

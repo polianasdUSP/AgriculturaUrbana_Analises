@@ -1,0 +1,10 @@
+"0","# Salvar como PNG em alta resolução
+gtsave(
+  data = inflammatoryMarkers,  # substitua pelo nome do seu objeto gt
+  filename = ""tabela_inflammatory_markers.png"",
+  path = ""C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/"",
+  expand = 10          # aumenta a resolução (quanto maior, mais nítido)
+)
+"
+"2","file:///C:/Users/polia/AppData/Local/Temp/RtmpSc5mpv/file92bc43e129fc.html screenshot completed
+"

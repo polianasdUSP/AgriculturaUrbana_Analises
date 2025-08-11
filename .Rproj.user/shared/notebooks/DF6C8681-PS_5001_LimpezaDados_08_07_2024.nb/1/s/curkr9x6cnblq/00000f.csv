@@ -1,0 +1,21 @@
+"0","library(gridExtra)
+"
+"2","
+Anexando pacote: ‘gridExtra’
+
+"
+"2","O seguinte objeto é mascarado por ‘package:Biobase’:
+
+    combine
+
+"
+"2","O seguinte objeto é mascarado por ‘package:BiocGenerics’:
+
+    combine
+
+"
+"2","O seguinte objeto é mascarado por ‘package:dplyr’:
+
+    combine
+
+"

@@ -1,0 +1,106 @@
+---
+title: "PS_6003_2024__09_02_RClub"
+output: html_notebook
+---
+
+ 
+
+```{r}
+chickwts
+
+View(chickwts)
+
+unique(chickwts$feed)
+
+```
+
+```{r}
+grepl (x= chickwts$feed, pattern = "^(m|c)")
+
+grepl (x= chickwts$feed, pattern = "^[mc]")
+
+#os dois acima sao logicas diferentes com o mesmo resultado. Como o que esta entre parenteses é lembrado pelo R e o que nao esta entre parenteses não é lembrado. 
+
+```
+
+```{r}
+chickwts$feed [grepl (x= chickwts$feed, pattern = "^(m|c)")]
+
+```
+
+
+```{r}
+
+gsub(x = chickwts$feed, pattern = "^(m|c)$" , replacement = "\\1.1" )
+
+#a barra (\\1, mostra que é o primeiro parenteses salvo) é pra ver o que foi salvo. Essa expressão regular nao funciona
+
+```
+
+
+```{r}
+
+data <- chickwts
+
+gsub(x = data$feed, pattern = "^([mc].+)$" , replacement = "\\1.1" )
+
+
+```
+
+```{r}
+
+grepl (x= chickwts$feed, pattern = "^([mc].+)$")
+
+
+```
+
+```{r}
+#non-veg based diet starts with m OR c
+
+grepl (x= data$feed, pattern = "^([mc].+)$")
+
+#quando der verdadeiro é a non-veg diet
+
+```
+
+```{r}
+
+#data$dietType <- ifelse(grepl(x= data$feed, pattern = "^([mc].+)$"), "non-veg", "veg")
+
+data$dietType <- ifelse(test = grepl(x= data$feed, pattern = "^([mc].+)$"),
+                        yes = "non-veg", 
+                        no = "veg")
+
+#ifelse faz a avaliacao logica, determina o que quero escrever. O primeiro argumento do ifelse é sempre uma avaliação lógica.
+
+```
+
+```{r}
+ifelse (data$feed == "meatmeal", "animalDiet", "nonAnimalDiet")
+
+
+```
+
+```{r}
+#Posso criar um pequeno vetor com as informações
+
+unique(data$feed)
+
+data$dietType <- ifelse(test = data$feed %in% c("horsebean", "linseed",   "soybean",  "sunflower"),
+                        yes = "non-veg", 
+                        no = "veg")
+
+```
+
+```{r}
+#para deletar, lembrando que 1 vez deletada, deletada sempre
+
+data$dietType <- NULL
+
+save(file = "my.data.RData", data)
+
+load ("my.data.Rdata")
+
+
+```
+

@@ -1,0 +1,22 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBUcmFuc2Zvcm1hciBlbSBkYXRhIGZyYW1lIHBhcmEgbWFuaXB1bGHDp8Ojb1xuU1ZzX2xvbmcgPC0gU1ZzX25vcm1hbGl6ZWQgJT4lXG4gIGFzLmRhdGEuZnJhbWUoKSAlPiVcbiAgcm93bmFtZXNfdG9fY29sdW1uKFwiRmVhdHVyZS5JRFwiKSAlPiVcbiAgZ2F0aGVyKC1GZWF0dXJlLklELCBrZXkgPSBcIlNhbXBsZS5pZFwiLCB2YWx1ZSA9IFwiQWJ1bmRhbmNlXCIpXG5cbmBgYCJ9 -->
+
+```r
+# Transformar em data frame para manipulação
+SVs_long <- SVs_normalized %>%
+  as.data.frame() %>%
+  rownames_to_column(\"Feature.ID\") %>%
+  gather(-Feature.ID, key = \"Sample.id\", value = \"Abundance\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Transformar em data frame para manipulação
+SVs_long <- SVs_normalized %>%
+  as.data.frame() %>%
+  rownames_to_column(\"Feature.ID\") %>%
+  gather(-Feature.ID, key = \"Sample.id\", value = \"Abundance\")
+
+```"

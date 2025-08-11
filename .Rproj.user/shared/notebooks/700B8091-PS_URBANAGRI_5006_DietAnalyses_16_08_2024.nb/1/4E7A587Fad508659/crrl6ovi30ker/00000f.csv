@@ -1,0 +1,28 @@
+"0",""
+"0","# Instala e carrega os pacotes necessários"
+"0","library(dplyr)"
+"2","
+Anexando pacote: ‘dplyr’
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:stats’:
+
+    filter, lag
+
+"
+"2","Os seguintes objetos são mascarados por ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(readxl)"
+"0","library(writexl)"
+"0","library(fmsb)"
+"0","library(ggplot2)"
+"2","Keep up to date with changes at https://tidyverse.org/blog/
+"
+"0","library(dplyr)"
+"0","library(reshape2)"
+"0",""
+"0",""
+"0",""

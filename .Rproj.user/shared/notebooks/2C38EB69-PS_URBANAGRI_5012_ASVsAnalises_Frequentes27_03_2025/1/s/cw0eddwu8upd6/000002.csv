@@ -1,0 +1,29 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBQbG90YXIgbyBoZWF0bWFwXG5nZ3Bsb3QoaGVhdG1hcF9kYXRhLCBhZXMoeCA9IFNhbXBsZS5pZCwgeSA9IEZlYXR1cmUsIGZpbGwgPSBOb3JtQWJ1bmRhbmNlKSkgK1xuICBnZW9tX3RpbGUoKSArXG4gIHRoZW1lX21pbmltYWwoKSArXG4gIHRoZW1lKGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNDUsIGhqdXN0ID0gMSkpICtcbiAgc2NhbGVfZmlsbF92aXJpZGlzX2MobmFtZSA9IFwiTm9ybUFidW5kYW5jZVwiKSArXG4gIGxhYnModGl0bGUgPSBcIkhlYXRtYXAgZGUgQWJ1bmTDom5jaWEgTm9ybWFsaXphZGEgZGFzIEFTVnNcIiwgeCA9IFwiU2FtcGxlIElEXCIsIHkgPSBcIkFTViAoRmVhdHVyZS5JRCBlIFRheG9ub21pYSlcIilcblxuYGBgIn0= -->
+
+```r
+# Plotar o heatmap
+ggplot(heatmap_data, aes(x = Sample.id, y = Feature, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = \"NormAbundance\") +
+  labs(title = \"Heatmap de Abundância Normalizada das ASVs\", x = \"Sample ID\", y = \"ASV (Feature.ID e Taxonomia)\")
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Plotar o heatmap
+ggplot(heatmap_data, aes(x = Sample.id, y = Feature, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = \"NormAbundance\") +
+  labs(title = \"Heatmap de Abundância Normalizada das ASVs\", x = \"Sample ID\", y = \"ASV (Feature.ID e Taxonomia)\")
+
+```"
+"1","Error in (function (filename = \"Rplot%03d.png\", width = 480, height = 480,  : 
+  não é possível iniciar dispositivo png()
+"

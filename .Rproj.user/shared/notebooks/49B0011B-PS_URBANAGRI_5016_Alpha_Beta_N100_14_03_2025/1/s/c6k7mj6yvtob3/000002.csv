@@ -1,0 +1,26 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29tcGFyYWNvZXNfdHJhbnNfZmFpdGggPC0gY29tcGFyZV9tZWFucyhmYWl0aF9wZCB+IHRlcmNpbF90cmFucywgZGF0YSA9IG1ldGFkYWRvcy5kaWV0YS5yZXNpZHVhbC5hbHBoYSwgbWV0aG9kID0gXCJ3aWxjb3gudGVzdFwiLCBwLmFkanVzdC5tZXRob2QgPSBcImZkclwiKSAlPiVcbiAgZmlsdGVyKHAuYWRqIDw9IDAuMDUpICU+JVxuICBtdXRhdGUoeS5wb3NpdGlvbiA9IGMoMjQsIDI2LCAyOCkpXG5cbmBgYCJ9 -->
+
+```r
+comparacoes_trans_faith <- compare_means(faith_pd ~ tercil_trans, data = metadados.dieta.residual.alpha, method = \"wilcox.test\", p.adjust.method = \"fdr\") %>%
+  filter(p.adj <= 0.05) %>%
+  mutate(y.position = c(24, 26, 28))
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+comparacoes_trans_faith <- compare_means(faith_pd ~ tercil_trans, data = metadados.dieta.residual.alpha, method = \"wilcox.test\", p.adjust.method = \"fdr\") %>%
+  filter(p.adj <= 0.05) %>%
+  mutate(y.position = c(24, 26, 28))
+
+```"
+"1","Error in `mutate()`:
+ℹ In argument: `y.position = c(24, 26, 28)`.
+Caused by error:
+! `y.position` must be size 1, not 3.
+Backtrace:
+ 1. ... %>% mutate(y.position = c(24, 26, 28))
+ 9. dplyr:::dplyr_internal_error(...)
+"

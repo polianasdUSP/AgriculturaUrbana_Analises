@@ -1,0 +1,668 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+# Carregar pacotes necessários
+```{r}
+
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+library(writexl)
+library(ggplot2)
+library(reshape2)
+
+```
+
+
+```{r}
+#metadata <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/metadados_raw_V01_local_nascimento2.csv", 
+                     sep = ";", 
+                     header = TRUE, 
+                     stringsAsFactors = FALSE, 
+                     fileEncoding = "UTF-8")
+
+metadata <-metadados.raw
+
+# Manter apenas as primeiras 130 linhas
+metadata <- metadata[1:130, ]
+
+# Remover a primeira coluna
+metadata <- metadata[, -1]
+
+
+# Remover quaisquer linhas completamente vazias (se necessário)
+metadata <- metadata[rowSums(is.na(metadata)) != ncol(metadata), ]
+
+
+
+# Exibir as primeiras linhas para verificar se os dados foram importados corretamente
+head(metadata)
+
+# Verifique os nomes das colunas para garantir que foram carregados corretamente
+colnames(metadata)
+
+
+
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+```
+
+```{r}
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs[!grepl("\\.F01$", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep("\\.F00$", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+
+```{r}
+# Calcular o número de voluntários em que cada ASV está presente
+asv_presence <- rowSums(SVs > 0)
+
+# Filtrar ASVs presentes em pelo menos 13 voluntários
+SVs_filtered <- SVs[asv_presence >= 13, ]
+
+```
+
+
+```{r}
+
+
+# Normalizar para porcentagem
+SVs_normalized <- apply(SVs_filtered, 2, function(x) x / sum(x) * 100)  # Converte para porcentagem
+
+```
+
+
+```{r}
+# Transformar em data frame para manipulação
+SVs_long <- SVs_normalized %>%
+  as.data.frame() %>%
+  rownames_to_column("Feature.ID") %>%
+  gather(-Feature.ID, key = "Sample.id", value = "Abundance")
+
+```
+
+
+```{r}
+# Aplicar transformação logarítmica
+
+SVs_long <- SVs_long %>%
+  mutate(NormAbundance = log10(Abundance + 0.0001))  # Adiciona 0.01 para evitar log(0)
+
+# Exportar para uma planilha
+write.csv(SVs_long, "SVs_normalized_log_transformed.csv", row.names = FALSE)
+
+
+
+```
+
+
+```{r}
+library(ggplot2)
+library(pheatmap)
+
+# Converter de volta para formato largo para o heatmap
+SVs_matrix <- SVs_long %>%
+  select(Feature.ID, Sample.id, NormAbundance) %>%
+  spread(key = Sample.id, value = NormAbundance, fill = 0) %>%
+  column_to_rownames("Feature.ID")
+
+
+# Gerar o heatmap com viridis sem ajuste do zero
+pheatmap(SVs_matrix, 
+         clustering_method = "ward.D2",  # Método de clusterização
+         scale = "row",  # Escala por linha para normalização
+         main = "Heatmap de Abundância Normalizada e Log-transformada das ASVs",
+         color = viridis(50))  # Paleta viridis com 50 gradientes
+
+
+
+```
+
+
+```{r}
+library(dplyr)
+
+# Remover as colunas indesejadas do metadata
+#metadata_Dieta_Saude_filtered <- metadata %>%
+ # select(-c("Edulcorante?", "Coordinates", "Nome" , "ERITROCITOS", "HEMOGLOBINA",  "HEMATOCRITO", "VCM", 
+   #         "HCM", "CHCM", "RDW", "LEUCOCITOS", "NEUTROFILOS", "EOSINOFILOS", "BASOFILOS", 
+   #         "LINFOCITOS", "MONOCITOS", "PLAQUETAS", "Risco_diabetes", "Risco_colesterol", 
+     #       "Dorme", "Acorda", "Horas_Dormidas", "pressao_alta", "sindrome_metabolica", "Weight", "Waist", "Hip", "Height"))
+
+str(metadata_filtered)
+
+
+# Juntar ASVs_long com metadata filtrado
+# Assumindo que a coluna de junção seja "Sample.id" em ASVs_long e "SampleID" em metadata_filtered
+metadata_ASVs_Saude_dieta <- SVs_long %>%
+  inner_join(metadados.dieta.saude.alpha, by = c("Sample.id" = "IdVoluntario"))
+
+```
+
+```{r}
+library(dplyr)
+
+# Juntar o objeto taxonomy ao metadata_ASVs usando a coluna Feature.ID
+metadata_ASVs_Saude_dieta<- metadata_ASVs_Saude_dieta %>%
+  left_join(taxonomy %>% select(Feature.ID, Taxon, Confidence), by = "Feature.ID")
+
+# Reorganizar para que Taxon seja a segunda coluna e Confidence a terceira
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Feature.ID, Taxon, Confidence, everything())
+
+# Visualizar o resultado
+metadata_ASVs_Saude_dieta
+
+```
+
+```{r}
+# Reorganizar para que Sample.id seja a primeira coluna
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, everything())
+
+# Visualizar o resultado
+glimpse(metadata_ASVs_Saude_dieta)
+
+# Calcular IMC e adicionar nova coluna ao objeto metadata_ASVs_Saude_dieta
+metadata_ASVs_Saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  dplyr::mutate(IMC = Weight / (Height^2))  # Fórmula do IMC
+
+# Visualizar as primeiras linhas do dataframe com a nova coluna
+head(metadata_ASVs_Saude_dieta)
+
+
+```
+
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Filtrar colunas específicas e todas as colunas numéricas
+numeric_metadata_saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, Feature.ID, Taxon, where(is.numeric))
+
+# Visualizar o resultado
+glimpse(numeric_metadata_saude_dieta)
+
+# Salvar em um arquivo CSV
+write.csv(numeric_metadata_saude_dieta, "numeric_metadata_saude_dieta.csv", row.names = FALSE)
+```
+
+
+```{r}
+# Verificar colunas de SVs_long
+colnames(SVs_long)
+```
+
+
+```{r}
+# Verificar colunas de taxonomy
+colnames(taxonomy)
+
+```
+
+
+
+```{r}
+
+
+# Plotar o heatmap
+ggplot(numeric_metadata_saude_dieta, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = "NormAbundance") +
+  labs(title = "Heatmap de Abundância Normalizada das ASVs", x = "Sample ID", y = "ASV (Feature.ID e Taxonomia)")
+
+# Salvar o gráfico como PDF
+ggsave("heatmap.pdf", height = 4, width = 11, device = "pdf")
+
+
+
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Filtrar apenas colunas numéricas de metadata e manter Sample.id
+numeric_metadata_saude_dieta <- metadata_ASVs_Saude_dieta %>%
+  select(Sample.id, where(is.numeric))
+
+# Preparar dados para o heatmap usando SVs_long e combinando com colunas numéricas de metadata
+heatmap_data_Saude_Dieta <- SVs_long %>%
+  left_join(numeric_metadata_saude_dieta, by = "Sample.id") %>%
+  left_join(taxonomy, by = "Feature.ID") 
+
+# Plotar o heatmap
+heatmap_ASV_Saude_Dieta <- ggplot(numeric_metadata_saude_dieta, aes(x = Sample.id, y = Feature.ID, fill = NormAbundance)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_c(name = "NormAbundance") +
+  labs(title = "Heatmap de Abundância Normalizada das ASVs", x = "Sample ID", y = "Feature.ID")
+
+# Salvar o gráfico como PDF
+ggsave("heatmap_larger.pdf", height = 10, width = 20, device = "pdf")
+
+colnames(heatmap_data_Saude_Dieta)
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+
+calc_cor_p <- function(x, y) {
+  if (all(is.na(x)) || all(is.na(y))) {
+    return(list(correlation = NA, p_value = NA))
+  } else {
+    test <- cor.test(x, y, use = "complete.obs", method = "pearson")
+    return(list(correlation = test$estimate, p_value = test$p.value))
+  }
+}
+
+#Aplicar a função calc_cor_p para todas as variáveis
+#Aqui está o código completo que calcula correlação e p-valor para cada variável:
+
+# Código completo com parâmetros adicionais
+cor_results_saude_dieta <- numeric_metadata_saude_dieta %>%
+  dplyr::group_by(Feature.ID) %>%
+  dplyr::summarize(
+    cor_carboidrato_total = list(calc_cor_p(NormAbundance, residual_carboidrato_total_g)),
+    cor_proteina = list(calc_cor_p(NormAbundance, residual_proteina_g)),
+    cor_lipidios = list(calc_cor_p(NormAbundance, residual_lipidios_g)),
+    cor_fibra_alimentar = list(calc_cor_p(NormAbundance, residual_fibra_alimentar_g)),
+    cor_colesterol = list(calc_cor_p(NormAbundance, residual_colesterol_mg)),
+    cor_acidos_graxos_saturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_saturados_g)),
+    cor_acidos_graxos_monoinsaturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_monoinsaturados_g)),
+    cor_acidos_graxos_poliinsaturados = list(calc_cor_p(NormAbundance, residual_acidos_graxos_poliinsaturados_g)),
+    cor_acidos_graxos_trans = list(calc_cor_p(NormAbundance, residual_acidos_graxos_trans_g)),
+    cor_calcio = list(calc_cor_p(NormAbundance, residual_calcio_mg)),
+    cor_ferro = list(calc_cor_p(NormAbundance, residual_ferro_mg)),
+    cor_sodio = list(calc_cor_p(NormAbundance, residual_sodio_mg)),
+    cor_magnesio = list(calc_cor_p(NormAbundance, residual_magnesio_mg)),
+    cor_fosforo = list(calc_cor_p(NormAbundance, residual_fosforo_mg)),
+    cor_potassio = list(calc_cor_p(NormAbundance, residual_potassio_mg)),
+    cor_manganes = list(calc_cor_p(NormAbundance, residual_manganes_mg)),
+    cor_zinco = list(calc_cor_p(NormAbundance, residual_zinco_mg)),
+    cor_cobre = list(calc_cor_p(NormAbundance, residual_cobre_mg)),
+    cor_selenio = list(calc_cor_p(NormAbundance, residual_selenio_mcg)),
+    cor_vitamina_A_RE = list(calc_cor_p(NormAbundance, residual_vitamina_A_RE_mcg)),
+    cor_vitamina_A_RAE = list(calc_cor_p(NormAbundance, residual_vitamina_A_RAE_mcg)),
+    cor_vitamina_D = list(calc_cor_p(NormAbundance, residual_vitamina_D_mcg)),
+    cor_vitamina_E = list(calc_cor_p(NormAbundance, residual_vitamina_E_mg)),
+    cor_tiamina = list(calc_cor_p(NormAbundance, residual_tiamina_mg)),
+    cor_riboflavina = list(calc_cor_p(NormAbundance, residual_riboflavina_mg)),
+    cor_niacina = list(calc_cor_p(NormAbundance, residual_niacina_mg)),
+    cor_vitamina_B6 = list(calc_cor_p(NormAbundance, residual_vitamina_B6_mg)),
+    cor_vitamina_B12 = list(calc_cor_p(NormAbundance, residual_vitamina_B12_mcg)),
+    cor_vitamina_C = list(calc_cor_p(NormAbundance, residual_vitamina_C_mg)),
+    cor_equivalente_de_folato = list(calc_cor_p(NormAbundance, residual_equivalente_de_folato_mcg)),
+    cor_sal_de_adicao = list(calc_cor_p(NormAbundance, residual_sal_de_adicao_g)),
+    cor_acucar_de_adicao = list(calc_cor_p(NormAbundance, residual_acucar_de_adicao_g)),
+    cor_IL17A = list(calc_cor_p(NormAbundance, IL17A)),
+    cor_IFNGamma = list(calc_cor_p(NormAbundance, IFNGamma)),
+    cor_TNF = list(calc_cor_p(NormAbundance, TNF)),
+    cor_IL10 = list(calc_cor_p(NormAbundance, IL10)),
+    cor_IL6 = list(calc_cor_p(NormAbundance, IL6)),
+    cor_IL4 = list(calc_cor_p(NormAbundance, IL4)),
+    cor_IL2 = list(calc_cor_p(NormAbundance, IL2)),
+    cor_Age = list(calc_cor_p(NormAbundance, Age)),
+    cor_Systolic = list(calc_cor_p(NormAbundance, Systolic)),
+    cor_Diastolic = list(calc_cor_p(NormAbundance, Diastolic)),
+    cor_Weight = list(calc_cor_p(NormAbundance, Weight)),
+    cor_Height = list(calc_cor_p(NormAbundance, Height)),
+    cor_Waist = list(calc_cor_p(NormAbundance, Waist)),
+    cor_Hip = list(calc_cor_p(NormAbundance, Hip)),
+    cor_HbA1c = list(calc_cor_p(NormAbundance, HbA1c)),
+    cor_COLESTEROL = list(calc_cor_p(NormAbundance, COLESTEROL)),
+    cor_LDL = list(calc_cor_p(NormAbundance, LDL)),
+    cor_HDL = list(calc_cor_p(NormAbundance, HDL)),
+    cor_VLDL = list(calc_cor_p(NormAbundance, VLDL)),
+    cor_TRIGLICERIDES = list(calc_cor_p(NormAbundance, TRIGLICERIDES)),
+    cor_TGO = list(calc_cor_p(NormAbundance, TGO)),
+    cor_TGP = list(calc_cor_p(NormAbundance, TGP)),
+    cor_GGT = list(calc_cor_p(NormAbundance, GGT)),
+    cor_GLICOSE = list(calc_cor_p(NormAbundance, GLICOSE)),
+    cor_INSULINA = list(calc_cor_p(NormAbundance, INSULINA)),
+    cor_HOMA = list(calc_cor_p(NormAbundance, HOMA)),
+    cor_PCR = list(calc_cor_p(NormAbundance, PCR))
+  ) %>%
+  dplyr::ungroup() %>%
+  tidyr::unnest_wider(everything(), names_sep = "_")
+
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Selecionar as colunas de correlação e p_value separadamente
+correlation_columns <- grep("_correlation$", colnames(cor_results_saude_dieta), value = TRUE)
+p_value_columns <- grep("_p_value$", colnames(cor_results_saude_dieta), value = TRUE)
+
+# Criar dataframes longos para correlação e p_value
+correlation_long <- cor_results_saude_dieta %>%
+  select(Feature.ID_1, all_of(correlation_columns)) %>%
+  pivot_longer(
+    cols = -Feature.ID_1,
+    names_to = "parameter",
+    values_to = "correlation"
+  ) %>%
+  mutate(parameter = gsub("_correlation$", "", parameter))
+
+p_value_long <- cor_results_saude_dieta %>%
+  select(Feature.ID_1, all_of(p_value_columns)) %>%
+  pivot_longer(
+    cols = -Feature.ID_1,
+    names_to = "parameter",
+    values_to = "p_value"
+  ) %>%
+  mutate(parameter = gsub("_p_value$", "", parameter))
+
+# Unir os dois dataframes
+cor_long_Saude_dieta <- correlation_long %>%
+  left_join(p_value_long, by = c("Feature.ID_1", "parameter")) %>%
+  filter(!is.na(correlation))  # Filtra correlações válidas
+
+# Visualizar o resultado
+print(cor_long_Saude_dieta)
+
+
+colnames(cor_long_Saude_dieta)
+```
+
+```{r}
+# Filtrar correlações significativas
+cor_significant_saude_dieta <- cor_long_Saude_dieta %>%
+  filter(p_value <= 0.05)
+
+# Visualizar o resultado
+print(cor_significant_saude_dieta)
+
+```
+```{r}
+library(ggplot2)
+
+# Criar o heatmap
+heatmap_saude_dieta <- ggplot(cor_significant_saude_dieta, aes(x = parameter, y = Feature.ID_1, fill = correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, 
+                       name = "Correlação") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = "Heatmap de Correlações Significativas",
+       subtitle = "Apenas correlações com p-valor ≤ 0,05")
+
+# Exibir o heatmap
+print(heatmap_saude_dieta)
+
+```
+
+
+```{r}
+# Adiciona a coluna de taxonomia a cor_significant_saude_dieta
+cor_significant_saude_dieta_with_taxonomy <- cor_significant_saude_dieta %>%
+  dplyr::left_join(taxonomy, by = c("Feature.ID_1" = "Feature.ID")) %>%  # Junta com base no Feature.ID_1 e Feature.ID
+  dplyr::relocate(Taxon, .after = Feature.ID_1)  # Move a coluna Taxon logo após Feature.ID_1
+
+# Visualizar as primeiras linhas
+head(cor_significant_saude_dieta_with_taxonomy)
+
+```
+
+```{r}
+# Criar o heatmap usando Taxon no eixo y
+heatmap_saude_dieta_taxon <- ggplot(cor_significant_saude_dieta_with_taxonomy, 
+                                    aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, 
+                       name = "Correlação") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(size = 8) # Ajusta o tamanho do texto para melhor visualização
+  ) +
+  labs(title = "Heatmap de Correlações Significativas",
+       subtitle = "Apenas correlações com p-valor ≤ 0,05")
+
+# Mostrar o heatmap
+print(heatmap_saude_dieta_taxon)
+
+```
+
+
+```{r}
+# Filtrar correlações mais fortes
+cor_long_filtered <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::filter(abs(correlation) > 0.3)  # Define um limite de 0.3
+
+# Novo Heatmap com visualização aprimorada
+heatmap_filtered <- ggplot(cor_long_filtered, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, 
+                       name = "Correlação") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = "Heatmap de Correlações Significativas (Filtradas)",
+       subtitle = "Correlações com p-valor ≤ 0,05 e |correlação| > 0.3")
+
+# Exibir o heatmap
+print(heatmap_filtered)
+
+```
+
+```{r}
+# Filtrar correlações mais fortes do objeto com taxonomia
+cor_long_filtered <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::filter(p_value <= 0.05, abs(correlation) > 0.3)  # Define um limite de 0.3 para a força da correlação
+
+
+# Novo Heatmap com visualização aprimorada
+heatmap_filtered <- ggplot(cor_long_filtered, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, 
+                       name = "Correlação") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = "Heatmap de Correlações Significativas (Filtradas)",
+       subtitle = "Correlações com p-valor ≤ 0,05 e |correlação| > 0.3")
+
+# Exibir o heatmap
+print(heatmap_filtered)
+
+```
+```{r}
+# Filtrar correlações significativas com p_value <= 0.03
+cor_filtered_2 <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::filter(p_value <= 0.001)
+
+# Criar o heatmap
+heatmap_filtered_2 <- ggplot(cor_filtered_2, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, 
+                       name = "Correlação") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = "Heatmap de Correlações Significativas",
+       subtitle = "Correlações com p-valor ≤ 0,001")
+
+# Exibir o heatmap
+print(heatmap_filtered_2)
+
+```
+
+
+
+
+
+```{r}
+# Carregue o pacote
+library(DT)
+
+# Renomear o objeto corretamente antes de usar o datatable
+formatted_table <- cor_significant_saude_dieta_with_taxonomy
+
+
+# Mostrar a tabela interativa
+datatable(formatted_table, 
+          options = list(pageLength = 10), 
+          caption = 'Correlações Significativas entre Taxon e Parâmetros de Saúde')
+
+```
+
+
+```{r}
+# Instale os pacotes, se necessário
+install.packages(c("DT", "htmlwidgets", "writexl", "rmarkdown"))
+
+# Carregue os pacotes
+library(DT)
+library(htmlwidgets)
+library(writexl)
+library(rmarkdown)
+
+
+# Mostrar a tabela interativa com `DT`
+Tabela_cor_Taxons <- datatable(formatted_table, options = list(pageLength = 10), caption = 'Correlações Significativas entre Taxon e Parâmetros de Dieta')
+
+# Salvar a tabela interativa em HTML
+DT::saveWidget(
+  Tabela_cor_Taxons,
+  file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/correlacoes_significativas_Taxons.html",
+  selfcontained = TRUE
+)
+
+
+```
+
+```{r}
+library(writexl)
+
+# Salvar a tabela como um arquivo Excel
+write_xlsx(significant_correlations_with_taxonomy, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/significant_correlations_with_taxonomy_dieta.xlsx")
+
+```
+
+
+```{r}
+# Adiciona a correção de FDR usando o método Benjamini-Hochberg
+cor_with_fdr <- cor_significant_saude_dieta_with_taxonomy %>%
+  dplyr::mutate(fdr_adjusted_p = p.adjust(p_value, method = "fdr")) %>%
+  dplyr::filter(fdr_adjusted_p <= 0.05)  # Filtra correlações significativas com FDR <= 0.05
+
+# Visualiza os primeiros resultados
+print(cor_with_fdr)
+
+# Se quiser visualizar novamente como uma tabela interativa
+DT::datatable(cor_with_fdr, options = list(pageLength = 10),
+              caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)')
+
+
+# Salvar a tabela interativa como HTML
+DT::saveWidget(
+  DT::datatable(cor_with_fdr, options = list(pageLength = 10),
+                caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)'),
+  file = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/correlacoes_FDR_significativas.html"
+)
+
+
+
+```
+
+```{r}
+# Filtrar correlações significativas após correção de FDR
+cor_significant_fdr <- cor_with_fdr %>%
+  dplyr::filter(fdr_adjusted_p <= 0.05)
+
+# Visualizar os dados filtrados (opcional)
+DT::datatable(cor_significant_fdr, options = list(pageLength = 10),
+              caption = 'Correlações Significativas com Correção de FDR (≤ 0.05)')
+
+```
+```{r}
+# Criar o heatmap com base nas correlações significativas ajustadas
+heatmap_fdr <- ggplot(cor_significant_fdr, aes(x = parameter, y = Taxon, fill = correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, 
+                       name = "Correlação") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  labs(title = "Heatmap de Correlações Significativas (FDR ≤ 0.05)",
+       subtitle = "Correções ajustadas para múltiplos testes")
+
+# Exibir o heatmap
+print(heatmap_fdr)
+
+# Salvar o heatmap no caminho especificado
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas/heatmap_fdr.png", 
+       plot = heatmap_fdr, 
+       width = 10, 
+       height = 8)
+
+ggsave("heatmap_fdr_large.png", plot = heatmap_fdr, width = 15, height = 12)
+
+```
+
+
+
+

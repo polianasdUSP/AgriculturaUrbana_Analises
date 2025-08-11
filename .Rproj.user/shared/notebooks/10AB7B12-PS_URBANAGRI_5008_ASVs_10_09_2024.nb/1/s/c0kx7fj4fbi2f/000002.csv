@@ -1,0 +1,10 @@
+"0","```r
+# Visualizando a matriz filtrada
+str(t.my.asvs_filtered)
+
+```"
+"1"," num [1:130, 1:543] 1.04e-02 6.77e-05 8.90e-05 1.17e-03 0.00 ...
+ - attr(*, \"dimnames\")=List of 2
+  ..$ : chr [1:130] \"S10011.F00\" \"S10012.F00\" \"S10021.F00\" \"S10031.F00\" ...
+  ..$ : chr [1:543] \"c4f0710eb90cbedb839c238b591f4bb9\" \"54239c6454a6a3d3a48e90a79744afb7\" \"2c353937b82f39126e9aeead6f624ac9\" \"9639a3291729a3758207b47715d9205f\" ...
+"

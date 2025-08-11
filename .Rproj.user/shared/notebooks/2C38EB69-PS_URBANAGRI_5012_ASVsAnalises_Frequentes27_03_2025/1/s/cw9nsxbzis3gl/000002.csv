@@ -1,0 +1,31 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXJhciBvIGhlYXRtYXAgY29tIG8gcG9udG8gemVybyBjZW50cmFsaXphZG8gbmEgY29yIGJyYW5jYVxucGhlYXRtYXAoU1ZzX21hdHJpeCwgXG4gICAgICAgICBjbHVzdGVyaW5nX21ldGhvZCA9IFwid2FyZC5EMlwiLCAgIyBNw6l0b2RvIGRlIGNsdXN0ZXJpemHDp8Ojb1xuICAgICAgICAgY2x1c3RlcmluZ19kaXN0YW5jZV9yb3dzID0gXCJldWNsaWRlYW5cIiwgICMgRGlzdMOibmNpYSBwYXJhIEFTVnNcbiAgICAgICAgIGNsdXN0ZXJpbmdfZGlzdGFuY2VfY29scyA9IFwiZXVjbGlkZWFuXCIsICAjIERpc3TDom5jaWEgcGFyYSBhbW9zdHJhc1xuICAgICAgICAgc2NhbGUgPSBcInJvd1wiLCAgIyBFc2NhbGEgcG9yIGxpbmhhIHBhcmEgbWVsaG9yIHZpc3VhbGl6YcOnw6NvXG4gICAgICAgICBtYWluID0gXCJIZWF0bWFwIGRlIEFidW5kw6JuY2lhIE5vcm1hbGl6YWRhIGUgTG9nLXRyYW5zZm9ybWFkYSBkYXMgQVNWc1wiLFxuICAgICAgICAgY29sb3IgPSBjb2xvcl9wYWxldHRlKVxuXG5gYGAifQ== -->
+
+```r
+# Gerar o heatmap com o ponto zero centralizado na cor branca
+pheatmap(SVs_matrix, 
+         clustering_method = \"ward.D2\",  # Método de clusterização
+         clustering_distance_rows = \"euclidean\",  # Distância para ASVs
+         clustering_distance_cols = \"euclidean\",  # Distância para amostras
+         scale = \"row\",  # Escala por linha para melhor visualização
+         main = \"Heatmap de Abundância Normalizada e Log-transformada das ASVs\",
+         color = color_palette)
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Gerar o heatmap com o ponto zero centralizado na cor branca
+pheatmap(SVs_matrix, 
+         clustering_method = \"ward.D2\",  # Método de clusterização
+         clustering_distance_rows = \"euclidean\",  # Distância para ASVs
+         clustering_distance_cols = \"euclidean\",  # Distância para amostras
+         scale = \"row\",  # Escala por linha para melhor visualização
+         main = \"Heatmap de Abundância Normalizada e Log-transformada das ASVs\",
+         color = color_palette)
+
+```"
+"1","Error in (function (filename = \"Rplot%03d.png\", width = 480, height = 480,  : 
+  não é possível iniciar dispositivo png()
+"

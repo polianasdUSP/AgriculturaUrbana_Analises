@@ -1,0 +1,9 @@
+"0","```r
+
+metadados_raw <- merge(metadados_raw, shannon_filtered, by.x = \"Sample.id\", by.y = \"Sample.id\", all.x = TRUE)
+
+# Verificar os primeiros registros do dataframe metadados_raw atualizado
+
+head(metadados_raw)
+
+```"

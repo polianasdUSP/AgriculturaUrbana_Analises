@@ -1,0 +1,18 @@
+"1","  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = shannon_entropy ~ Region, data = metadados_raw)
+
+$Region
+                                     diff        lwr       upr     p adj
+Leste Adjacente-Leste         -0.23163532 -0.8444827 0.3812121 0.8332650
+Norte-Leste                   -0.44561201 -1.3321249 0.4409009 0.6343395
+Sul-Leste                     -0.26938321 -0.8135420 0.2747756 0.6477394
+Sul Adjacente-Leste           -0.22686244 -0.8709488 0.4172240 0.8660106
+Norte-Leste Adjacente         -0.21397668 -1.0833780 0.6554246 0.9601761
+Sul-Leste Adjacente           -0.03774788 -0.5535601 0.4780643 0.9996200
+Sul Adjacente-Leste Adjacente  0.00477289 -0.6155502 0.6250960 1.0000000
+Sul-Norte                      0.17622880 -0.6461978 0.9986554 0.9758916
+Sul Adjacente-Norte            0.21874957 -0.6729477 1.1104468 0.9606373
+Sul Adjacente-Sul              0.04252077 -0.5100438 0.5950854 0.9995364
+"

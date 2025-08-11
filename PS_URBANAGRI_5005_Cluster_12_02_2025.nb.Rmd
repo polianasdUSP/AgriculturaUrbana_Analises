@@ -1,0 +1,391 @@
+---
+title: "Cluster"
+output: html_notebook
+---
+
+#======= Library ========#
+
+```{r}
+
+library(fpc)
+
+
+```
+
+
+#========= Objetos =========#
+
+```{r}
+weighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/weighted_unifrac_distance_matrix.qza")$data)
+
+unweighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/unweighted_unifrac_distance_matrix.qza")$data)
+
+```
+
+
+#========== Limpeza dos objetos =========#
+
+
+
+```{r}
+#======= Unweighted unifrac ==========#
+
+
+#Renomear para não mexer no objeto raw
+unweighted_unifrac <- unweighted_unifrac.raw
+
+#Manter apenas ids que terminem com F00
+
+unweighted_unifrac <- unweighted_unifrac[ grepl(x = rownames(unweighted_unifrac), pattern =  "\\F00$" ), grepl(x = colnames(unweighted_unifrac), pattern =  "\\F00$" )]
+
+
+#Visualizar matriz (primeiras 5 linhas e colunas)
+
+unweighted_unifrac[1:5,1:5]
+
+# Transformar "-" em "." em linhas e depois colunas
+
+#gsub(x = rownames(unweighted_unifrac), pattern =  "-", replacement = "." )
+
+rownames(unweighted_unifrac) <- gsub(x = rownames(unweighted_unifrac), pattern =  "-", replacement = "." )
+colnames(unweighted_unifrac) <- gsub(x = colnames(unweighted_unifrac), pattern =  "-", replacement = "." )
+
+unweighted_unifrac[1:5,1:5]
+
+#======= Unweighted unifrac ==========#
+
+weighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/core-metrics-results/weighted_unifrac_distance_matrix.qza")$data)
+
+#Renomear para não mexer no objeto raw
+weighted_unifrac <- weighted_unifrac.raw
+
+#Manter apenas ids que terminem com F00
+
+weighted_unifrac <- weighted_unifrac[ grepl(x = rownames(weighted_unifrac), pattern =  "\\F00$" ), grepl(x = colnames(weighted_unifrac), pattern =  "\\F00$" )]
+
+# Transformar "-" em "." em linhas e depois colunas
+
+rownames(weighted_unifrac) <- gsub(x = rownames(weighted_unifrac), pattern =  "-", replacement = "." )
+
+colnames(weighted_unifrac) <- gsub(x = colnames(weighted_unifrac), pattern =  "-", replacement = "." )
+
+
+#Visualizar matriz (primeiras 5 linhas e colunas)
+weighted_unifrac[1:5,1:5]
+```
+
+
+
+
+```{r}
+#Separar em cluster com HClust e ward.2
+
+hclust(as.dist(unweighted.unifrac), method = "ward.D2")
+```
+
+
+```{r}
+
+# usando matriz distâncias unifrac para analise  (plotar dendrograma)
+plot(hclust(as.dist(unweighted.unifrac), method = "ward.D2"))
+
+# Salvar no objeto hclust_res
+hclust_res <- hclust(as.dist(unweighted.unifrac), method = "ward.D2")  # Aplicar agrupamento hierárquico
+```
+
+
+```{r}
+plot(hclust_res)
+
+
+#definir a divisao em 2 clusters
+cutree(hclust_res, k = 2)
+
+
+```
+
+
+```{r}
+#======= Prediction Strenght ========
+
+library(fpc)  # Certifique-se de que o pacote fpc está carregado
+
+# Definir valores de k para testar (por exemplo, de 2 a 6 clusters)
+k_values <- 2:6  
+
+# Verificar se a matriz é quadrada e sem valores NA
+dim(unweighted.unifrac)  # Deve ser n x n
+sum(is.na(unweighted.unifrac))  # Deve ser 0
+
+# Rodar a análise de Prediction Strength com Unweighted UniFrac para definir quantos clusters são o ideal
+set.seed(123)  # Para reprodutibilidade
+pred_strength <- prediction.strength(
+  xdata = unweighted.unifrac,  # Agora estamos usando a matriz de distâncias correta
+  Gseq = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = hclustCBI,  # Método de clustering hierárquico
+  method = "ward.D2"  # Adicionando o argumento obrigatório
+)
+
+# Exibir os valores de Prediction Strength para cada k
+print(pred_strength$mean.pred)
+```
+
+
+```{r}
+#Repetir analise usando HclusttreeCBI
+
+pred_strength_tree <- prediction.strength(
+  xdata = unweighted_unifrac,  # Agora estamos usando a matriz de distâncias correta
+  Gseq = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = hclusttreeCBI,  # Método de clustering hierárquico
+  method = "ward.D2"  # Adicionando o argumento obrigatório
+)
+
+
+
+```
+
+
+```{r}
+#Repetir com pamk
+
+prediction.strength(
+  xdata = unweighted_unifrac,  # Agora estamos usando a matriz de distâncias correta
+  krange = k_values,  # Valores de k testados
+  M = 50,  # Número de repetições para validar os clusters
+  clustermethod = pamkCBI,  # Método de clustering hierárquico
+    # Adicionando o argumento obrigatório
+)
+```
+
+
+```{r}
+pamk(data = unweighted_unifrac, krange = 2)
+
+kmeans(x = unweighted_unifrac, centers = 2)
+```
+
+
+```{r}
+# Executa a PCoA
+wunifrac.pcoa <- cmdscale(weighted_unifrac, eig = TRUE, k = 3)
+
+unwunifrac.pcoa <- cmdscale(unweighted_unifrac, eig = TRUE, k = 3)  # k = número de dimensões
+
+unwunifrac.pcoa
+
+cutree(hclust_res, k = 2)
+
+
+library(ggplot2)
+library(viridis)
+
+#Plotar PCOA com 2 clusters
+
+ggplot(data = merge(unwunifrac.pcoa$points,
+                    data.frame(clusterHclust = factor(cutree(hclust_res, k = 2))),
+                    by = "row.names")) + 
+  geom_point(aes(x = V1, y = V2, color = clusterHclust), size=3)+
+  scale_color_manual(values = c("1" = "black", "2" = "blue")) +
+  labs(title = "Unweighted Unifrac PCoA",
+       x = "PCoA 1",
+       y = "PCoA 2",
+       color = "Cluster") +
+  theme_minimal() +
+  theme (plot.title = element_text(hjust = 0.5, face = "bold", size = 14))
+
+
+
+
+#ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color =clusterHclust))
+
+```
+
+
+
+```{r}
+#Plotar PCOA com 3 clusters
+
+cutree(hclust_res, k = 3)
+
+ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 3)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color = as.factor(clusterHclust)))
+
+```
+
+
+```{r}
+ggplot(data = merge(unwunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color =clusterHclust))
+
+
+```
+
+
+```{r}
+
+library(vegan)
+
+?metaMDS()
+
+#Ao inves de PCoA, Fazer com nmds
+
+plot(metaMDS(as.dist(unweighted_unifrac)))
+
+(metaMDS(as.dist(unweighted_unifrac)))
+my.mds <- (metaMDS(as.dist(unweighted_unifrac)))
+my.mds$points
+
+ggplot(data = merge(my.mds$points, data.frame(clusterHclust = cutree(hclust_res, k = 2)), by = "row.names")) + geom_point(aes(x = MDS1, y = MDS2, color =clusterHclust))
+
+
+```
+
+#========== WEIGHTED UNIFRAC ==================#
+
+```{r}
+# usando matriz distâncias unifrac para analise  (plotar dendrograma)
+plot(hclust(as.dist(weighted_unifrac), method = "ward.D2"))
+```
+
+
+```{r}
+# Salvar no objeto hclust_res
+hclust_res_Wei <- hclust(as.dist(unweighted_unifrac), method = "ward.D2")  # Aplicar agrupamento hierárquico
+```
+
+
+```{r}
+# Executa a PCoA
+wunifrac.pcoa <- cmdscale(weighted_unifrac, eig = TRUE, k = 2)
+
+
+wunifrac.pcoa
+
+cutree(hclust_res_Wei, k = 2)
+
+
+library(ggplot2)
+
+#Plotar PCOA com 2 clusters
+
+#Plotar PCOA com 2 clusters
+
+ggplot(data = merge(wunifrac.pcoa$points,
+                    data.frame(clusterHclust = factor(cutree(hclust_res, k = 2))),
+                    by = "row.names")) + 
+  geom_point(aes(x = V1, y = V2, color = clusterHclust), size=3)+
+  scale_color_manual(values = c("1" = "black", "2" = "blue")) +
+  labs(title = "Weighted Unifrac PCoA",
+       x = "PCoA 1",
+       y = "PCoA 2",
+       color = "Cluster") +
+  theme_minimal() +
+  theme (plot.title = element_text(hjust = 0.5, face = "bold", size = 14))
+
+
+#ggplot(data = merge(wunifrac.pcoa$points, data.frame(clusterHclust = cutree(hclust_res_Wei, k = 2)), by = "row.names")) + geom_point(aes(x = V1, y = V2, color =clusterHclust))
+
+
+
+```
+
+
+```{r}
+# Cria a matriz de distâncias a partir do unweighted unifrac
+dist_matrix <- as.dist(unweighted.unifrac)  # substitua se necessário pelo seu objeto real
+
+# Clustering hierárquico e corte em 2 grupos
+hc <- hclust(dist_matrix, method = "ward.D2")
+clusters <- cutree(hc, k = 2)
+
+
+```
+
+```{r}
+# Pegue os dois primeiros eixos de unweighted_unifrac.pcoa
+pcoa_coords <- as.data.frame(unwei_unifrac.pcoa$points[, 1:2])
+pcoa_coords$SampleID <- rownames(pcoa_coords)
+
+# Adicione os clusters
+pcoa_coords$Cluster <- as.factor(clusters[rownames(pcoa_coords)])
+
+```
+
+```{r}
+pcoa_merged <- merge(pcoa_coords, metadados.all, by = "Sample.id")
+
+
+```
+```{r}
+library(ggplot2)
+
+# Cálculo das porcentagens de variância explicada
+eig_vals <- unwei_unifrac.pcoa$eig
+var1 <- round(eig_vals[1] / sum(eig_vals) * 100, 1)
+var2 <- round(eig_vals[2] / sum(eig_vals) * 100, 1)
+
+# Gráfico
+ggplot(pcoa_merged, aes(x = V1, y = V2, color = Cluster)) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(title = "PCoA - Unweighted UniFrac com clusters (k = 2)",
+       x = paste0("PCoA 1 (", var1, "%)"),
+       y = paste0("PCoA 2 (", var2, "%)")) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal()
+
+```
+```{r}
+table(pcoa_merged$Cluster, pcoa_merged$Region)
+chisq.test(pcoa_merged$Cluster, pcoa_merged$Region)
+
+```
+
+```{r}
+# Extrair os dois primeiros eixos do PCoA weighted
+pcoa_coords_weighted <- as.data.frame(wei_unifrac.pcoa$points[, 1:2])
+colnames(pcoa_coords_weighted) <- c("Axis.1", "Axis.2")
+pcoa_coords_weighted$Sample.id <- rownames(pcoa_coords_weighted)
+
+# Adicionar os clusters (usando os mesmos já criados com Unweighted)
+pcoa_coords_weighted$Cluster <- as.factor(clusters[rownames(pcoa_coords_weighted)])
+
+```
+
+```{r}
+pcoa_merged_weighted <- merge(pcoa_coords_weighted, metadados.all, by = "Sample.id")
+
+```
+
+```{r}
+# Cálculo da variância explicada
+eig_vals_w <- wei_unifrac.pcoa$eig
+var1_w <- round(eig_vals_w[1] / sum(eig_vals_w) * 100, 1)
+var2_w <- round(eig_vals_w[2] / sum(eig_vals_w) * 100, 1)
+
+# Gráfico
+ggplot(pcoa_merged_weighted, aes(x = Axis.1, y = Axis.2, color = Cluster)) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(title = "PCoA - Weighted UniFrac com clusters (k = 2)",
+       x = paste0("PCoA 1 (", var1_w, "%)"),
+       y = paste0("PCoA 2 (", var2_w, "%)")) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal()
+
+```
+```{r}
+library(vegan)
+
+adonis_unw <- adonis2(as.dist(unweighted.unifrac) ~ Cluster, data = pcoa_merged)
+print(adonis_unw)
+
+
+
+```
+
+```{r}
+adonis_w <- adonis2(as.dist(weighted.unifrac) ~ Cluster, data = pcoa_merged_weighted)
+print(adonis_w)
+
+```
+

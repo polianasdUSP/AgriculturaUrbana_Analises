@@ -1,0 +1,21 @@
+"0","# 9. Gerar boxplot apenas com gêneros das ASVs significantes
+ggplot(dados_genus, aes(x = VAI_group, y = Abundancia, fill = VAI_group)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.4) +
+  facet_wrap(~ Genus, scales = ""free_y"") +
+  stat_compare_means(method = ""wilcox.test"", label = ""p.signif"", size = 4) +
+  labs(title = ""Relative Abundance of Significant Genera (Volcano)by Visceral Adiposity Index (VAI) Group"",
+       y = ""Relative Abundance"", x = ""VAI group"") +
+  scale_fill_manual(values = c(""Low"" = ""#F9A03F"", ""High"" = ""#59C3C3"")) +
+  theme_minimal() +
+  theme(legend.position = ""none"",
+        strip.text = element_text(size = 10),
+        plot.title = element_text(hjust = 0.5))
+"
+"2","Aviso em gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," não foi possível abrir o arquivo comprimido 'C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/.Rproj.user/shared/notebooks/2C38EB69-PS_URBANAGRI_5012_ASVsAnalises_Frequentes27_03_2025/1/4E7A587F241fd9b6/cg30lmc1h2zb1_t/7821837bfa85455992df3ed9b32884d6.snapshot', motivo provável 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : não é possível abrir a conexão
+"

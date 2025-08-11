@@ -1,0 +1,199 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+
+library(tidyverse)
+library(qiime2R)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(ggrepel) # for offset labels
+library(ggtree) # for visualizing phylogenetic trees
+library(ape) # for manipulating phylogenetic trees
+library(Hmisc)
+library(writexl)
+library(ggplot2)
+library(reshape2)
+
+```
+
+```{r}
+SVs<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/table.qza")$data
+taxonomy<-read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/taxonomy_silva.qza")$data
+
+```
+ 
+```{r}
+
+#Filtrar SVs
+
+# Substitui "-" por "." nos nomes das linhas do dataframe
+
+colnames(SVs) <- gsub("-", ".", colnames(SVs))
+
+
+# Filtra as linhas onde os nomes das linhas não terminam com ".F01"
+SVs <- SVs[!grepl("\\.F01$", colnames(SVs)), , drop = FALSE]
+
+
+# Selecionar colunas cujos nomes terminam com ".F00"
+colunas_f00 <- grep("\\.F00$", colnames(SVs), value = TRUE)
+
+# Filtrar o dataframe para manter apenas essas colunas
+SVs <- SVs[, (grep("\\.F00$", colnames(SVs), value = TRUE))]
+
+# Verificar o resultado
+colnames(SVs)
+
+```
+```{r}
+# Filtre as ASVs que aparecem em pelo menos 'min_samples' amostras
+library(dplyr)
+
+ASVs_log_filtered <- SVs_long %>%
+  group_by(Feature.ID) %>%
+  filter(sum(Abundance > 0) >= ceiling(0.10 * 13)) %>%
+  ungroup()
+
+# Exiba o resultado
+ASVs_log_filtered
+```
+
+
+
+```{r}
+
+head(taxonomy)
+
+# Mesclar SVs_log_df com taxonomy para adicionar a informação de taxonomia
+ASVs_with_taxonomy <- left_join(ASVs_log_filtered, taxonomy, by = "Feature.ID")
+
+# Visualizar as primeiras linhas para verificar a junção
+head(ASVs_with_taxonomy)
+
+
+```
+
+```{r}
+# Duplicar a coluna Taxon para preservá-la e separar em níveis taxonômicos
+ASVs_with_taxonomy <- ASVs_with_taxonomy %>%
+  mutate(Taxon_original = Taxon) %>%  # Preservar a coluna Taxon original
+  separate(Taxon, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = "; ", fill = "right", extra = "merge")
+
+# Verificar as primeiras linhas para confirmar a separação
+head(ASVs_with_taxonomy)
+
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+ggplot(SVs_phylum_long, aes(x = Sample, y = TotalProportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(x = NULL, y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_brewer(palette = "Spectral")
+
+```
+###############################################
+#começando de novo
+```{r}
+library(dplyr)
+
+
+# Recalcule as proporções de Phylum por Sample.id no novo objeto
+ASVs_with_proportions <- ASVs_with_taxonomy %>%
+  group_by(Sample.id, Phylum) %>%
+  summarise(NormAbundance = sum(NormAbundance, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(Sample.id) %>%
+  mutate(PhylumProportion = NormAbundance / sum(NormAbundance, na.rm = TRUE))
+
+# Crie o gráfico com as proporções ajustadas
+ggplot(ASVs_with_proportions, aes(x = Sample.id, y = PhylumProportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(x = NULL, y = "Proportion of Phylum", fill = "Phylum") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_brewer(palette = "Spectral")
+
+
+```
+```{r}
+ggplot(ASVs_with_proportions, aes(x = Sample.id, y = PhylumProportion, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(x = NULL, y = "Proportion of Phylum", fill = "Phylum") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6), # Ajuste o tamanho do texto no eixo x
+    legend.position = "right" # Coloque a legenda à direita para melhor visualização
+  ) +
+  scale_fill_brewer(palette = "Spectral")
+
+
+```
+FAMILY
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Calcule a soma total de NormAbundance para cada família dentro de cada Sample.id
+family_proportion_per_sample <- ASVs_with_taxonomy %>%
+  group_by(Sample.id, Family) %>%
+  summarise(TotalNormAbundance = sum(NormAbundance, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(Sample.id) %>%
+  mutate(FamilyProportion = (TotalNormAbundance / sum(TotalNormAbundance)) * 100) # Proporção em 100%
+
+# Visualize o resultado
+family_proportion_per_sample
+
+
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(family_proportion_per_sample, aes(x = Sample.id, y = FamilyProportion, fill = Family)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(x = NULL, y = "Proportion of Families (%)", fill = "Family") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6),
+    legend.position = "right"
+  ) +
+  scale_fill_brewer(palette = "Spectral")
+
+```
+```{r}
+library(ggplot2)
+library(viridis)
+
+# Obtenha o número de famílias únicas no dataset
+num_families <- length(unique(family_proportion_per_sample$Family))
+
+# Crie o gráfico com uma paleta de cores que suporte todas as famílias
+ggplot(family_proportion_per_sample, aes(x = Sample.id, y = FamilyProportion, fill = Family)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(x = NULL, y = "Proportion of Families (%)", fill = "Family") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6),
+    legend.position = "right"
+  ) +
+  scale_fill_manual(values = viridis(num_families, option = "viridis")) # Use uma paleta com cores para todas as famílias
+
+
+```
+

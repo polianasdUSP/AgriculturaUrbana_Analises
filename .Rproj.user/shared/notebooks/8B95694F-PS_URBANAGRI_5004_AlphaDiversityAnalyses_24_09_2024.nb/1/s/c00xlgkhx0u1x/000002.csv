@@ -1,0 +1,14 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucF92YWx1ZV9zaGFubm9uIDwtIHdpbGNveC50ZXN0KHNoYW5ub25fZW50cm9weSB+IFRyZXBvbmVtYSwgZGF0YSA9IHNhdWRlX2RpZXRhKSRwLnZhbHVlXG5cbmBgYCJ9 -->
+
+```r
+p_value_shannon <- wilcox.test(shannon_entropy ~ Treponema, data = saude_dieta)$p.value
+
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+p_value_shannon <- wilcox.test(shannon_entropy ~ Treponema, data = saude_dieta)$p.value
+
+```"

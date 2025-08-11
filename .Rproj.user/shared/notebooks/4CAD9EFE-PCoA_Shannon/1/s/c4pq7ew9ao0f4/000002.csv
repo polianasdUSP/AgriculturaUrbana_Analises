@@ -1,0 +1,13 @@
+"0","```r
+# Visualizar os resultados com ggplot2
+
+ggplot(pcoa_df, aes(x = Axis1, y = Axis2, label = Sample.id)) +
+  geom_point() +
+  geom_text(vjust = 1.5, size = 3) +
+  labs(title = \"PCoA Analysis\", 
+       x = paste(\"PCoA Axis 1 (\", round(variance_explained[1], 2), \"%)\", sep=\"\"), 
+       y = paste(\"PCoA Axis 2 (\", round(variance_explained[2], 2), \"%)\", sep=\"\")) +
+  theme_minimal()
+  
+  
+```"

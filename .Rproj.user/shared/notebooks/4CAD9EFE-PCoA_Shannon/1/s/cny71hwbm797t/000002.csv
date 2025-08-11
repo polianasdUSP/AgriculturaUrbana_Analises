@@ -1,0 +1,7 @@
+"0","```r
+# Instalar pacotes necessários caso ainda não tenha
+install.packages(\"vegan\")
+
+```"
+"1","Error in install.packages : Updating loaded packages
+"
