@@ -1,0 +1,2037 @@
+---
+title: "Decontam"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+ 
+ 
+```{r}
+library(phyloseq)
+library(decontam)
+library(qiime2R)
+library(microbiome)
+library(vegan)
+library(ggplot2)
+library(dplyr)
+
+```
+ 
+ 
+
+```{r}
+#install.packages("BiocManager")
+#BiocManager::install("decontam")
+
+#metadados.all.filtrado <- read.delim(
+ # "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/qiime_novo_28_05_2025/metadados.all.filtrado.tsv",
+#  header = TRUE,
+#  sep = "\t",
+#  stringsAsFactors = FALSE
+#)
+
+#metadados.all.filtrado <- read.delim("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/qiime_novo_28_05_2025/metadados.all.filtrado.tsv", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+
+
+
+
+
+# Remover sufixos tipo "_DNA_S42_L001"
+#metadata$sample.id <- gsub("_DNA_S\\d+_L001$", "", metadata$sample.id)
+
+# Substituir underscores por traços
+#metadata$sample.id <- gsub("_", "-", metadata$sample.id)
+
+# Remover linhas com "#q2:types"
+#metadata <- metadata[metadata$sample.id != "#q2:types", ]
+
+#Remover amostras que terminam com .F01
+#metadata <- metadata[!grepl("\\.F01$", metadata$sample.id), ]
+
+# Remover controles negativos (assumindo que contenham "NEG", "neg", "Control" ou "POSZymo" no nome)
+#metadata <- metadata[!grepl("NEG|neg|Control|POSZymo", metadata$sample.id), ]
+
+# Verificar resultado
+#length(unique(metadata$sample.id))
+#head(metadata$sample.id)
+
+
+#C:\Users\polia\OneDrive\Desktop\EstatisticaR\AgrUrbana\16S_AgriUrbana\qiime_novo_28_05_2025
+
+
+
+#criar objeto phyloseq
+
+ 
+
+#library(qiime2R)
+
+ps <- qza_to_phyloseq(
+  features = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/qiime_novo_28_05_2025/table.qza",
+  metadata = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/qiime_novo_28_05_2025/metadata.tsv"
+)
+
+```
+
+
+```{r}
+# Lê o objeto .qza
+taxonomy_qza <- read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/qiime_novo_28_05_2025/taxonomy.qza")
+
+# Extrai a parte útil
+taxonomy_df <- taxonomy_qza$data
+
+# Separar a coluna 'Taxon' em níveis taxonômicos
+library(tidyr)
+taxonomy_split <- separate(taxonomy_df, Taxon, into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = ";", fill = "right")
+
+#Converter para matriz
+tax_mat <- as.matrix(taxonomy_split[, -1])  # Remove a coluna Feature.ID (será usada como rownames)
+rownames(tax_mat) <- taxonomy_split$Feature.ID
+
+# Criar objeto tax_table
+tax_table_final <- tax_table(tax_mat)
+
+#Adicionar ao seu objeto phyloseq (ps)
+tax_table(ps) <- tax_table_final
+
+
+
+```
+
+
+```{r}
+
+
+
+
+#controles_negativos <- c(
+ # "Pooled-Extractioncontrol-NEG_S56_L001",
+  #"Pooled-Extractioncontrol-POS-MOCK_S55_L001",
+  #"20240125-PCRNEG_S57_L001",
+  #"20240131-PCRNEG_S96_L001",
+  #"20240319_PCRNEG_S96_L001",
+  #"NEG_Run1_DNA_S5_L001",
+  #"NEG_Run2_DNA_S30_L001",
+  #"NEG_Run3_DNA_S54_L001",
+  #"NEG_Run4_DNA_S75_L001",
+  #"POSZymo_Run1_DNA_S6_L001",
+  #"NEG_Kit_Run5_DNA_S4_L001",
+  #"NEG_Run5_DNA_S13_L001",
+  #"20240325_Neg_Control_DNA_S70_L001",
+  #"20240404_PCRneg_S95_L001"
+#)
+```
+
+
+```{r}
+#========= Decontam para os 3 sample Sheets =========#
+
+
+#====> s1
+
+# Selecionar apenas amostras de SampleSheet1 que terminam com -F00
+samples_s1 <- sample_names(ps)[grepl("^10[01]\\d{2}-F00$", sample_names(ps))]
+
+# Controles negativos desse batch
+neg_controls_s1 <- c(
+  "Pooled-Extractioncontrol-NEG_S56_L001",
+  "Pooled-Extractioncontrol-POS-MOCK_S55_L001",
+  "20240125-PCRNEG_S57_L001",
+  "20240131-PCRNEG_S96_L001"
+)
+
+# Subset do objeto phyloseq para esse batch
+ps_s1 <- prune_samples(sample_names(ps) %in% c(samples_s1, neg_controls_s1), ps)
+
+# Indicar os controles negativos
+sample_data(ps_s1)$is.neg <- sample_names(ps_s1) %in% neg_controls_s1
+
+
+#=====> s2
+
+# SampleSheet2: manter apenas amostras terminando com _F00
+samples_s2 <- sample_names(ps)[grepl("^(10[0-4]|20[0-1]|30[0-2]|40[0-3])\\d{2}_F00(_DNA)?", sample_names(ps))]
+
+# Controles negativos para SampleSheet2
+neg_controls_s2 <- c(
+  "20240319_PCRNEG_S96_L001",
+  "NEG_Run1_DNA_S5_L001",
+  "NEG_Run2_DNA_S30_L001",
+  "NEG_Run3_DNA_S54_L001",
+  "NEG_Run4_DNA_S75_L001",
+  "POSZymo_Run1_DNA_S6_L001"
+)
+
+# Subset do phyloseq para s2
+ps_s2 <- prune_samples(sample_names(ps) %in% c(samples_s2, neg_controls_s2), ps)
+sample_data(ps_s2)$is.neg <- sample_names(ps_s2) %in% neg_controls_s2
+
+
+#====> s3
+
+# SampleSheet3: manter apenas amostras terminando com _F00
+samples_s3 <- sample_names(ps)[grepl("^40[4-8]\\d{2}_F00(_DNA)?", sample_names(ps))]
+
+# Controles negativos para SampleSheet3
+neg_controls_s3 <- c(
+  "NEG_Kit_Run5_DNA_S4_L001",
+  "NEG_Run5_DNA_S13_L001",
+  "20240325_Neg_Control_DNA_S70_L001",
+  "20240404_PCRneg_S95_L001"
+)
+
+# Subset do phyloseq para s3
+ps_s3 <- prune_samples(sample_names(ps) %in% c(samples_s3, neg_controls_s3), ps)
+sample_data(ps_s3)$is.neg <- sample_names(ps_s3) %in% neg_controls_s3
+```
+
+
+```{r}
+#=============================================================#
+#                Decontam S1: threshold .01
+#=============================================================#
+#contam_s1 <- isContaminant(ps_s1, method = "prevalence", neg = "is.neg", threshold = 0.5)  
+
+
+# 4. Criar coluna lógica com os negativos
+sample_data(ps_s1)$is.neg <- sample_names(ps_s1) %in% neg_controls_s1
+
+# 5. Rodar o decontam (método prevalência)
+contam_s1 <- isContaminant(ps_s1, method = "prevalence", neg = "is.neg")  
+
+# 6. Verificar quantos contaminantes foram encontrados
+table(contam_s1$contaminant)
+
+```
+
+
+```{r}
+# 7. Filtrar ASVs não contaminantes
+asvs_s1 <- taxa_names(ps_s1)[!contam_s1$contaminant]
+
+# 8. Criar novo objeto phyloseq sem os contaminantes
+ps_s1_clean <- prune_taxa(asvs_s1, ps_s1)
+
+# 9. Verificação opcional
+ps_s1_clean
+
+```
+
+
+```{r}
+#=======> CONTAMINANTES E SUA TAXONOMIA:
+
+
+
+
+# Taxonomia dos contaminantes
+contam_asvs <- rownames(contam_s1)[contam_s1$contaminant]
+contam_tax <- tax_table(ps)[contam_asvs, ]
+
+
+
+
+
+# Em formato data.frame
+contam_tax_df <- as.data.frame(contam_tax)
+print(contam_tax_df)
+
+
+
+#write.csv(contam_tax_df, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/contaminantes_sampleSheet1.csv", row.names = TRUE)
+```
+
+
+```{r}
+#=> Quantos reads se perderam?
+
+# 1. Total de reads por amostra antes e depois
+reads_before <- sample_sums(ps_s1)
+reads_after <- sample_sums(ps_s1_clean)
+
+# 2. Calcular reads removidos e porcentagem
+reads_removed <- reads_before - reads_after
+percent_removed <- (reads_removed / reads_before) * 100
+
+# 3. Criar dataframe com os resultados
+removed_df <- data.frame(
+  Sample = names(reads_before),
+  Reads_Before = reads_before,
+  Reads_After = reads_after,
+  Reads_Removed = reads_removed,
+  Percent_Removed = round(percent_removed, 2)
+)
+
+# 4. Visualizar os dados
+removed_df <- removed_df[order(removed_df$Percent_Removed, decreasing = TRUE), ]
+print(removed_df)
+```
+
+
+```{r}
+# 4. Remover os controles (NEG e POS)
+removed_df_real <- removed_df %>%
+  filter(!grepl("NEG|POS", Sample))
+
+# 5. Reordenar Sample com base no % removido
+removed_df_real$Sample <- factor(
+  removed_df_real$Sample,
+  levels = removed_df_real$Sample[order(removed_df_real$Percent_Removed, decreasing = TRUE)]
+)
+
+# 6. Criar gráfico de barras
+ggplot(removed_df_real, aes(x = Sample, y = Percent_Removed)) +
+  geom_bar(stat = "identity", fill = "#4682B4") +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (S1, sem controles). Threshold .01",
+    x = "Amostra",
+    y = "% de Reads Removidos"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+```
+
+
+```{r}
+#=============================================================#
+#                 Decontam S2: threshold .01 
+#=============================================================#
+
+
+# 4. Criar a coluna lógica com os negativos
+sample_data(ps_s2)$is.neg <- sample_names(ps_s2) %in% neg_controls_s2
+
+# 5. Rodar o decontam (método prevalência)
+contam_s2 <- isContaminant(ps_s2, method = "prevalence", neg = "is.neg")
+
+# 6. Verificar quantos contaminantes foram identificados
+table(contam_s2$contaminant)
+
+```
+
+
+```{r}
+# 7. Obter ASVs que não são contaminantes
+asvs_s2 <- taxa_names(ps_s2)[!contam_s2$contaminant]
+
+# 8. Criar novo objeto phyloseq sem os contaminantes
+ps_s2_clean <- prune_taxa(asvs_s2, ps_s2)
+
+# 9. Confirmar visualmente
+ps_s2_clean
+```
+
+
+```{r}
+#VERIFICAR OS CONTAMINANTES
+
+# 1. Identificar os ASVs considerados contaminantes
+contam_asvs_s2 <- rownames(contam_s2)[contam_s2$contaminant]
+
+# 2. Ver a taxonomia dos contaminantes
+contam_tax_s2 <- tax_table(ps)[contam_asvs_s2, ]
+contam_tax_s2_df <- as.data.frame(contam_tax_s2)
+
+# 3. Visualizar
+print(contam_tax_s2_df)
+```
+
+
+```{r}
+#write.csv(contam_tax_s2_df, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/contaminantes_s2.csv", row.names = TRUE)
+
+#generos dos contaminantes: 
+
+table(contam_tax_s2_df$Genus)
+```
+
+
+```{r}
+#=> Quantos reads se perderam?
+
+# 1. Total de reads por amostra antes e depois
+reads_before2 <- sample_sums(ps_s2)
+reads_after2 <- sample_sums(ps_s2_clean)
+
+# 2. Calcular reads removidos e porcentagem
+reads_removed2 <- reads_before2 - reads_after2
+percent_removed2 <- (reads_removed2 / reads_before2) * 100
+
+# 3. Criar dataframe com os resultados
+removed_df2 <- data.frame(
+  Sample = names(reads_before2),
+  Reads_Before2 = reads_before2,
+  Reads_After2 = reads_after2,
+  Reads_Removed2 = reads_removed2,  # << CORRIGIDO AQUI
+  Percent_Removed2 = round(percent_removed2, 2)
+)
+
+# 4. Visualizar os dados ordenados por % removida
+removed_df2 <- removed_df2[order(removed_df2$Percent_Removed2, decreasing = TRUE), ]
+print(removed_df2)
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# 1. Filtrar amostras reais (sem NEG ou POS)
+removed_df2_real <- removed_df2 %>%
+  filter(!grepl("NEG|POS", Sample))
+
+# 2. Ordenar as amostras pelo percentual removido
+removed_df2_real$Sample <- factor(
+  removed_df2_real$Sample,
+  levels = removed_df2_real$Sample[order(removed_df2_real$Percent_Removed2, decreasing = TRUE)]
+)
+
+# 3. Criar o gráfico com amostras ordenadas
+ggplot(removed_df2_real, aes(x = Sample, y = Percent_Removed2)) +
+  geom_bar(stat = "identity", fill = "#4682B4") +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (sem controles)",
+    x = "Amostra",
+    y = "% de Reads Removidos"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+```
+
+
+```{r}
+#=============================================================#
+#                        Decontam S3
+#=============================================================#
+
+
+# 3. Subset do objeto phyloseq com amostras e controles
+ps_s3 <- prune_samples(sample_names(ps) %in% c(samples_s3, neg_controls_s3), ps)
+
+# 4. Marcar os controles negativos
+sample_data(ps_s3)$is.neg <- sample_names(ps_s3) %in% neg_controls_s3
+
+
+#2. O limiar (threshold) do decontam pode estar conservador
+#Por padrão, o threshold = 0.1, o que pode ser pouco sensível para detectar contaminantes que também aparecem em amostras reais.
+#testar uma detecção mais rigorosa, pode tentar:
+
+# 5. Rodar o método de prevalência do decontam
+contam_s3 <- isContaminant(ps_s3, method = "prevalence", neg = "is.neg")
+
+# 6. Verificar quantos contaminantes foram detectados
+table(contam_s3$contaminant)
+
+```
+
+
+```{r}
+# 7. Obter os ASVs não contaminantes
+asvs_s3 <- taxa_names(ps_s3)[!contam_s3$contaminant]
+
+# 8. Criar objeto phyloseq limpo
+ps_s3_clean <- prune_taxa(asvs_s3, ps_s3)
+
+# 9. Verificação
+ps_s3_clean
+```
+
+
+```{r}
+#TAXONOMIA DOS CONTAMINANTES
+
+# 1. Identificar os ASVs considerados contaminantes
+contam_asvs_s3 <- rownames(contam_s3)[contam_s3$contaminant]
+
+# 2. Obter a taxonomia desses ASVs
+contam_tax_s3 <- tax_table(ps)[contam_asvs_s3, ]
+contam_tax_s3_df <- as.data.frame(contam_tax_s3)
+
+# 3. Visualizar
+print(contam_tax_s3_df)
+
+
+
+#write.csv(contam_tax_s3_df, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/contaminantes_s3.csv", row.names = TRUE)
+```
+
+
+```{r}
+#outras asvs a verificar: f__Mycoplasmataceae (2b9c8fa41ae2b255b4f3831f752010e5)  f__Succinivibrionaceae; g__Ruminobacter; s__gut_metagenome (3a0c5873e8683c4c3cec68faa75b3bb0) 
+
+#asvs_verificar <- c("2b9c8fa41ae2b255b4f3831f752010e5", "3a0c5873e8683c4c3cec68faa75b3bb0")
+
+
+
+
+#=====> verificar os controles
+
+controles <- sample_names(ps_s3)[grepl("NEG|Neg|PCRneg|Control", sample_names(ps_s3))]
+ps_s3_controles <- subset_samples(ps_s3, sample_names(ps_s3) %in% controles)
+
+#Ver composição (ex: por Genus ou Phylum):
+
+# Transformar em proporção relativa
+ps_s3_controles_rel <- transform_sample_counts(ps_s3_controles, function(x) x / sum(x))
+
+
+
+
+# Derreter objeto phyloseq para data.frame
+df_genus <- psmelt(genus_abund)
+
+# Selecionar os 20 gêneros mais abundantes
+top_genus <- df_genus %>%
+  group_by(Genus) %>%
+  summarise(TotalAbundance = sum(Abundance)) %>%
+  arrange(desc(TotalAbundance)) %>%
+  slice_head(n = 20) %>%
+  pull(Genus)
+
+
+# Filtrar apenas os 20 gêneros mais abundantes
+df_top <- df_genus %>% filter(Genus %in% top_genus)
+
+# Gráfico
+ggplot(df_top, aes(x = Sample, y = Abundance, fill = Genus)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Abundância Relativa por Gênero nos Controles",
+       x = "Amostra", y = "Abundância Relativa") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+
+
+
+```{r}
+# Se quiser um gráfico:
+ggplot(df_treponema, aes(x = Sample, y = Abundance, fill = Sample)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Abundância de Treponema nos Controles",
+       x = "Amostra", y = "Abundância Relativa") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  guides(fill = "none")
+```
+
+
+```{r}
+#=> Quantos reads se perderam?
+
+# 1. Total de reads por amostra antes e depois
+reads_before3 <- sample_sums(ps_s3)
+reads_after3 <- sample_sums(ps_s3_clean)
+
+# 3. Calcular reads removidos e porcentagem
+reads_removed3 <- reads_before3 - reads_after3
+percent_removed3 <- (reads_removed3 / reads_before3) * 100
+
+# 3. Criar dataframe com os resultados
+removed_df3 <- data.frame(
+  Sample = names(reads_before3),
+  Reads_Before3 = reads_before3,
+  Reads_After3 = reads_after3,
+  Reads_Removed3 = reads_removed3,  # << CORRIGIDO AQUI
+  Percent_Removed3 = round(percent_removed3, 2)
+)
+
+# 4. Visualizar os dados ordenados por % removida
+removed_df3 <- removed_df3[order(removed_df3$Percent_Removed3, decreasing = TRUE), ]
+print(removed_df3)
+```
+
+
+```{r}
+# 1. Filtrar amostras reais (excluindo controles)
+removed_df3_real <- removed_df3 %>%
+  filter(
+    !grepl("NEG|POS", Sample) & 
+      !grepl("20240325_Neg_Control", Sample)
+  )
+
+# 2. Ordenar as amostras pelo percentual removido
+removed_df3_real$Sample <- factor(
+  removed_df3_real$Sample,
+  levels = removed_df3_real$Sample[order(removed_df3_real$Percent_Removed3, decreasing = TRUE)]
+)
+
+# 3. Criar o gráfico com amostras ordenadas
+ggplot(removed_df3_real, aes(x = Sample, y = Percent_Removed3)) +
+  geom_bar(stat = "identity", fill = "#4682B4") +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (sem controles)",
+    x = "Amostra",
+    y = "% de Reads Removidos"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+```
+
+
+```{r}
+#=============================================================#
+#                Juntar os três objetos limpos
+#=============================================================#
+
+# Juntar os objetos phyloseq limpos
+ps_descontaminado <- merge_phyloseq(ps_s1_clean, ps_s2_clean, ps_s3_clean)
+
+# Verificar dimensões do objeto combinado
+ps_descontaminado
+
+
+#======> Tirar controles
+
+#Remover controles negativos, positivos e mocks
+ps_clean <- subset_samples(
+  ps_descontaminado,
+  !grepl("NEG|POS|Mock|Control", sample_names(ps_descontaminado), ignore.case = TRUE)
+)
+
+# Padronizar os nomes das amostras
+sample_names(ps_clean) <- gsub("^([0-9]+)_F00.*", "\\1.F00", sample_names(ps_clean))
+
+#Verificar consistência com a metadata
+intersect(sample_names(ps_clean), metadados.all.filtrado$sample.id)
+
+sample_names(ps_clean) <- gsub("\\-F00", ".F00", sample_names(ps_clean))
+
+
+
+
+#=====> rarefação
+
+#Verificar a distribuição de reads
+#Antes de definir um ponto de corte para a rarefação:
+  
+
+hist(sample_sums(ps_clean),
+     breaks = 50,
+     main = "Distribuição de Reads por Amostra",
+     xlab = "Número de Reads",
+     col = "#66c2a5")
+```
+
+
+```{r}
+reads_por_amostra <- sample_sums(ps_clean)
+reads_por_amostra[which.min(reads_por_amostra)]
+
+#> reads_por_amostra[which.min(reads_por_amostra)]
+#30081.F00 
+#17693 
+
+#tirei a amostra 30081.F00. Rarefação será com 25689 para maior profundidade e para manter amostra 10391
+
+set.seed(123)
+ps_rarefied <- rarefy_even_depth(
+  ps_clean,
+  sample.size = 25689,
+  rngseed = 123,
+  verbose = TRUE
+)
+
+#verificar
+sample_sums(ps_rarefied)
+
+
+
+
+#=================================================================================#
+#       Criar beta diversidade
+#=================================================================================#
+
+#verificar se posso usar a tree sem podar
+
+
+
+# ASVs que estão no ps mas não estão na árvore
+setdiff(taxa_names(ps_rarefied), tree$tip.label) # => se retornar vazio, está ok!
+
+
+
+# Adicionar a árvore ao objeto phyloseq
+phy_tree(ps_rarefied) <- tree
+
+
+
+# Calcular UniFrac ponderado (weighted)
+unifrac_weighted <- phyloseq::UniFrac(ps_rarefied, weighted = TRUE)
+
+# Calcular UniFrac não ponderado (unweighted)
+unifrac_unweighted <- phyloseq::UniFrac(ps_rarefied, weighted = FALSE, normalized = TRUE, parallel = TRUE, fast = TRUE)
+
+
+#Realizar pcoa
+ord_weighted <- ordinate(ps_rarefied, method = "PCoA", distance = unifrac_weighted)
+
+#Transformar em dataframe e adicionar nomes
+df_pcoa_weighted <- as.data.frame(ord_weighted$vectors)
+df_pcoa_weighted$SampleID <- rownames(df_pcoa_weighted)
+
+#plotar
+
+library(ggplot2)
+
+ggplot(df_pcoa_weighted, aes(x = Axis.1, y = Axis.2)) +
+  geom_point() +
+  labs(
+    title = "PCoA - Weighted UniFrac",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]")
+  ) +
+  theme_minimal()
+
+```
+
+
+
+
+
+```{r}
+df_pcoa_weighted$SampleID <- rownames(df_pcoa_weighted)
+
+
+metadata$SampleSheet <- NA  # Cria a coluna vazia
+
+metadados.all.filtrado$SampleSheet[1:19] <- "Batch1"
+metadados.all.filtrado$SampleSheet[20:107] <- "Batch2"
+metadados.all.filtrado$SampleSheet[108:128] <- "Batch3"
+
+# Adicionar "S" antes do nome das amostras
+df_pcoa_weighted$SampleID <- paste0("S", rownames(df_pcoa_weighted))
+
+
+# Juntar com metadados.all.filtrado (que tem SampleSheet)
+df_pcoa_weighted <- merge(
+  df_pcoa_weighted,
+  metadados.all.filtrado[, c("Sample.id", "SampleSheet", "Region")],
+  by.x = "SampleID", by.y = "Sample.id",
+  all.x = TRUE
+)
+
+
+
+# Espelhar os eixos da PCoA .05 para combinar com a orientação da .01
+df_pcoa_weighted$Axis.1 <- -df_pcoa_weighted$Axis.1
+df_pcoa_weighted$Axis.2 <- -df_pcoa_weighted$Axis.2
+
+
+
+ggplot(df_pcoa_weighted, aes(x = Axis.1, y = Axis.2, color = SampleSheet, shape = Region)) +
+  geom_point(size = 3) +
+  labs(
+    title = "PCoA - Weighted UniFrac (Decontam .01 + Rarefied)",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]"),
+    color = "Batch",
+    shape = "Region"
+  ) +
+  scale_shape_manual(values = c(
+    "Leste Adjacente" = 17,  # Triângulo
+    "Leste" = 16,            # Círculo
+    "Sul" = 16,              
+    "Sul Adjacente" = 15,     #Quadrado
+    "Norte" = 16              
+  )) +
+  theme_minimal(base_size = 24)
+
+```
+
+
+```{r}
+#===> unweighted
+
+#Realizar pcoa
+ord_unweighted <- ordinate(ps_rarefied, method = "PCoA", distance = unifrac_unweighted)
+
+#Transformar em dataframe e adicionar nomes
+df_pcoa_unweighted <- as.data.frame(ord_unweighted$vectors)
+df_pcoa_unweighted$SampleID <- rownames(df_pcoa_unweighted)
+
+
+
+df_pcoa_unweighted$SampleID <- rownames(df_pcoa_unweighted)
+
+
+
+# Adicionar "S" antes do nome das amostras
+df_pcoa_unweighted$SampleID <- paste0("S", rownames(df_pcoa_unweighted))
+
+
+# Juntar com metadados.all.filtrado (que tem SampleSheet)
+df_pcoa_unweighted <- merge(df_pcoa_unweighted, metadados.all.filtrado[, c("Sample.id", "SampleSheet", "Region")],
+                          by.x = "SampleID", by.y = "Sample.id", all.x = TRUE)
+
+
+
+
+
+
+ggplot(df_pcoa_unweighted, aes(x = Axis.1, y = Axis.2, color = SampleSheet, shape = Region)) +
+  geom_point(size = 3) +
+  labs(
+    title = "PCoA - Weighted UniFrac (Decontam .01 + Rarefied)",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]"),
+    color = "Batch",
+    shape = "Region"
+  ) +
+  scale_shape_manual(values = c(
+    "Leste Adjacente" = 17,  # Triângulo
+    "Leste" = 16,            # Círculo
+    "Sul" = 16,              
+    "Sul Adjacente" = 15,     #Quadrado
+    "Norte" = 16              
+  )) +
+  theme_minimal(base_size = 24)
+
+```
+
+```{r}
+# PERMANOVA - Weighted
+set.seed(123)
+adonis_weighted_01 <- adonis2(unifrac_weighted ~ SampleSheet,
+                              data = df_pcoa_weighted,
+                              permutations = 999)
+
+# PERMANOVA - Unweighted
+set.seed(123)
+adonis_unweighted_01 <- adonis2(unifrac_unweighted ~ SampleSheet,
+                                data = df_pcoa_unweighted,
+                                permutations = 999)
+
+# Mostrar os resultados
+adonis_weighted_01
+```
+
+
+```{r}
+adonis_unweighted_01
+```
+
+
+
+
+```{r}
+#=============================================================#
+#                Decontam S1: threshold .05
+#=============================================================#
+#contam_s1 <- isContaminant(ps_s1, method = "prevalence", neg = "is.neg", threshold = 0.5)  
+
+
+# 4. Criar coluna lógica com os negativos
+sample_data(ps_s1)$is.neg <- sample_names(ps_s1) %in% neg_controls_s1
+
+# 5. Rodar o decontam (método prevalência)
+contam_s1_05 <- isContaminant(ps_s1, method = "prevalence", neg = "is.neg", threshold = 0.5)  
+
+# 6. Verificar quantos contaminantes foram encontrados
+table(contam_s1_05$contaminant)
+```
+
+
+```{r}
+# 7. Filtrar ASVs não contaminantes
+asvs_s1_05 <- taxa_names(ps_s1)[!contam_s1_05$contaminant]
+
+# 8. Criar novo objeto phyloseq sem os contaminantes
+ps_s1_05_clean <- prune_taxa(asvs_s1_05, ps_s1)
+
+# 9. Verificação opcional
+ps_s1_05_clean
+```
+
+
+```{r}
+#=======> CONTAMINANTES E SUA TAXONOMIA:
+
+# Taxonomia dos contaminantes
+contam_asvs_05 <- rownames(contam_s1_05)[contam_s1_05$contaminant]
+contam_tax_05 <- tax_table(ps)[contam_asvs_05, ]
+
+# Em formato data.frame
+contam_tax_df_05 <- as.data.frame(contam_tax_05)
+print(contam_tax_df_05)
+
+
+
+#write.csv(contam_tax_df, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/contaminantes_sampleSheet1.csv", row.names = TRUE)
+```
+
+
+```{r}
+#=> Quantos reads se perderam?
+
+# 1. Total de reads por amostra antes e depois
+reads_before_05 <- sample_sums(ps_s1)
+reads_after_05 <- sample_sums(ps_s1_05_clean)
+
+# 2. Calcular reads removidos e porcentagem
+reads_removed_05 <- reads_before_05 - reads_after_05
+percent_removed_05 <- (reads_removed_05 / reads_before_05) * 100
+
+# 3. Criar dataframe com os resultados
+removed_df_05 <- data.frame(
+  Sample = names(reads_before_05),
+  Reads_Before = reads_before_05,
+  Reads_After = reads_after_05,
+  Reads_Removed = reads_removed_05,
+  Percent_Removed = round(percent_removed_05, 2)
+)
+
+# 4. Visualizar os dados
+removed_df_05 <- removed_df_05[order(removed_df_05$Percent_Removed, decreasing = TRUE), ]
+print(removed_df_05)
+```
+
+
+```{r}
+# 4. Remover os controles (NEG e POS)
+removed_df_real_05 <- removed_df_05 %>%
+  filter(!grepl("NEG|POS", Sample))
+
+# 5. Reordenar Sample com base no % removido
+removed_df_real_05$Sample <- factor(
+  removed_df_real_05$Sample,
+  levels = removed_df_real_05$Sample[order(removed_df_real_05$Percent_Removed, decreasing = TRUE)]
+)
+
+# 6. Criar gráfico de barras
+ggplot(removed_df_real_05, aes(x = Sample, y = Percent_Removed)) +
+  geom_bar(stat = "identity", fill = "#4682B4") +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (S1, sem controles). Threshold .05",
+    x = "Amostra",
+    y = "% de Reads Removidos"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+```
+
+
+
+
+
+
+
+
+```{r}
+#=============================================================#
+#                 Decontam S2: threshold .05 
+#=============================================================#
+
+
+
+
+# 4. Criar a coluna lógica com os negativos
+sample_data(ps_s2)$is.neg <- sample_names(ps_s2) %in% neg_controls_s2
+
+# 5. Rodar o decontam (método prevalência)
+contam_s2_05 <- isContaminant(ps_s2, method = "prevalence", neg = "is.neg", threshold = 0.5)
+
+# 6. Verificar quantos contaminantes foram identificados
+table(contam_s2_05$contaminant)
+```
+
+
+```{r}
+# 7. Obter ASVs que não são contaminantes
+asvs_s2_05 <- taxa_names(ps_s2)[!contam_s2_05$contaminant]
+
+# 8. Criar novo objeto phyloseq sem os contaminantes
+ps_s2_05_clean <- prune_taxa(asvs_s2_05, ps_s2)
+
+# 9. Confirmar visualmente
+ps_s2_05_clean
+```
+
+
+```{r}
+#VERIFICAR OS CONTAMINANTES
+
+# 1. Identificar os ASVs considerados contaminantes
+contam_asvs_s2_05 <- rownames(contam_s2_05)[contam_s2_05$contaminant]
+
+# 2. Ver a taxonomia dos contaminantes
+contam_tax_s2_05 <- tax_table(ps)[contam_asvs_s2_05, ]
+contam_tax_s2_05_df <- as.data.frame(contam_tax_s2_05)
+
+# 3. Visualizar
+print(contam_tax_s2_05_df)
+```
+
+
+```{r}
+#write.csv(contam_tax_s2_05_df, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/contaminantes_s2_05.csv", row.names = TRUE)
+
+#generos dos contaminantes: 
+
+table(contam_tax_s2_05_df$Genus)
+```
+
+
+```{r}
+#=> Quantos reads se perderam?
+
+# 1. Total de reads por amostra antes e depois
+reads_before2_05 <- sample_sums(ps_s2)
+reads_after2_05 <- sample_sums(ps_s2_05_clean)
+
+# 2. Calcular reads removidos e porcentagem
+reads_removed2_05 <- reads_before2_05 - reads_after2_05
+percent_removed2_05 <- (reads_removed2_05 / reads_before2_05) * 100
+
+# 3. Criar dataframe com os resultados
+removed_df2_05 <- data.frame(
+  Sample = names(reads_before2_05),
+  Reads_Before2 = reads_before2_05,
+  Reads_After2 = reads_after2_05,
+  Reads_Removed2 = reads_removed2_05,  # << CORRIGIDO AQUI
+  Percent_Removed2 = round(percent_removed2_05, 2)
+)
+
+# 4. Visualizar os dados ordenados por % removida
+removed_df2_05 <- removed_df2_05[order(removed_df2_05$Percent_Removed2, decreasing = TRUE), ]
+print(removed_df2_05)
+```
+
+
+```{r}
+
+
+# 1. Filtrar amostras reais (sem NEG ou POS)
+removed_df2_real_05 <- removed_df2_05 %>%
+  filter(!grepl("NEG|POS", Sample))
+
+# 2. Ordenar as amostras pelo percentual removido
+removed_df2_real_05$Sample <- factor(
+  removed_df2_real_05$Sample,
+  levels = removed_df2_real_05$Sample[order(removed_df2_real_05$Percent_Removed2, decreasing = TRUE)]
+)
+
+# 3. Criar o gráfico com amostras ordenadas
+ggplot(removed_df2_real_05, aes(x = Sample, y = Percent_Removed2)) +
+  geom_bar(stat = "identity", fill = "#4682B4") +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (sem controles). S2: .05",
+    x = "Amostra",
+    y = "% de Reads Removidos"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+```
+
+
+```{r}
+#=============================================================#
+#                        Decontam S3
+#=============================================================#
+
+
+# 3. Subset do objeto phyloseq com amostras e controles
+ps_s3 <- prune_samples(sample_names(ps) %in% c(samples_s3, neg_controls_s3), ps)
+
+# 4. Marcar os controles negativos
+sample_data(ps_s3)$is.neg <- sample_names(ps_s3) %in% neg_controls_s3
+
+
+#2. O limiar (threshold) do decontam pode estar conservador
+#Por padrão, o threshold = 0.1, o que pode ser pouco sensível para detectar contaminantes que também aparecem em amostras reais.
+#testar uma detecção mais rigorosa, pode tentar:
+
+# 5. Rodar o método de prevalência do decontam
+contam_s3_05 <- isContaminant(ps_s3, method = "prevalence", neg = "is.neg", threshold= 0.5)
+
+# 6. Verificar quantos contaminantes foram detectados
+table(contam_s3_05$contaminant)
+
+```
+
+
+```{r}
+# 7. Obter os ASVs não contaminantes
+asvs_s3_05 <- taxa_names(ps_s3)[!contam_s3_05$contaminant]
+
+# 8. Criar objeto phyloseq limpo
+ps_s3_05_clean <- prune_taxa(asvs_s3_05, ps_s3)
+
+# 9. Verificação
+ps_s3_05_clean
+```
+
+
+```{r}
+#TAXONOMIA DOS CONTAMINANTES
+
+# 1. Identificar os ASVs considerados contaminantes
+contam_asvs_s3_05 <- rownames(contam_s3_05)[contam_s3_05$contaminant]
+
+# 2. Obter a taxonomia desses ASVs
+contam_tax_s3_05 <- tax_table(ps)[contam_asvs_s3_05, ]
+contam_tax_s3_05_df <- as.data.frame(contam_tax_s3_05)
+
+# 3. Visualizar
+print(contam_tax_s3_05_df)
+
+
+
+
+
+
+#write.csv(contam_tax_s3_05_df, "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/contaminantes_s3_05.csv", row.names = TRUE)
+```
+
+
+```{r}
+#outras asvs a verificar: f__Mycoplasmataceae (2b9c8fa41ae2b255b4f3831f752010e5)  f__Succinivibrionaceae; g__Ruminobacter; s__gut_metagenome (3a0c5873e8683c4c3cec68faa75b3bb0) 
+
+#asvs_verificar <- c("2b9c8fa41ae2b255b4f3831f752010e5", "3a0c5873e8683c4c3cec68faa75b3bb0")
+
+
+```
+
+
+```{r}
+
+#=> Quantos reads se perderam?
+
+# 1. Total de reads por amostra antes e depois
+reads_before3_05 <- sample_sums(ps_s3)
+reads_after3_05 <- sample_sums(ps_s3_05_clean)
+
+# 3. Calcular reads removidos e porcentagem
+reads_removed3_05 <- reads_before3_05 - reads_after3_05
+percent_removed3_05 <- (reads_removed3_05 / reads_before3_05) * 100
+
+# 3. Criar dataframe com os resultados
+removed_df3_05 <- data.frame(
+  Sample = names(reads_before3_05),
+  Reads_Before3 = reads_before3_05,
+  Reads_After3 = reads_after3_05,
+  Reads_Removed3 = reads_removed3_05,  # << CORRIGIDO AQUI
+  Percent_Removed3 = round(percent_removed3_05, 2)
+)
+
+# 4. Visualizar os dados ordenados por % removida
+removed_df3_05 <- removed_df3_05[order(removed_df3_05$Percent_Removed3, decreasing = TRUE), ]
+print(removed_df3_05)
+```
+
+
+```{r}
+# 1. Filtrar amostras reais (excluindo controles)
+removed_df3_real_05 <- removed_df3_05 %>%
+  filter(
+    !grepl("NEG|POS", Sample) & 
+      !grepl("20240325_Neg_Control", Sample)
+  )
+
+# 2. Ordenar as amostras pelo percentual removido
+removed_df3_real_05$Sample <- factor(
+  removed_df3_real_05$Sample,
+  levels = removed_df3_real_05$Sample[order(removed_df3_real_05$Percent_Removed3, decreasing = TRUE)]
+)
+
+# 3. Criar o gráfico com amostras ordenadas
+ggplot(removed_df3_real_05, aes(x = Sample, y = Percent_Removed3)) +
+  geom_bar(stat = "identity", fill = "#4682B4") +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (sem controles) S3: .05",
+    x = "Amostra",
+    y = "% de Reads Removidos"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+```
+
+
+```{r}
+#=============================================================#
+#                Juntar os três objetos limpos
+#=============================================================#
+
+# Juntar os objetos phyloseq limpos
+ps_descontaminado_05 <- merge_phyloseq(ps_s1_05_clean, ps_s2_05_clean, ps_s3_05_clean)
+
+# Verificar dimensões do objeto combinado
+ps_descontaminado_05
+
+# Remover controles negativos e positivos
+ps_descontaminado_05_clean <- prune_samples(
+  !(sample_names(ps_descontaminado_05) %in% controles_negativos),
+  ps_descontaminado_05
+)
+
+# Verificar se deu certo
+sample_names(ps_descontaminado_05_clean)
+
+ps_descontaminado_05 <- ps_descontaminado_05_clean
+
+#=====> rarefação
+
+#Verificar a distribuição de reads
+#Antes de definir um ponto de corte para a rarefação:
+  
+
+hist(sample_sums(ps_descontaminado_05_clean),
+     breaks = 50,
+     main = "Distribuição de Reads por Amostra",
+     xlab = "Número de Reads",
+     col = "#66c2a5")
+
+
+reads_por_amostra_05 <- sample_sums(ps_descontaminado_05_clean)
+reads_por_amostra_05[which.min(reads_por_amostra_05)]
+sort(reads_por_amostra_05)[1:10]
+
+```
+
+
+```{r}
+#> reads_por_amostra[which.min(reads_por_amostra)]
+#30081.F00 
+#17693 
+
+#tirei a amostra 30081.F00. Rarefação será com 25689 para maior profundidade e para manter amostra 10391
+
+set.seed(123)
+ps_rarefied_05 <- rarefy_even_depth(
+  ps_descontaminado_05_clean,
+  sample.size = 25689,
+  rngseed = 123,
+  verbose = TRUE
+)
+
+#verificar
+sample_sums(ps_rarefied_05)
+
+
+
+
+#=================================================================================#
+#       Criar beta diversidade
+#=================================================================================#
+
+#verificar se posso usar a tree sem podar
+
+
+
+# ASVs que estão no ps mas não estão na árvore
+setdiff(taxa_names(ps_rarefied_05), tree$tip.label) # => se retornar vazio, está ok!
+
+
+
+# Adicionar a árvore ao objeto phyloseq
+phy_tree(ps_rarefied_05) <- tree
+
+#Remover controles negativos, positivos e mocks
+ps_rarefied_clean_05 <- subset_samples(
+  ps_rarefied_05,
+  !grepl("NEG|POS|Mock|Control", sample_names(ps_rarefied_05), ignore.case = TRUE)
+)
+
+# Padronizar os nomes das amostras
+sample_names(ps_rarefied_clean_05) <- gsub("^([0-9]+)_F00.*", "\\1.F00", sample_names(ps_rarefied_clean_05))
+
+#Verificar consistência com a metadados.all.filtrado
+intersect(sample_names(ps_rarefied_clean_05), metadados.all.filtrado$sample.id)
+
+sample_names(ps_rarefied_clean_05) <- gsub("\\-F00", ".F00", sample_names(ps_rarefied_clean_05))
+
+
+
+
+# Calcular UniFrac ponderado (weighted)
+unifrac_weighted_05 <- phyloseq::UniFrac(ps_rarefied_clean_05, weighted = TRUE)
+
+# Calcular UniFrac não ponderado (unweighted)
+unifrac_unweighted_05 <- phyloseq::UniFrac(ps_rarefied_clean_05, weighted = FALSE, normalized = TRUE, parallel = TRUE, fast = TRUE)
+
+
+#Realizar pcoa
+ord_weighted_05 <- ordinate(ps_rarefied_clean_05, method = "PCoA", distance = unifrac_weighted_05)
+
+#Transformar em dataframe e adicionar nomes
+df_pcoa_weighted_05 <- as.data.frame(ord_weighted_05$vectors)
+df_pcoa_weighted_05$SampleID <- rownames(df_pcoa_weighted_05)
+
+#plotar
+
+library(ggplot2)
+
+ggplot(df_pcoa_weighted_05, aes(x = Axis.1, y = Axis.2)) +
+  geom_point() +
+  labs(
+    title = "PCoA - Weighted UniFrac Decontam .05",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]")
+  ) +
+  theme_minimal()
+```
+
+
+
+
+
+```{r}
+df_pcoa_weighted_05$SampleID <- rownames(df_pcoa_weighted_05)
+
+# Juntar com metadados.all.filtrado (que tem SampleSheet)
+df_pcoa_weighted_05 <- merge(df_pcoa_weighted_05, metadados.all.filtrado[, c("sample.id", "SampleSheet")],
+                          by.x = "SampleID", by.y = "sample.id", all.x = TRUE)
+
+metadados.all.filtrado$SampleSheet <- NA  # Cria a coluna vazia
+
+metadados.all.filtrado$SampleSheet[1:19] <- "Batch1"
+metadados.all.filtrado$SampleSheet[20:109] <- "Batch2"
+metadados.all.filtrado$SampleSheet[110:130] <- "Batch3"
+
+
+
+
+#C:\Users\polia\OneDrive\Desktop\EstatisticaR\AgrUrbana\16S_AgriUrbana\qiime_novo_28_05_2025
+
+
+
+#criar objeto phyloseq
+
+ 
+# Espelhar os eixos da PCoA .05 para combinar com a orientação da .01
+df_pcoa_weighted_05$Axis.1 <- -df_pcoa_weighted_05$Axis.1
+df_pcoa_weighted_05$Axis.2 <- -df_pcoa_weighted_05$Axis.2
+
+
+
+
+
+
+
+ggplot(df_pcoa_weighted_05, aes(x = Axis.1, y = Axis.2, color = SampleSheet)) +
+  geom_point(size = 8) +
+  labs(
+    title = "PCoA - Weighted UniFrac (Decontam .05 + Rarefied )",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]"),
+    color = "Batch"
+  ) +
+  theme_minimal(base_size = 24)
+```
+
+
+```{r}
+#===> unweighted
+
+#Realizar pcoa
+ord_unweighted_05 <- ordinate(ps_rarefied_clean_05, method = "PCoA", distance = unifrac_unweighted_05)
+
+#Transformar em dataframe e adicionar nomes
+df_pcoa_unweighted_05 <- as.data.frame(ord_unweighted_05$vectors)
+df_pcoa_unweighted_05$SampleID <- rownames(df_pcoa_unweighted_05)
+
+
+
+df_pcoa_unweighted_05$SampleID <- rownames(df_pcoa_unweighted_05)
+
+# Juntar com metadados.all.filtrado (que tem SampleSheet)
+df_pcoa_unweighted_05 <- merge(df_pcoa_unweighted_05, metadados.all.filtrado[, c("sample.id", "SampleSheet")],
+                          by.x = "SampleID", by.y = "sample.id", all.x = TRUE)
+
+
+
+
+# Espelhar os eixos da PCoA .05 para combinar com a orientação da .01
+df_pcoa_unweighted_05$Axis.1 <- -df_pcoa_unweighted_05$Axis.1
+df_pcoa_unweighted_05$Axis.2 <- -df_pcoa_unweighted_05$Axis.2
+
+
+
+ggplot(df_pcoa_unweighted_05, aes(x = Axis.1, y = Axis.2, color = SampleSheet)) +
+  geom_point(size = 8) +
+  labs(
+    title = "PCoA - unweighted UniFrac (Decontam .05 + Rarefied)",
+    x = paste0("Axis 1 [", round(ord_unweighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_unweighted$values$Relative_eig[2] * 100, 1), "%]"),
+    color = "Batch"
+  ) +
+  theme_minimal(base_size = 24)
+```
+
+```{r}
+# PERMANOVA - Weighted
+set.seed(123)
+adonis_weighted_05 <- adonis2(unifrac_weighted_05 ~ SampleSheet,
+                              data = df_pcoa_weighted_05,
+                              permutations = 999)
+
+# PERMANOVA - Unweighted
+set.seed(123)
+adonis_unweighted_05 <- adonis2(unifrac_unweighted_05 ~ SampleSheet,
+                                data = df_pcoa_unweighted_05,
+                                permutations = 999)
+
+# Mostrar os resultados
+adonis_weighted_05
+```
+
+```{r}
+adonis_unweighted_05
+```
+
+#====================================================================#
+# USAR PS RAW
+#======================================================================#
+
+```{r}
+
+
+
+
+#=====> rarefação
+
+#Verificar a distribuição de reads
+#Antes de definir um ponto de corte para a rarefação:
+  
+
+hist(sample_sums(ps),
+     breaks = 50,
+     main = "Distribuição de Reads por Amostra",
+     xlab = "Número de Reads",
+     col = "#66c2a5")
+
+
+reads_por_amostra_raw <- sample_sums(ps)
+reads_por_amostra_raw[which.min(reads_por_amostra_raw)]
+sort(reads_por_amostra_raw)[1:10]
+
+```
+
+
+```{r}
+#> reads_por_amostra[which.min(reads_por_amostra)]
+#30081.F00 
+#17693 
+
+#tirei a amostra 30081.F00. Rarefação será com 25689 para maior profundidade e para manter amostra 10391
+
+#limpar amostrar que nao precisamos
+#Remover controles negativos, positivos e mocks
+ps2 <- subset_samples(
+  ps,
+  !grepl("NEG|POS|Mock|Control", sample_names(ps), ignore.case = TRUE)
+)
+
+# Padronizar os nomes das amostras
+sample_names(ps2) <- gsub("^([0-9]+)_F00.*", "\\1.F00", sample_names(ps2))
+
+#Verificar consistência com a metadados.all.filtrado
+intersect(sample_names(ps2), metadados.all.filtrado$sample.id)
+
+sample_names(ps2) <- gsub("\\-F00", ".F00", sample_names(ps2))
+
+
+ps2 <- subset_samples(ps2, !grepl("-F01$", sample_names(ps2)))
+
+
+
+set.seed(123)
+ps2_rarefied <- rarefy_even_depth(
+  ps2,
+  sample.size = 25689,
+  rngseed = 123,
+  verbose = TRUE
+)
+
+#verificar
+sample_sums(ps2_rarefied)
+
+
+
+
+#=================================================================================#
+#       Criar beta diversidade
+#=================================================================================#
+
+#verificar se posso usar a tree sem podar
+
+
+
+# ASVs que estão no ps mas não estão na árvore
+setdiff(taxa_names(ps2_rarefied), tree$tip.label) # => se retornar vazio, está ok!
+
+
+
+# Adicionar a árvore ao objeto phyloseq
+phy_tree(ps2_rarefied) <- tree
+
+
+
+
+
+
+# Calcular UniFrac ponderado (weighted)
+unifrac_weighted_ps_raw <- phyloseq::UniFrac(ps2_rarefied, weighted = TRUE)
+
+# Calcular UniFrac não ponderado (unweighted)
+unifrac_unweighted_ps_raw <- phyloseq::UniFrac(ps2_rarefied, weighted = FALSE, normalized = TRUE, parallel = TRUE, fast = TRUE)
+
+
+#Realizar pcoa
+ord_weighted_raw <- ordinate(ps2_rarefied, method = "PCoA", distance = unifrac_weighted_ps_raw)
+
+#Transformar em dataframe e adicionar nomes
+df_pcoa_weighted_raw <- as.data.frame(ord_weighted_raw$vectors)
+df_pcoa_weighted_raw$SampleID <- rownames(df_pcoa_weighted_raw)
+
+#plotar
+
+library(ggplot2)
+
+ggplot(df_pcoa_weighted_raw, aes(x = Axis.1, y = Axis.2)) +
+  geom_point() +
+  labs(
+    title = "PCoA - Weighted UniFrac Decontam .raw",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]")
+  ) +
+  theme_minimal()
+```
+
+
+
+
+
+```{r}
+df_pcoa_weighted_raw$SampleID <- rownames(df_pcoa_weighted_raw)
+
+# Juntar com metadados.all.filtrado (que tem SampleSheet)
+df_pcoa_weighted_raw <- merge(df_pcoa_weighted_raw, metadados.all.filtrado[, c("sample.id", "SampleSheet")],
+                          by.x = "SampleID", by.y = "sample.id", all.x = TRUE)
+
+#metadados.all.filtrado$SampleSheet <- NA  # Cria a coluna vazia
+
+#metadados.all.filtrado$SampleSheet[1:19] <- "Batch1"
+#metadados.all.filtrado$SampleSheet[20:109] <- "Batch2"
+#metadados.all.filtrado$SampleSheet[110:130] <- "Batch3"
+
+
+
+
+#C:\Users\polia\OneDrive\Desktop\EstatisticaR\AgrUrbana\16S_AgriUrbana\qiime_novo_28_05_2025
+
+
+
+#criar objeto phyloseq
+
+ 
+# Espelhar os eixos da PCoA .05 para combinar com a orientação da .01
+df_pcoa_weighted_raw$Axis.1 <- -df_pcoa_weighted_raw$Axis.1
+df_pcoa_weighted_raw$Axis.2 <- -df_pcoa_weighted_raw$Axis.2
+
+
+
+
+
+
+
+ggplot(df_pcoa_weighted_raw, aes(x = Axis.1, y = Axis.2, color = SampleSheet)) +
+  geom_point(size = 8) +
+  labs(
+    title = "PCoA - Weighted UniFrac (Decontam .raw + Rarefied )",
+    x = paste0("Axis 1 [", round(ord_weighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_weighted$values$Relative_eig[2] * 100, 1), "%]"),
+    color = "Batch"
+  ) +
+  theme_minimal(base_size = 24)
+```
+
+
+```{r}
+#===> unweighted
+
+#Realizar pcoa
+ord_unweighted_raw <- ordinate(ps2_rarefied, method = "PCoA", distance = unifrac_unweighted_ps_raw)
+
+#Transformar em dataframe e adicionar nomes
+df_pcoa_unweighted_raw <- as.data.frame(ord_unweighted_raw$vectors)
+df_pcoa_unweighted_raw$SampleID <- rownames(df_pcoa_unweighted_raw)
+
+
+
+df_pcoa_unweighted_raw$SampleID <- rownames(df_pcoa_unweighted_raw)
+
+# Juntar com metadados.all.filtrado (que tem SampleSheet)
+df_pcoa_unweighted_raw <- merge(df_pcoa_unweighted_raw, metadados.all.filtrado[, c("sample.id", "SampleSheet")],
+                          by.x = "SampleID", by.y = "sample.id", all.x = TRUE)
+
+
+
+
+# Espelhar os eixos da PCoA .raw para combinar com a orientação da .01
+df_pcoa_unweighted_raw$Axis.1 <- -df_pcoa_unweighted_raw$Axis.1
+df_pcoa_unweighted_raw$Axis.2 <- -df_pcoa_unweighted_raw$Axis.2
+
+
+#permanova
+
+# PERMANOVA com unweighted (raw)
+set.seed(123)
+adonis_raw_unweighted <- adonis2(unifrac_unweighted_ps_raw ~ SampleSheet,
+                                 data = df_pcoa_unweighted_raw,
+                                 permutations = 999)
+adonis_raw_unweighted
+```
+
+```{r}
+# PERMANOVA com weighted (raw)
+set.seed(123)
+adonis_raw_weighted <- adonis2(unifrac_weighted_ps_raw ~ SampleSheet,
+                               data = df_pcoa_weighted_raw,
+                               permutations = 999)
+adonis_raw_weighted
+
+```
+
+
+```{r}
+ggplot(df_pcoa_unweighted_raw, aes(x = Axis.1, y = Axis.2, color = SampleSheet)) +
+  geom_point(size = 8) +
+  labs(
+    title = "PCoA - unweighted UniFrac (Decontam .raw + Rarefied)",
+    x = paste0("Axis 1 [", round(ord_unweighted$values$Relative_eig[1] * 100, 1), "%]"),
+    y = paste0("Axis 2 [", round(ord_unweighted$values$Relative_eig[2] * 100, 1), "%]"),
+    color = "Batch"
+  ) +
+  theme_minimal(base_size = 24)
+```
+
+
+#=============================================#
+#   Reads Perdidos
+#=============================================#
+
+
+```{r}
+#combinar os três data frames (removed_df, removed_df2, removed_df3) pela coluna Sample, sem IDs repetidos, usando full_join
+
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Selecionar colunas relevantes de cada tabela
+df1 <- removed_df %>%
+  select(Sample, Reads_Before, Reads_After, Percent_Removed) %>%
+  mutate(Etapa = "Decontam 0.01")
+
+df2 <- removed_df2 %>%
+  select(Sample, Reads_Before2, Reads_After2, Percent_Removed2) %>%
+  rename(Reads_Before = Reads_Before2,
+         Reads_After = Reads_After2,
+         Percent_Removed = Percent_Removed2) %>%
+  mutate(Etapa = "Decontam 0.01")
+
+df3 <- removed_df3 %>%
+  select(Sample, Reads_Before3, Reads_After3, Percent_Removed3) %>%
+  rename(Reads_Before = Reads_Before3,
+         Reads_After = Reads_After3,
+         Percent_Removed = Percent_Removed3) %>%
+  mutate(Etapa = "Decontam 0.01")
+
+# Unir tudo
+reads_long_01 <- bind_rows(df1, df2, df3)
+
+# Remover NAs (caso existam samples em apenas uma etapa)
+reads_long_01 <- reads_long %>% drop_na(Reads_After)
+
+# Gráfico de barras de percentuais perdidos por amostra e etapa
+ggplot(reads_long_01, aes(x = Sample, y = Percent_Removed, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra .01",
+    x = "Amostra",
+    y = "% Reads Removidos"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 7),
+    legend.position = "top"
+  )
+
+
+
+```
+
+
+```{r}
+# Selecionar colunas relevantes de cada tabela
+df1_05 <- removed_df_05 %>%
+  select(Sample, Reads_Before, Reads_After, Percent_Removed) %>%
+  mutate(Etapa = "Decontam 0.05")
+
+df2_05 <- removed_df2_05 %>%
+  select(Sample, Reads_Before2, Reads_After2, Percent_Removed2) %>%
+  rename(Reads_Before = Reads_Before2,
+         Reads_After = Reads_After2,
+         Percent_Removed = Percent_Removed2) %>%
+  mutate(Etapa = "Decontam 0.05")
+
+df3_05 <- removed_df3_05 %>%
+  select(Sample, Reads_Before3, Reads_After3, Percent_Removed3) %>%
+  rename(Reads_Before = Reads_Before3,
+         Reads_After = Reads_After3,
+         Percent_Removed = Percent_Removed3) %>%
+  mutate(Etapa = "Decontam 0.05")
+
+# Unir tudo
+reads_long_05 <- bind_rows(df1_05, df2_05, df3_05)
+
+# Remover NAs (caso existam samples em apenas uma etapa)
+reads_long_05 <- reads_long_05 %>% drop_na(Reads_After)
+
+# Gráfico de barras de percentuais perdidos por amostra e etapa
+ggplot(reads_long_05, aes(x = Sample, y = Percent_Removed, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra .05",
+    x = "Amostra",
+    y = "% Reads Removidos"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 7),
+    legend.position = "top"
+  )
+
+
+
+```
+
+```{r}
+#===> raw
+# Criar dataframe com número absoluto de reads raw
+reads_raw_df <- data.frame(
+  Sample = names(reads_por_amostra_raw),
+  Reads = as.numeric(reads_por_amostra_raw),
+  Etapa = "Raw"
+)
+
+
+```
+```{r}
+#Juntar tudo
+# Garantir que cada data.frame tenha os nomes corretos
+reads_raw_df <- reads_raw_df %>%
+  select(Sample, Raw = Raw) %>%
+  mutate(Etapa = "Raw") %>%
+  rename(Reads_After = Raw)
+
+reads_01_plot <- reads_long_01 %>%
+  select(Sample, Reads_After, Etapa)
+
+reads_05_plot <- reads_long_05 %>%
+  select(Sample, Reads_After, Etapa)
+
+
+library(dplyr)
+library(tidyr)
+
+reads_all_plot <- bind_rows(reads_raw_df, reads_01_plot, reads_05_plot)
+
+l# Corrige a ordem dos níveis da etapa
+reads_all_plot$Etapa <- factor(reads_all_plot$Etapa, levels = c("Raw", "Decontam 0.01", "Decontam 0.05"))
+
+# Gráfico
+ggplot(reads_all_plot, aes(x = Sample, y = Reads_After, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Número de Reads por Amostra e Etapa",
+    x = "Amostra",
+    y = "Número de Reads"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6),
+    legend.position = "top"
+  )
+
+
+
+
+```
+```{r}
+#limpar nomes de colunas em reads_all_plot
+#limpar amostrar que nao precisamos
+#library(dplyr)
+
+# Remover amostras negativas, positivas, mocks e controles
+reads_all_plot_clean <- reads_all_plot %>%
+  filter(!grepl("NEG|POS|Mock|Control", Sample, ignore.case = TRUE)) %>%
+  filter(!grepl("-F01$", Sample))
+
+# Padronizar nomes (opcional, se necessário)
+reads_all_plot_clean$Sample <- gsub("^([0-9]+)_F00.*", "\\1.F00", reads_all_plot_clean$Sample)
+reads_all_plot_clean$Sample <- gsub("\\-F00", ".F00", reads_all_plot_clean$Sample)
+
+
+```
+
+
+
+```{r}
+reads_all_plot_clean$Etapa <- factor(reads_all_plot_clean$Etapa, levels = c("Raw", "Decontam 0.01", "Decontam 0.05"))
+
+ggplot(reads_all_plot_clean, aes(x = Sample, y = Reads_After, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Número de Reads por Amostra e Etapa (sem controles)",
+    x = "Amostra",
+    y = "Número de Reads"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6),
+    legend.position = "top"
+  )
+
+```
+
+```{r}
+#raw com 0.01
+
+reads_raw_vs_01 <- reads_all_plot_clean %>%
+  filter(Etapa %in% c("Raw", "Decontam 0.01"))
+
+ggplot(reads_raw_vs_01, aes(x = Sample, y = Reads_After, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Comparação: Raw vs Decontam 0.01",
+    x = "Amostra",
+    y = "Número de Reads"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6),
+    legend.position = "top"
+  )
+
+
+
+```
+
+```{r}
+# Filtrar apenas as amostras com redução de reads
+reads_filtrados <- reads_raw_vs_01 %>%
+  pivot_wider(names_from = Etapa, values_from = Reads_After) %>%
+  filter(`Decontam 0.01` < Raw) %>%
+  pivot_longer(cols = c("Raw", "Decontam 0.01"), names_to = "Etapa", values_to = "Reads_After")
+
+# Gerar o gráfico apenas com amostras que tiveram redução
+ggplot(reads_filtrados, aes(x = Sample, y = Reads_After, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Comparação: Raw vs Decontam 0.01 (apenas amostras com redução)",
+    x = "Amostra",
+    y = "Número de Reads"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 6, vjust = 0.5),
+    legend.position = "top"
+  )
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Converter para formato wide para comparar Raw vs Decontam 0.01
+reads_pct <- reads_raw_vs_01 %>%
+  pivot_wider(names_from = Etapa, values_from = Reads_After) %>%
+  # Calcular percentual em relação ao Raw
+  mutate(
+    Raw_pct = 100,
+    Decontam_01_pct = (`Decontam 0.01` / Raw) * 100
+  ) %>%
+  # Filtrar apenas as amostras com redução
+  filter(Decontam_01_pct < 100) %>%
+  # Voltar ao formato longo
+  select(Sample, Raw_pct, Decontam_01_pct) %>%
+  pivot_longer(cols = c(Raw_pct, Decontam_01_pct), names_to = "Etapa", values_to = "Percent_Reads") %>%
+  mutate(Etapa = recode(Etapa,
+                        "Raw_pct" = "Raw",
+                        "Decontam_01_pct" = "Decontam 0.01"))
+
+# Plot
+ggplot(reads_pct, aes(x = Sample, y = Percent_Reads, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Porcentagem de Reads Restantes por Amostra (Decontam 0.01)",
+    x = "Amostra",
+    y = "% de Reads (Raw = 100%)"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 6, vjust = 0.5),
+    legend.position = "top"
+  )
+
+```
+
+```{r}
+
+
+```
+```{r}
+library(dplyr)
+library(tidyr)
+
+# 1. Transformar o dataframe em formato largo com uma coluna para cada etapa
+reads_wide <- reads_all_plot_clean %>%
+  pivot_wider(names_from = Etapa, values_from = Reads_After, id_cols = Sample)
+
+# 2. Calcular a porcentagem de reads restantes em relação ao Raw
+reads_percent <- reads_wide %>%
+  mutate(
+    Percent_01 = (`Decontam 0.01` / Raw) * 100,
+    Percent_05 = (`Decontam 0.05` / Raw) * 100
+  )
+
+# 3. Filtrar apenas amostras que tiveram redução em alguma etapa
+reads_filtered <- reads_percent %>%
+  filter(Percent_01 < 100 | Percent_05 < 100)
+
+# 4. Visualizar resultado
+print(reads_filtered)
+
+
+```
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Transformar em formato largo se ainda não tiver feito
+reads_wide <- reads_all_plot_clean %>%
+  pivot_wider(names_from = Etapa, values_from = Reads_After, id_cols = Sample)
+
+# Calcular % REMOVIDO (100 - percentual restante)
+reads_percent_removed <- reads_wide %>%
+  mutate(
+    Removed_01 = round(100 - (`Decontam 0.01` / Raw) * 100, 2),
+    Removed_05 = round(100 - (`Decontam 0.05` / Raw) * 100, 2)
+  )
+
+# Ver resultado
+print(reads_percent_removed)
+
+```
+
+```{r}
+#manter apenas porcentagens maiores que zero
+
+reads_removed_filtered <- reads_percent_removed %>%
+  filter(Removed_01 > 0 | Removed_05 > 0)
+
+# Visualizar resultado
+print(reads_removed_filtered)
+
+```
+```{r}
+library(tidyverse)
+
+# Converter para formato longo
+reads_removed_long <- reads_removed_filtered %>%
+  select(Sample, Removed_01, Removed_05) %>%
+  pivot_longer(
+    cols = starts_with("Removed_"),
+    names_to = "Etapa",
+    values_to = "Percent_Removed"
+  ) %>%
+  mutate(
+    Etapa = recode(Etapa,
+                   "Removed_01" = "Decontam 0.01",
+                   "Removed_05" = "Decontam 0.05")
+  )
+
+# Gráfico de barras
+ggplot(reads_removed_long, aes(x = Sample, y = Percent_Removed, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Percentual de Reads Removidos por Amostra (Somente Amostras com Remoção)",
+    x = "Amostra",
+    y = "% Reads Removidos"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 7),
+    legend.position = "top"
+  )
+
+
+
+
+
+```
+
+```{r}
+# Carregar o pacote necessário
+library(DT)
+
+# Criar a tabela interativa
+tabela_interativa <- datatable(
+  reads_removed_filtered,
+  filter = 'top',
+  options = list(pageLength = 20, autoWidth = TRUE),
+  rownames = FALSE
+)
+
+# Salvar em arquivo HTML
+saveWidget(tabela_interativa, "reads_removed_filtered.html", selfcontained = TRUE)
+
+```
+
+```{r}
+# Filtrar apenas amostras com remoção > 0 para o .01
+df_01_ <- reads_removed_filtered %>%
+  filter(Removed_01 > 0) %>%
+  select(Sample, Raw, `Decontam 0.01`, Removed_01) %>%
+  pivot_longer(cols = c("Raw", "Decontam 0.01"), names_to = "Etapa", values_to = "Reads")
+
+# Gráfico
+ggplot(df_01_, aes(x = Sample, y = Reads, fill = Etapa)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(
+    title = "Comparação de Reads: Raw vs Decontam 0.01",
+    x = "Amostra",
+    y = "Número de Reads"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7),
+        legend.position = "top")
+
+```
+

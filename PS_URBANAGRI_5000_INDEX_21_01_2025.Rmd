@@ -1,0 +1,63 @@
+---
+#INDEX Urban Agriculture Analisys
+# January 2025
+
+---
+
+getwd() # Mostra o diretório atual
+setwd("caminho/desejado") # Define um novo diretório
+
+### WORKING WITH DATA ###
+
+Cleaning and organizing metadata
+
+```{r}
+# This script imports raw data:
+# Cleaning and organization of metadata: 
+#(output object: metadados.raw, alpha.shannon, alpha.pd, alpha.evenness, alpha.richness, alpha.all, unweighted_unifrac, weighted_unifrac, metadados.shannon, metadados.alpha.all, metadados, unweighted_unifrac)
+
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/weighted_unifrac.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.all.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.evenness.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.pd.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.richness.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/alpha.shannon.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.alpha.all.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.raw.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.shannon.csv
+#C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/unweighted_unifrac.csv
+
+
+source ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/PS_5001_LimpezaDados_08_07_2024.nb.Rmd")
+
+
+rmarkdown::render ("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/PS_5001_LimpezaDados_08_07_2024.nb.Rmd")
+```
+
+### POPULATION DATA - Population caracterization ###
+
+
+```{r}
+# This script is for the characterization of the population. Summarizing clinical traits, age, sex, BMI, Metabolic Syndrome:
+
+#(output object: population_characteristics_table_, population_characteristics_table2, boxplot_idade, age_sex_summary, ParasitologicalTest)
+
+
+source("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/PS_URBANAGRI_5003_Summary_Plots_DescriptiveAnalyses_09_07_2024.nb.Rmd")
+```
+
+### POPULATION DATA - METABOLIC SYNDROME ###
+
+
+```{r}
+
+# This script is for the characterization of the population regarding Metabolic Syndrome:
+
+#(output object: Glycemia_HbA1c_Insulin, HbA1_glucose_Insulin_High Levels,  )
+
+# output em "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri"
+
+source("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/AgriculturaUrbana_Analises/PS_URBANAGRI_5014_VENN_14_01_2025.Rmd")
+```
+

@@ -1,0 +1,985 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+#======================================#
+#   title: "Beta Diversity Analisys"
+#     N=105
+#======================================#
+
+#Beta diversidade com Health Status - N 105
+
+
+
+#=========== Carregar as bibliotecas necessárias=================#
+
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(ggcorrplot)
+library(pheatmap)
+library(grid)
+library(patchwork)
+library(ggpubr)
+library(ggpmisc)
+library(phyloseq)
+library(microbiomeMarker)
+library(tidyverse)
+library(vegan)
+library(DESeq2)
+library(data.table)
+library(qiime2R)
+library(viridis)
+library(ape)
+
+
+
+
+#============ Importar o arquivo CSV ==============================#
+
+#metadados.metabolic.score <- read.csv("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/metadados.metabolic.score.csv", stringsAsFactors = FALSE)
+
+
+unweighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/core-metrics-results/unweighted_unifrac_distance_matrix.qza")$data)
+
+labels(unweighted_unifrac.raw)
+
+# Extrair nomes das amostras da matriz
+all_ids <- rownames(as.matrix(unweighted_unifrac.raw))
+
+# Filtrar apenas os que terminam com ".F00"
+ids_validos <- grep("\\.F00$", all_ids, value = TRUE)
+
+# Filtrar a matriz
+matriz_filtrada <- as.matrix(unweighted_unifrac.raw)[ids_validos, ids_validos]
+
+# Converter de volta para objeto 'dist' com labels
+unweighted_unifrac.limpo <- as.dist(matriz_filtrada)
+attr(unweighted_unifrac.limpo, "Labels") <- ids_validos
+
+```
+
+
+```{r}
+# Filtra a matriz de distância
+unweighted_unifrac.limpo <- as.dist(as.matrix(unweighted_unifrac.raw)[ids_validos, ids_validos])
+
+labels(unweighted_unifrac.limpo)
+
+unweighted.unifrac <- unweighted_unifrac.limpo
+
+```
+
+
+```{r}
+weighted_unifrac.raw <- as.matrix(read_qza("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Qiime/Analises_Corrigidas/core-metrics-results/weighted_unifrac_distance_matrix.qza")$data)
+
+
+labels(weighted_unifrac.raw)
+
+# Extrair nomes das amostras da matriz
+all_ids <- rownames(as.matrix(weighted_unifrac.raw))
+
+# Filtrar apenas os que terminam com ".F00"
+ids_validos <- grep("\\.F00$", all_ids, value = TRUE)
+
+# Filtrar a matriz
+matriz_filtrada <- as.matrix(weighted_unifrac.raw)[ids_validos, ids_validos]
+
+# Converter de volta para objeto 'dist' com labels
+weighted_unifrac.limpo <- as.dist(matriz_filtrada)
+attr(weighted_unifrac.limpo, "Labels") <- ids_validos
+
+```
+
+```{r}
+# Filtra a matriz de distância
+weighted_unifrac.limpo <- as.dist(as.matrix(weighted_unifrac.raw)[ids_validos, ids_validos])
+
+labels(weighted_unifrac.limpo)
+
+weighted.unifrac <- weighted_unifrac.limpo
+
+```
+
+```{r}
+#============ Weighted Unifrac =================#
+
+
+# Realizar PCoA na matriz de distância weighted_unifrac
+
+
+# Executa a PCoA
+wei_unifrac.pcoa <- cmdscale(weighted.unifrac, eig = TRUE, k = 3)
+
+# Verifica a saída
+print(wei_unifrac.pcoa)
+
+```
+
+
+```{r}
+#============================= Unweighted Unifrac =================#
+
+# Realizar PCoA na matriz de distância unweighted_unifrac
+
+
+unwei_unifrac.pcoa <- cmdscale(unweighted.unifrac, eig = TRUE, k = 3)  # k = número de dimensões
+
+# Verifica a saída
+print(unwei_unifrac.pcoa)
+
+
+```
+
+
+```{r}
+# Alinhar os metadados
+ids <- labels(unweighted_unifrac.limpo)
+metadados_permanova <- metadados_grupos_saude_binario_[match(ids, metadados_grupos_saude_binario_$Sample.id), ]
+
+# PERMANOVA unweighted
+
+set.seed(123)
+permanova_unweighted <- adonis2(
+  unweighted_unifrac.limpo ~ Health_Status_Medicine,
+  data = metadados_permanova,
+  permutations = 999
+)
+```
+
+
+```{r}
+# Criar texto do resultado
+res_unweighted <- paste0("PERMANOVA: R² = ", round(permanova_unweighted$R2[1], 3),
+                         ", p = ", permanova_unweighted$`Pr(>F)`[1])
+```
+
+
+```{r}
+# Rodar PERMANOVA com os dados alinhados
+# PERMANOVA weighted
+set.seed(123)
+permanova_weighted <- adonis2(
+  weighted_unifrac.limpo ~ Health_Status_Medicine,
+  data = metadados_permanova,
+  permutations = 999
+)
+
+# Criar texto do resultado
+res_weighted <- paste0("PERMANOVA: R² = ", round(permanova_weighted$R2[1], 3),
+                       ", p = ", permanova_weighted$`Pr(>F)`[1])
+```
+
+
+```{r}
+#====== Plot Weighted ===========#
+#mudar os nomes das regioes para ingles
+#metadados.all.filtrado$Region <- recode(metadados.all.filtrado$Region,
+#                                           "Norte" = "North",
+#                                          "Sul" = "South",
+#                                         "Leste" = "East",
+#                                        "Sul Adjacente" = "South Adjacent",
+#                                       "Leste Adjacente" = "East Adjacent"
+#)
+
+
+
+
+### OBS: USAR ESSE PLOT!!!!
+
+
+#ggplot(merge(wei_unifrac.pcoa$points, metadados_grupos_saude_binario_, by.x = "row.names", by.y = "Sample.id")) + 
+#  geom_point(aes(x = V1, y = V2, color = Health_Status), size = 3) + 
+#  scale_color_viridis_d(option = "I", name = "Health Status") +
+#  labs(title = paste("Weighted UniFrac — Health Status", res_weighted),
+#       x = "PCoA1", y = "PCoA2") +
+#  theme_minimal()
+
+#ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/weighted_unifrac_pcoa_Health_Status_Medicine_105.png", dpi = 600, width = 8, height = 6, units = "in")
+```
+
+
+```{r}
+#====== Plot UnWeighted ===========#
+
+
+### OBS: Usar esse Plot
+
+plot_unweighted <- ggplot(merge(unwei_unifrac.pcoa$points, metadados_grupos_saude_binario_, 
+                                by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = Health_Status), size = 7) + 
+  scale_color_manual(
+    values = c("Healthy" = "#7CAE00", "Transition" = "#00BFC4", "Unhealthy" = "#F8766D"),
+    name = "Health Status"
+  ) +
+  labs(title = "UNWEIGHTED UNIFRAC", x = "PCoA1", y = "PCoA2") +
+  annotate("text", x = Inf, y = Inf,
+           label = "PERMANOVA: R² = 0.026, p = 0.045",
+           hjust = 1.02, vjust = 1.5, size = 5) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 16)
+  )
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/unweighted_unifrac_pco_health_status_medicine_n105.png", dpi = 600, width = 8, height = 6, units = "in")
+```
+
+
+```{r}
+plot_weighted <- ggplot(merge(wei_unifrac.pcoa$points, metadados_grupos_saude_binario_, 
+                                by.x = "row.names", by.y = "Sample.id")) + 
+  geom_point(aes(x = V1, y = V2, color = Health_Status), size = 7) + 
+  scale_color_manual(
+    values = c("Healthy" = "#7CAE00", "Transition" = "#00BFC4", "Unhealthy" = "#F8766D"),
+    name = "Health Status"
+  ) +
+  labs(title = "WEIGHTED UNIFRAC", x = "PCoA1", y = "PCoA2") +
+  annotate("text", x = Inf, y = Inf,
+           label = "PERMANOVA: R² = 0.049, p = 0.014",
+           hjust = 1.02, vjust = 1.5, size = 5) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 16)
+  )
+
+
+```
+
+```{r}
+#Juntar os dois plots
+
+library(patchwork)
+
+# Supondo que você tenha:
+# - plot_unweighted: o gráfico da unweighted
+# - plot_weighted: o gráfico da weighted
+
+# Remover a legenda do primeiro
+plot_unweighted <- plot_unweighted + theme(legend.position = "none")
+
+# Combinar com legenda apenas no segundo
+combined_plot <- plot_unweighted + plot_weighted + plot_layout(ncol = 2, guides = "collect") & theme(legend.position = "right")
+
+# Exibir
+combined_plot
+
+
+
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/pcoa_plots_combined.png", combined_plot, width = 21, height = 7, dpi = 300)
+
+
+```
+
+
+
+```{r}
+
+#######============ Permanova Weighted =================#
+library(vegan)
+library(dplyr)
+
+vars <- c("Region", "IL17A", "IFNGamma", "TNF", "IL10", "IL6", "IL4", "IL2", "Age", "Sex", "Race", 
+          "Systolic", "Diastolic", "BMI", "Waist_Hip_Ratio", 
+           "HbA1c", "Cholesterol", "LDL", "HDL", "VLDL", "Triglycerides", 
+          "TGO", "TGP", "GGT", "Glucose", "Insulin", "CRP", "Health_Status", "Health_Status_Medicine"  
+          )
+
+
+
+
+# Escolha a distância
+dist_mat_wei <- weighted_unifrac   # troque para unweighted_unifrac.limpo se quiser
+
+# Garante que as variáveis existem no metadata
+vars_exist <- intersect(vars, names(metadados_grupos_saude_binario_))
+missing <- setdiff(vars, vars_exist)
+if (length(missing)) message("Colunas inexistentes no metadata: ", paste(missing, collapse=", "))
+
+set.seed(123)
+
+result_list_wei <- list()
+
+for (v in vars_exist) {
+  # pega só Sample.id e a variável
+  df <- metadados_grupos_saude_binario_[, c("Sample.id", v), drop = FALSE]
+  df <- df[!is.na(df[[v]]), , drop = FALSE]
+
+  # IDs em comum entre a variável e a matriz de distância
+  ids_ok <- intersect(df$Sample.id, labels(dist_mat_wei))
+  if (length(ids_ok) < 3) next
+
+  # reordena df pela ordem que vamos usar
+  df <- df[match(ids_ok, df$Sample.id), , drop = FALSE]
+
+  # cria submatriz da distância na MESMA ordem de df
+  M <- as.matrix(dist_mat_wei)[ids_ok, ids_ok]
+  d_sub <- as.dist(M)
+  attr(d_sub, "Labels") <- ids_ok
+
+  # fatoriza se for texto e pula sem variação
+  if (is.character(df[[v]])) df[[v]] <- factor(df[[v]])
+  if (length(unique(df[[v]])) < 2) next
+
+  # PERMANOVA
+  res <- adonis2(d_sub ~ df[[v]], permutations = 999)
+
+  result_list_wei[[v]] <- data.frame(
+    Variable = v,
+    F_value  = unname(res$F[1]),
+    R2       = unname(res$R2[1]),
+    p_value  = unname(res$`Pr(>F)`[1])
+  )
+}
+
+permanova_results_wei <- bind_rows(result_list_wei) %>% arrange(p_value)
+print(permanova_results_wei)
+```
+
+
+```{r}
+#Filtrar apenas os significativos (p < 0.05)
+permanova_sig_wei <- permanova_results_wei[permanova_results_wei$p_value < 0.05, ]
+print(permanova_sig_wei)
+```
+
+
+```{r}
+#Ordenar por p-valor
+permanova_sorted_wei <- permanova_results_wei[order(permanova_results_wei$p_value), ]
+head(permanova_sorted_wei, 10)  # top 10
+```
+
+
+```{r}
+#library(ggplot2)
+
+ggplot(permanova_sig_wei, aes(x = reorder(Variable, -R2), y = R2)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title = "PERMANOVA WEIGHTED – R² of significant variables",
+    x = "Variable",
+    y = expression(R^2)
+  )
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/permanova_significant_variables_wei.png",
+       width = 20, height = 15, units = "cm", dpi = 300)
+```
+
+
+```{r}
+# Escolha a distância
+dist_mat_unwei <- unweighted_unifrac   # troque para ununweighted_unifrac.limpo se quiser
+
+# Garante que as variáveis existem no metadata
+vars_exist <- intersect(vars, names(metadados_grupos_saude_binario_))
+missing <- setdiff(vars, vars_exist)
+if (length(missing)) message("Colunas inexistentes no metadata: ", paste(missing, collapse=", "))
+
+set.seed(123)
+
+result_list_unwei <- list()
+
+for (v in vars_exist) {
+  # pega só Sample.id e a variável
+  df <- metadados_grupos_saude_binario_[, c("Sample.id", v), drop = FALSE]
+  df <- df[!is.na(df[[v]]), , drop = FALSE]
+
+  # IDs em comum entre a variável e a matriz de distância
+  ids_ok <- intersect(df$Sample.id, labels(dist_mat_unwei))
+  if (length(ids_ok) < 3) next
+
+  # reordena df pela ordem que vamos usar
+  df <- df[match(ids_ok, df$Sample.id), , drop = FALSE]
+
+  # cria submatriz da distância na MESMA ordem de df
+  M <- as.matrix(dist_mat_unwei)[ids_ok, ids_ok]
+  d_sub <- as.dist(M)
+  attr(d_sub, "Labels") <- ids_ok
+
+  # fatoriza se for texto e pula sem variação
+  if (is.character(df[[v]])) df[[v]] <- factor(df[[v]])
+  if (length(unique(df[[v]])) < 2) next
+
+  # PERMANOVA
+  res <- adonis2(d_sub ~ df[[v]], permutations = 999)
+
+  result_list_unwei[[v]] <- data.frame(
+    Variable = v,
+    F_value  = unname(res$F[1]),
+    R2       = unname(res$R2[1]),
+    p_value  = unname(res$`Pr(>F)`[1])
+  )
+}
+
+permanova_results_unwei <- bind_rows(result_list_unwei) %>% arrange(p_value)
+print(permanova_results_unwei)
+
+```
+```{r}
+#Filtrar apenas os significativos (p < 0.05)
+permanova_sig_unwei <- permanova_results_unwei[permanova_results_unwei$p_value < 0.05, ]
+print(permanova_sig_unwei)
+
+```
+
+```{r}
+#Ordenar por p-valor
+permanova_sorted_unwei <- permanova_results_unwei[order(permanova_results_unwei$p_value), ]
+head(permanova_sorted_unwei, 10)  # top 10
+```
+
+
+```{r}
+#library(ggplot2)
+
+ggplot(permanova_sig_unwei, aes(x = reorder(Variable, -R2), y = R2)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title = "PERMANOVA UNWEIGHTED – R² of significant variables",
+    x = "Variable",
+    y = expression(R^2)
+  )
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/permanova_significant_variables_unwei.png",
+       width = 20, height = 15, units = "cm", dpi = 300)
+```
+
+
+```{r}
+#Volcano plot
+
+# Suponha que seu data frame se chame permanova_results
+# Ele precisa ter colunas: Variável, R2 e p_value
+
+permanova_results_unwei$log10_p <- -log10(permanova_results_unwei$p_value)
+permanova_results_unwei$significativo <- permanova_results_unwei$p_value < 0.05
+
+ggplot(permanova_results_unwei, aes(x = R2, y = -log10(p_value), label = Variable)) +
+  geom_point(aes(color = significativo), size = 2) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
+  geom_text_repel(size = 3, max.overlaps = Inf) +  # Adiciona o nome de todas as variáveis
+  scale_color_manual(values = c("FALSE" = "gray60", "TRUE" = "steelblue"),
+                     labels = c("Not significant", "Significant")) +
+  theme_minimal() +
+  labs(
+    title = "PERMANOVA UNWEIGHTED – Effect size vs. Significance",
+    x = expression(R^2),
+    y = expression(-log[10](p~value)),
+    color = "Significance"
+  ) +
+  theme(legend.position = "bottom")
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/volcanoPlot_significant_variables_withLabel_unwei.png",
+       width = 20, height = 15, units = "cm", dpi = 300)
+```
+
+
+```{r}
+#Com nome de todas as variaveis
+# Instale ggrepel se ainda não tiver
+# install.packages("ggrepel")
+library(ggrepel)
+
+permanova_results_wei$log10_p <- -log10(permanova_results_wei$p_value)
+permanova_results_wei$significativo <- permanova_results_wei$p_value < 0.05
+
+ggplot(permanova_results_wei, aes(x = R2, y = -log10(p_value), label = Variable)) +
+  geom_point(aes(color = significativo), size = 2) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
+  geom_text_repel(size = 3, max.overlaps = Inf) +  # Adiciona o nome de todas as variáveis
+  scale_color_manual(values = c("FALSE" = "gray60", "TRUE" = "steelblue"),
+                     labels = c("Not significant", "Significant")) +
+  theme_minimal() +
+  labs(
+    title = "PERMANOVA WEIGHTED – Effect size vs. Significance",
+    x = expression(R^2),
+    y = expression(-log[10](p~value)),
+    color = "Significance"
+  ) +
+  theme(legend.position = "bottom")
+
+ggsave("C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação/volcanoPlot_significant_variables_withLabel_wei.png",
+       width = 20, height = 15, units = "cm", dpi = 300)
+```
+
+```{r}
+#======== Statistical Power Calculation: TyG ===========#
+
+library(vegan)
+
+#primeiro ver quais rows nao estao nos dois objetos
+# Checar os IDs
+length(rownames(unweighted.unifrac))  # deve ser 105
+
+```
+
+
+```{r}
+length(metadados_grupos_saude_binario_$Sample.id)       # deve ser 97
+
+# Pegar os IDs presentes nos dois
+ids_comuns <- intersect(rownames(unweighted.unifrac), dados_tyG_bin$Sample.id)
+
+# Filtrar a matriz de distância
+unifrac_filtrado <- unweighted.unifrac[ids_comuns, ids_comuns]
+
+# Filtrar os metadados
+dados_tyG_bin_filtrado <- subset(dados_tyG_bin, Sample.id %in% ids_comuns)
+
+all(rownames(unifrac_filtrado) == dados_tyG_bin_filtrado$Sample.id)  # deve ser TRUE
+
+# Reordenar os metadados para alinhar com a matriz
+dados_tyG_bin_filtrado <- dados_tyG_bin_filtrado[match(rownames(unifrac_filtrado), dados_tyG_bin_filtrado$Sample.id), ]
+
+
+# Rodar PERMANOVA com 999 permutações
+permanova_result <- adonis2(unifrac_filtrado ~ TyG_group2, data = dados_tyG_bin_filtrado, permutations = 999)
+
+# Ver R²
+r2_value <- permanova_result$R2[1]  # pega o R² do fator TyG_group2
+print(r2_value)
+
+
+# Função para simular PERMANOVA várias vezes e estimar o poder
+simula_power_permanova <- function(dist_matrix, metadados.bioquimicos.alpha, group_var, r2_obs = NULL, n_perm = 999, n_sim = 1000, alpha = 0.05) {
+  p_vals <- numeric(n_sim)
+  
+  for (i in 1:n_sim) {
+    # Copia os metadados e embaralha a variável de grupo
+    metadados.bioquimicos.alpha$grupo_embaralhado <- sample(metadados.bioquimicos.alpha[[group_var]])
+    
+    # Rodar PERMANOVA com a variável embaralhada
+    p <- adonis2(dist_matrix ~ grupo_embaralhado, data = metadados.bioquimicos.alpha, permutations = n_perm)$`Pr(>F)`[1]
+    
+    # Armazena o p-valor
+    p_vals[i] <- p
+  }
+  
+  # Calcula o poder estatístico: proporção de p-valores < alpha
+  power <- mean(p_vals < alpha)
+  return(power)
+}
+
+library(pwr)
+
+
+power_result <- simula_power_permanova(unifrac_filtrado, dados_tyG_bin_filtrado, "TyG_group2")
+print(paste("Estimated power =", round(power_result * 100, 1), "%"))
+
+
+#===== Apresentação do grafico com numeros =======#
+
+# 1. Calcular a PCoA
+pcoa_result <- cmdscale(unifrac_filtrado, k = 2, eig = TRUE)
+pcoa_df <- as.data.frame(pcoa_result$points)
+colnames(pcoa_df) <- c("PCoA1", "PCoA2")
+pcoa_df$Sample.id <- rownames(pcoa_df)
+
+# 2. Juntar com os metadados filtrados
+pcoa_df <- merge(pcoa_df, dados_tyG_bin_filtrado[, c("Sample.id", "TyG_group2")], by = "Sample.id")
+
+# 3. Calcular % de variância explicada pelos eixos
+eig_vals <- pcoa_result$eig
+var_exp <- round(100 * eig_vals[1:2] / sum(eig_vals), 1)
+
+# 4. Inserir valores do PERMANOVA
+p_val <- permanova_result$`Pr(>F)`[1]
+r2_val <- permanova_result$R2[1]
+power_val <- power_result
+
+# 5. Plotar com ggplot2
+library(ggplot2)
+
+ggplot(pcoa_df, aes(x = PCoA1, y = PCoA2, color = TyG_group2)) +
+  geom_point(size = 3, alpha = 0.9) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "PCoA - Unweighted UniFrac by TyG Group",
+    subtitle = paste0("PERMANOVA: p = ", format(p_val, digits = 3),
+                      " | R² = ", round(r2_val, 3),
+                      " | Power = ", round(power_val * 100, 1), "%"),
+    x = paste0("PCoA1 (", var_exp[1], "%)"),
+    y = paste0("PCoA2 (", var_exp[2], "%)"),
+    color = "TyG Group"
+  ) +
+  scale_color_manual(values = c("Baixo" = "#1f77b4", "Alto" = "#ff7f0e"))
+
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_TyG_UnweightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+
+
+#======== Statistical Power Calculation: Region x Unweighted ===========#
+
+library(vegan)
+
+#primeiro ver quais rows nao estao nos dois objetos
+# Checar os IDs
+length(rownames(unweighted.unifrac))  # deve ser 106
+length(metadados.all.filtrado$Sample.id)       # deve ser 105
+
+# Pegar os IDs presentes nos dois
+ids_comuns <- intersect(rownames(unweighted.unifrac), metadados.all.filtrado$Sample.id)
+
+# Filtrar a matriz de distância
+unweighted.unifrac <- unweighted.unifrac[ids_comuns, ids_comuns]
+
+# Filtrar os metadados
+metadados.all.filtrado <- subset(metadados.all.filtrado, Sample.id %in% ids_comuns)
+
+all(rownames(unifrac_filtrado) == dados_tyG_bin_filtrado$Sample.id)  # deve ser TRUE
+
+# Reordenar os metadados para alinhar com a matriz
+metadados.all.filtrado <- metadados.all.filtrado[match(rownames(unweighted.unifrac), metadados.all.filtrado$Sample.id), ]
+
+
+# Rodar PERMANOVA com 999 permutações
+permanova_result <- adonis2(unweighted.unifrac ~ Region, data = metadados.all.filtrado, permutations = 999)
+
+# Ver R²
+r2_value <- permanova_result$R2[1]  # pega o R² do fator TyG_group2
+print(r2_value)
+
+
+# Função segura para simular PERMANOVA e estimar o poder
+simula_power_permanova <- function(dist_matrix, metadata, group_var, r2_obs = NULL, n_perm = 999, n_sim = 1000, alpha = 0.05) {
+  p_vals <- numeric(n_sim)
+  
+  for (i in 1:n_sim) {
+    # Faz uma cópia dos metadados e embaralha a variável de grupo
+    temp_metadata <- metadata
+    temp_metadata$grupo_embaralhado <- sample(temp_metadata[[group_var]])
+    
+    # Rodar PERMANOVA com a variável embaralhada
+    p <- adonis2(dist_matrix ~ grupo_embaralhado, data = temp_metadata, permutations = n_perm)$`Pr(>F)`[1]
+    
+    # Armazena o p-valor
+    p_vals[i] <- p
+  }
+  
+  # Calcula o poder estatístico: proporção de p-valores < alpha
+  power <- mean(p_vals < alpha)
+  return(power)
+}
+
+
+
+library(pwr)
+
+power_result <- simula_power_permanova(unweighted.unifrac, metadados.all.filtrado, "Region")
+print(paste("Estimated power =", round(power_result * 100, 1), "%"))
+
+
+#===== Apresentação do grafico com numeros =======#
+
+# 1. Calcular a PCoA
+pcoa_result <- cmdscale(unweighted.unifrac, k = 2, eig = TRUE)
+pcoa_df <- as.data.frame(pcoa_result$points)
+colnames(pcoa_df) <- c("PCoA1", "PCoA2")
+pcoa_df$Sample.id <- rownames(pcoa_df)
+
+
+
+
+ggplot(pcoa_df) + 
+  geom_point(aes(x = PCoA1, y = PCoA2), size = 3, color = "steelblue") + 
+  labs(
+    title = "PCoA — UnWeighted UniFrac",
+    x = "PCoA1", 
+    y = "PCoA2"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_UnWeightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+
+
+
+# 2. Juntar com os metadados filtrados
+pcoa_df <- merge(pcoa_df, dados_tyG_bin_filtrado[, c("Sample.id", "TyG_group2")], by = "Sample.id")
+
+# 3. Calcular % de variância explicada pelos eixos
+eig_vals <- pcoa_result$eig
+var_exp <- round(100 * eig_vals[1:2] / sum(eig_vals), 1)
+
+# 4. Inserir valores do PERMANOVA
+p_val <- permanova_result$`Pr(>F)`[1]
+r2_val <- permanova_result$R2[1]
+power_val <- power_result
+
+# 5. Plotar com ggplot2
+library(ggplot2)
+
+ggplot(pcoa_df, aes(x = PCoA1, y = PCoA2, color = TyG_group2)) +
+  geom_point(size = 3, alpha = 0.9) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "PCoA - Unweighted UniFrac by TyG Group",
+    subtitle = paste0("PERMANOVA: p = ", format(p_val, digits = 3),
+                      " | R² = ", round(r2_val, 3),
+                      " | Power = ", round(power_val * 100, 1), "%"),
+    x = paste0("PCoA1 (", var_exp[1], "%)"),
+    y = paste0("PCoA2 (", var_exp[2], "%)"),
+    color = "TyG Group"
+  ) +
+  scale_color_manual(values = c("Baixo" = "#1f77b4", "Alto" = "#ff7f0e"))
+
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_TyG_UnweightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+
+# Supondo que você já tenha:
+# unwei_unifrac.pcoa → resultado da PCoA
+# unweighted.unifrac → matriz de distância
+# metadados.all.filtrado → metadados com coluna Region
+
+# 1. Rodar PERMANOVA (caso não tenha feito)
+permanova_result <- adonis2(unweighted.unifrac ~ Region, data = metadados.all.filtrado, permutations = 999)
+
+# 2. Extrair valores para o gráfico
+p_val <- format(permanova_result$`Pr(>F)`[1], digits = 3)
+r2_val <- round(permanova_result$R2[1], 3)
+power_val <- 4.6  # resultado da sua simulação anterior
+
+# 3. Preparar dados da PCoA
+pcoa_df <- merge(unwei_unifrac.pcoa$points, metadados.all.filtrado, 
+                 by.x = "row.names", by.y = "Sample.id")
+
+# 4. Criar gráfico com título personalizado
+library(ggplot2)
+library(viridis)
+
+ggplot(pcoa_df) + 
+  geom_point(aes(x = V1, y = V2, color = Region), size = 3) + 
+  scale_color_viridis_d(option = "C", name = "Region") +
+  labs(
+    title = paste0(
+      "PCoA — Unweighted UniFrac (Region)\n",
+      "PERMANOVA: p = ", p_val,
+      " | R² = ", r2_val,
+      " | Power = ", power_val, "%"
+    ),
+    x = "PCoA1", 
+    y = "PCoA2"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_Region_UnweightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+
+
+
+
+#======== Statistical Power Calculation: Region x Weighted ===========#
+
+library(vegan)
+
+
+# Rodar PERMANOVA com 999 permutações
+permanova_result <- adonis2(weighted.unifrac ~ Region, data = metadados.all.filtrado, permutations = 999)
+
+# Ver R²
+r2_value <- permanova_result$R2[1]  # pega o R² do fator TyG_group2
+print(r2_value)
+
+
+# Função segura para simular PERMANOVA e estimar o poder
+simula_power_permanova <- function(dist_matrix, metadata, group_var, r2_obs = NULL, n_perm = 999, n_sim = 1000, alpha = 0.05) {
+  p_vals <- numeric(n_sim)
+  
+  for (i in 1:n_sim) {
+    # Faz uma cópia dos metadados e embaralha a variável de grupo
+    temp_metadata <- metadata
+    temp_metadata$grupo_embaralhado <- sample(temp_metadata[[group_var]])
+    
+    # Rodar PERMANOVA com a variável embaralhada
+    p <- adonis2(dist_matrix ~ grupo_embaralhado, data = temp_metadata, permutations = n_perm)$`Pr(>F)`[1]
+    
+    # Armazena o p-valor
+    p_vals[i] <- p
+  }
+  
+  # Calcula o poder estatístico: proporção de p-valores < alpha
+  power <- mean(p_vals < alpha)
+  return(power)
+}
+
+
+
+library(pwr)
+
+power_result_weighted <- simula_power_permanova(weighted.unifrac, metadados.all.filtrado, "Region")
+print(paste("Estimated power =", round(power_result_weighted * 100, 1), "%"))
+
+
+#===== Apresentação do grafico com numeros =======#
+
+# 1. Calcular a PCoA
+pcoa_result <- cmdscale(weighted.unifrac, k = 2, eig = TRUE)
+pcoa_df <- as.data.frame(pcoa_result$points)
+colnames(pcoa_df) <- c("PCoA1", "PCoA2")
+pcoa_df$Sample.id <- rownames(pcoa_df)
+
+# 2. Juntar com os metadados filtrados
+pcoa_df <- merge(pcoa_df, metadados.all.filtrado[, c("Sample.id", "Region")], by = "Sample.id")
+
+# 3. Calcular % de variância explicada pelos eixos
+eig_vals <- pcoa_result$eig
+var_exp <- round(100 * eig_vals[1:2] / sum(eig_vals), 1)
+
+# 4. Inserir valores do PERMANOVA
+p_val <- round(permanova_result$`Pr(>F)`[1], 2)
+r2_val <- round(permanova_result$R2[1], 2)
+power_val <- paste0(round(power_result_weighted * 100, 1), "%")
+
+
+# 5. Plotar com ggplot2
+library(ggplot2)
+
+
+
+
+ggplot(pcoa_df) + 
+  geom_point(aes(x = PCoA1, y = PCoA2, color = Region), size = 3) + 
+  scale_color_viridis_d(option = "C", name = "Region") +
+  labs(
+    title = paste0(
+      "PCoA — Weighted UniFrac (Region)\n",
+      "PERMANOVA: p = ", p_val,
+      " | R² = ", r2_val,
+      " | Power = ", power_val
+    ),
+    x = "PCoA1", 
+    y = "PCoA2"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_Region_WeightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+
+# Supondo que você já tenha:
+# unwei_unifrac.pcoa → resultado da PCoA
+# unweighted.unifrac → matriz de distância
+# metadados.all.filtrado → metadados com coluna Region
+
+# 1. Rodar PERMANOVA (caso não tenha feito)
+permanova_result <- adonis2(weighted.unifrac ~ Region, data = metadados.all.filtrado, permutations = 999)
+
+# 2. Extrair valores para o gráfico
+p_val <- format(permanova_result$`Pr(>F)`[1], digits = 3)
+r2_val <- round(permanova_result$R2[1], 3)
+power_val <- 5.1  # resultado da sua simulação anterior
+
+# 3. Preparar dados da PCoA
+pcoa_df <- merge(wei_unifrac.pcoa$points, metadados.all.filtrado, 
+                 by.x = "row.names", by.y = "Sample.id")
+
+# 4. Criar gráfico com título personalizado
+library(ggplot2)
+library(viridis)
+
+ggplot(pcoa_df) + 
+  geom_point(aes(x = V1, y = V2, color = Region), size = 3) + 
+  scale_color_viridis_d(option = "C", name = "Region") +
+  labs(
+    title = paste0(
+      "PCoA — Weighted UniFrac (Region)\n",
+      "PERMANOVA: p = ", p_val,
+      " | R² = ", r2_val,
+      " | Power = ", power_val, "%"
+    ),
+    x = "PCoA1", 
+    y = "PCoA2"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_Region_WeightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+#===============
+
+ggplot(pcoa_df) + 
+  geom_point(aes(x = PCoA1, y = PCoA2), size = 3, color = "steelblue") + 
+  labs(
+    title = "PCoA — Weighted UniFrac",
+    x = "PCoA1", 
+    y = "PCoA2"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Salvar o gráfico como PNG em alta resolução
+ggsave(
+  filename = "PCoA_WeightedUniFrac.png",   # nome do arquivo
+  path = "C:/Users/polia/OneDrive/Desktop/EstatisticaR/AgrUrbana/16S_AgriUrbana/Planilhas_UrbanAgri/Para_Dissertação",      # pasta onde salvar
+  dpi = 300,                                     # resolução
+  width = 8, height = 6,                         # em polegadas
+  units = "in"                                   # unidade de medida
+)
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
