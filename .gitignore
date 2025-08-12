@@ -13,3 +13,6 @@ Objetos_analises*.RData
 .Rhistory
 .RData
 *.RData
+.Rhistory
+.Renviron
+.env
