@@ -53,3 +53,21 @@ apagar.R
 asvs_significant_correlations_diet.csv
 boxplots_clusters.png
 boxplots_significativos_dieta_clusters.pdf
+mapa_Region.png
+mapa_bhei_score.pdf
+mapa_bhei_score.png
+painel_colesterol_significativo.png
+painel_trans_significativo.png
+pandoc23fc4a6564ee.nb.html
+permanova_results_weighted.csv
+pvalue_results.csv
+pvalue_with_taxonomy.csv
+rascunho.R
+reads_removed_filtered.html
+recall.calc.txt
+resultados_dieta_clusters_sem_NA.csv
+resumo_metadados.txt
+resumo_numerico.csv
+samples-to-keep.txt
+urbagri_recall_nova - urbagri_recall_nova_ParaR.csv
+urbagri_recall_nova - urbagri_recall_nova_ParaR.tsv
