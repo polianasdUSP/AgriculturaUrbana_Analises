@@ -71,3 +71,48 @@ resumo_numerico.csv
 samples-to-keep.txt
 urbagri_recall_nova - urbagri_recall_nova_ParaR.csv
 urbagri_recall_nova - urbagri_recall_nova_ParaR.tsv
+Para_manu.Rmd
+Para_manu.nb.html
+Planilha_DadosGerais.xlsx
+Rplot.jpeg
+Rplot.pdf
+Rplot01.pdf
+Rplot02.pdf
+Rplot_saude_dieta_alpha.png
+SVs_normalized_log_transformed.csv
+Saude_AlphaDiversity.jpeg
+TGP_vs_alpha_diversity.png
+TableClinicalTraits.html
+TyG_tertiles_alpha.png
+VennDiagram.2025-01-24_08-33-47.731716.log
+age_sex_summary.html
+asvs_significant_correlations_diet.csv
+boxplots_clusters.png
+boxplots_significativos_dieta_clusters.pdf
+boxplots_significativos_dieta_clusters_sem_NA.pdf
+boxplots_significativos_dieta_clusters_sem_NA.png
+correlation_results.csv
+correlation_with_taxonomy.csv
+feature-table.biom
+general_and_anthropometric_MANUAL - general_and_anthropometric_MANUAL.csv
+general_and_anthropometric_MANUAL.csv
+heatmap_ASVsDiet.png
+heatmap_Significant_correlation_ASVvsDiet.png
+inflammatory_markers_table.csv
+mapa_Region.png
+mapa_bhei_score.pdf
+mapa_bhei_score.png
+painel_colesterol_significativo.png
+painel_trans_significativo.png
+pandoc23fc4a6564ee.nb.html
+permanova_results_weighted.csv
+pvalue_results.csv
+pvalue_with_taxonomy.csv
+reads_removed_filtered.html
+recall.calc.txt
+resultados_dieta_clusters_sem_NA.csv
+resumo_metadados.txt
+resumo_numerico.csv
+samples-to-keep.txt
+urbagri_recall_nova - urbagri_recall_nova_ParaR.csv
+urbagri_recall_nova - urbagri_recall_nova_ParaR.tsv
