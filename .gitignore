@@ -17,3 +17,5 @@ Objetos_analises*.RData
 .Renviron
 .env
 .Rhistory
+.Renviron
+.env
